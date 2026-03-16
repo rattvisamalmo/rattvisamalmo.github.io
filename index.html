@@ -362,6 +362,7 @@ body {
         <p id="heroSubtext" class="fade-up fade-up-d2" style="font-size:clamp(17px,2vw,20px);line-height:1.6;color:#555;margin-bottom:32px;max-width:600px">Malmö stad spenderar 11 miljarder kronor årligen på upphandling. Vi kräver en etisk upphandlingspolicy som säkerställer att skattepengar aldrig går till företag inblandade i grova brott mot mänskliga rättigheter.</p>
         <div class="fade-up fade-up-d3 flex flex-wrap gap-3"><button class="btn-primary btn-pulse" style="min-width:230px" onclick="goTo('petition')"> <i data-lucide="pen-tool" style="width:18px;height:18px"></i> Skriv under </button> <button class="btn-secondary" onclick="goTo('volunteer')"> <i data-lucide="users" style="width:18px;height:18px"></i> Engagera dig </button>
         </div>
+        <p style="margin-top:8px;font-size:14px;color:#444;opacity:0.9">Det tar bara 10 sekunder att skriva under.</p>
        </div>
       </div><!-- LIVE COUNTER -->
       <div class="fade-up fade-up-d4" style="margin-top:48px;padding:32px;border-radius:16px;background:white;border:1px solid #e5e2db;max-width:560px">
@@ -886,7 +887,7 @@ function showToast(msg, type) {
 }
 
 // ===== SIGNATURE COUNTER =====
-const signatureCountStatic = 200;
+const signatureCountStatic = 439;
 const signatureMilestones = [500, 1000, 1500, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000];
 function calculateSignatureGoal(count) {
   for (const milestone of signatureMilestones) {
