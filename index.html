@@ -4,6 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Rättvisa Malmö</title>
+  <link rel="icon" type="image/png" href="assets/brand/logo-stacked-light-ui.png" media="(prefers-color-scheme: light)">
+  <link rel="icon" type="image/png" href="assets/brand/logo-stacked-dark-ui.png" media="(prefers-color-scheme: dark)">
+  <link rel="icon" type="image/png" href="assets/brand/logo-stacked-light-ui.png">
+  <link rel="apple-touch-icon" href="assets/brand/logo-stacked-light-ui.png">
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
   <script src="/_sdk/element_sdk.js"></script>
@@ -295,6 +299,23 @@ body {
 .nav-link:hover { background: rgba(0,0,0,0.05); }
 .nav-link.active-nav { color: var(--primary-color); font-weight: 600; }
 
+.brand-logo {
+  display: block;
+  width: auto;
+}
+
+.brand-logo-header {
+  height: 30px;
+}
+
+.brand-logo-menu {
+  height: 34px;
+}
+
+.brand-logo-footer {
+  height: 34px;
+}
+
 /* Timeline */
 .timeline-line {
   position: absolute;
@@ -561,6 +582,7 @@ body {
 @media (max-width: 768px) {
   .desktop-nav { display: none !important; }
   .mobile-trigger { display: flex !important; }
+  .brand-logo-header { height: 26px; }
 }
 @media (min-width: 769px) {
   .mobile-trigger { display: none !important; }
@@ -591,30 +613,160 @@ body {
   color: white;
   box-shadow: 0 6px 16px rgba(10,22,40,0.12);
 }
+
+/* ===== LOADING SCREEN ===== */
+#loading-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: #0a1628;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  transition: opacity 0.6s ease-out;
+}
+#loading-torso-wrap {
+  width: 128px;
+  height: 307px;
+}
+@media (min-width: 640px) {
+  #loading-torso-wrap {
+    width: 160px;
+    height: 384px;
+  }
+}
+@keyframes fillSegment {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.torso-segment { opacity: 0; }
+.torso-segment.seg-base { animation: fillSegment 0.4s ease-out 0.00s forwards; }
+.torso-segment.seg-1    { animation: fillSegment 0.4s ease-out 0.15s forwards; }
+.torso-segment.seg-2    { animation: fillSegment 0.4s ease-out 0.30s forwards; }
+.torso-segment.seg-3    { animation: fillSegment 0.4s ease-out 0.45s forwards; }
+.torso-segment.seg-4    { animation: fillSegment 0.4s ease-out 0.60s forwards; }
+.torso-segment.seg-5    { animation: fillSegment 0.4s ease-out 0.75s forwards; }
+.torso-segment.seg-6    { animation: fillSegment 0.4s ease-out 0.90s forwards; }
+.torso-segment.seg-7    { animation: fillSegment 0.4s ease-out 1.05s forwards; }
+.torso-segment.seg-8    { animation: fillSegment 0.4s ease-out 1.20s forwards; }
+.torso-segment.seg-9    { animation: fillSegment 0.4s ease-out 1.35s forwards; }
 </style>
   <style>body { box-sizing: border-box; }</style>
  </head>
  <body>
+  <!-- ===== LOADING SCREEN ===== -->
+  <div id="loading-screen" aria-hidden="true">
+    <div id="loading-torso-wrap">
+      <svg viewBox="0 0 100 240" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;overflow:visible">
+        <defs>
+          <linearGradient id="torsoGrad" x1="0" y1="193" x2="0" y2="5" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#C23A22" stop-opacity="1"/>
+            <stop offset="100%" stop-color="#e05840" stop-opacity="0.75"/>
+          </linearGradient>
+          <filter id="torsoGlow" x="-40%" y="-10%" width="180%" height="120%">
+            <feGaussianBlur stdDeviation="2.5" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+        <!-- Ghost outline — always visible, shows the full tower silhouette -->
+        <g fill="none" stroke="#C23A22" stroke-width="1" opacity="0.25">
+          <rect x="35" y="185" width="30" height="8"/>
+          <rect x="30" y="165" width="40" height="12" transform="rotate(-4 50 171)"/>
+          <rect x="28" y="145" width="44" height="12" transform="rotate(-8 50 151)"/>
+          <rect x="26" y="125" width="48" height="12" transform="rotate(-12 50 131)"/>
+          <rect x="24" y="105" width="52" height="12" transform="rotate(-16 50 111)"/>
+          <rect x="22" y="85"  width="56" height="12" transform="rotate(-20 50 91)"/>
+          <rect x="20" y="65"  width="60" height="12" transform="rotate(-24 50 71)"/>
+          <rect x="22" y="45"  width="56" height="12" transform="rotate(-28 50 51)"/>
+          <rect x="24" y="25"  width="52" height="12" transform="rotate(-32 50 31)"/>
+          <rect x="28" y="5"   width="44" height="12" transform="rotate(-36 50 11)"/>
+        </g>
+        <!-- Animated fill segments — light up from base to top -->
+        <g fill="url(#torsoGrad)" filter="url(#torsoGlow)">
+          <rect class="torso-segment seg-base" x="35" y="185" width="30" height="8"/>
+          <rect class="torso-segment seg-1" x="30" y="165" width="40" height="12" transform="rotate(-4 50 171)"/>
+          <rect class="torso-segment seg-2" x="28" y="145" width="44" height="12" transform="rotate(-8 50 151)"/>
+          <rect class="torso-segment seg-3" x="26" y="125" width="48" height="12" transform="rotate(-12 50 131)"/>
+          <rect class="torso-segment seg-4" x="24" y="105" width="52" height="12" transform="rotate(-16 50 111)"/>
+          <rect class="torso-segment seg-5" x="22" y="85"  width="56" height="12" transform="rotate(-20 50 91)"/>
+          <rect class="torso-segment seg-6" x="20" y="65"  width="60" height="12" transform="rotate(-24 50 71)"/>
+          <rect class="torso-segment seg-7" x="22" y="45"  width="56" height="12" transform="rotate(-28 50 51)"/>
+          <rect class="torso-segment seg-8" x="24" y="25"  width="52" height="12" transform="rotate(-32 50 31)"/>
+          <rect class="torso-segment seg-9" x="28" y="5"   width="44" height="12" transform="rotate(-36 50 11)"/>
+        </g>
+      </svg>
+    </div>
+    <p id="loading-message" style="font-family:'Poppins',sans-serif;font-size:18px;font-weight:700;color:rgba(255,255,255,0.9);text-align:center;padding:0 24px;max-width:360px;line-height:1.4;letter-spacing:0.01em">Rättvisa Malmö</p>
+  </div>
+  <script>
+  (function () {
+    var KEY = 'rm-lang';
+    var s = localStorage.getItem(KEY);
+    var lang = (s === 'sv' || s === 'en') ? s
+      : (navigator.language && navigator.language.toLowerCase().startsWith('en') ? 'en' : 'sv');
+    var msgs = {
+      sv: [
+        'Granskar Malmö stads leverantörer…',
+        'Läser in upphandlingsdata…',
+        'Kontrollerar folkrättsliga skyldigheter…',
+        'Hämtar 11 miljarder kronor i upphandlingsavtal…',
+        'Analyserar etiska kriterier…',
+        'Verifierar dokumentation från FN och MR-organisationer…',
+        'Laddar kampanjmaterial…',
+        'Beräknar skattepengarnas väg…',
+        'Söker ansvarsfulla leverantörer…'
+      ],
+      en: [
+        'Auditing City of Malmö supplier contracts…',
+        'Loading procurement data…',
+        'Checking obligations under international law…',
+        'Retrieving SEK 11 billion in public contracts…',
+        'Analysing ethical procurement criteria…',
+        'Verifying UN and human rights documentation…',
+        'Loading campaign materials…',
+        'Tracing the path of taxpayer money…',
+        'Searching for accountable suppliers…'
+      ]
+    };
+    var list = msgs[lang] || msgs.sv;
+    var LAST_KEY = 'rm-last-msg';
+    var lastIdx = parseInt(sessionStorage.getItem(LAST_KEY), 10);
+    var indices = list.map(function(_, i) { return i; });
+    for (var i = indices.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = indices[i]; indices[i] = indices[j]; indices[j] = tmp;
+    }
+    var picked = indices[0] === lastIdx && indices.length > 1 ? indices[1] : indices[0];
+    sessionStorage.setItem(LAST_KEY, picked);
+    var el = document.getElementById('loading-message');
+    if (el) el.textContent = list[picked];
+    setTimeout(function () {
+      var screen = document.getElementById('loading-screen');
+      if (screen) {
+        screen.style.opacity = '0';
+        screen.style.pointerEvents = 'none';
+        setTimeout(function () { screen.style.display = 'none'; }, 600);
+      }
+    }, 2750);
+  }());
+  </script>
   <div class="app-wrapper" id="appWrapper"><!-- Toast -->
    <div id="toast" class="toast-msg toast-success" role="alert" aria-live="polite"></div><!-- Mobile Menu -->
   <div id="mobileMenu" class="mobile-menu" role="dialog" aria-label="Navigation menu" data-i18n-aria-label="language.mobileMenu">
-   <div class="flex justify-between items-center mb-8"><span class="font-display font-bold text-xl" style="color:var(--primary-color)">Rättvisa Malmö</span> <button onclick="toggleMobileMenu()" class="p-2" aria-label="Close menu" data-i18n-aria-label="language.closeMenu"><i data-lucide="x" style="width:24px;height:24px"></i></button>
+   <div class="flex justify-between items-center mb-8"><button type="button" onclick="goTo('home');toggleMobileMenu()" class="flex items-center border-none bg-transparent cursor-pointer p-0" aria-label="Go to homepage" data-i18n-aria-label="language.goHome"><img src="assets/brand/logo-horizontal-dark.png" alt="" class="brand-logo brand-logo-menu" width="435" height="74" decoding="async"></button> <button onclick="toggleMobileMenu()" class="p-2" aria-label="Close menu" data-i18n-aria-label="language.closeMenu"><i data-lucide="x" style="width:24px;height:24px"></i></button>
     </div>
    <div class="language-switcher mb-6" id="mobileLanguageSwitcher" role="group" aria-label="Choose language" data-i18n-aria-label="language.switcher">
      <button type="button" data-language-button="sv" onclick="setLanguage('sv')">SV</button>
      <button type="button" data-language-button="en" onclick="setLanguage('en')">EN</button>
     </div>
-   <nav class="flex flex-col gap-2" aria-label="Mobile navigation"><button class="nav-link text-left text-lg" onclick="goTo('home');toggleMobileMenu()" data-i18n="nav.home">Hem</button> <button class="nav-link text-left text-lg" onclick="goTo('about');toggleMobileMenu()" data-i18n="nav.about">Om kampanjen</button> <button class="nav-link text-left text-lg" onclick="goTo('faq');toggleMobileMenu()" data-i18n="nav.faq">Frågor &amp; Svar</button> <button class="nav-link text-left text-lg" onclick="goTo('petition');toggleMobileMenu()" data-i18n="nav.sign">Skriv under</button> <button class="nav-link text-left text-lg" onclick="goTo('volunteer');toggleMobileMenu()" data-i18n="nav.volunteer">Engagera dig</button>
+   <nav class="flex flex-col gap-2" aria-label="Mobile navigation"><button class="nav-link text-left text-lg" onclick="goTo('home');toggleMobileMenu()" data-i18n="nav.home">Hem</button> <button class="nav-link text-left text-lg" onclick="goTo('about');toggleMobileMenu()" data-i18n="nav.about">Om kampanjen</button> <button class="nav-link text-left text-lg" onclick="goTo('legal-deepdive');toggleMobileMenu()" data-i18n="nav.legal">Juridisk analys</button> <button class="nav-link text-left text-lg" onclick="goTo('faq');toggleMobileMenu()" data-i18n="nav.faq">Frågor &amp; Svar</button> <button class="nav-link text-left text-lg" onclick="goTo('petition');toggleMobileMenu()" data-i18n="nav.sign">Skriv under</button> <button class="nav-link text-left text-lg" onclick="goTo('volunteer');toggleMobileMenu()" data-i18n="nav.volunteer">Engagera dig</button>
     </nav>
    </div><!-- HEADER / NAV -->
-   <header class="sticky top-0 z-50" style="background:rgba(247,245,240,0.95);backdrop-filter:blur(10px);border-bottom:1px solid #e5e2db">
-   <div class="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between" style="height:64px"><button onclick="goTo('home')" class="flex items-center gap-2 border-none bg-transparent cursor-pointer" aria-label="Go to homepage" data-i18n-aria-label="language.goHome">
-      <div style="width:32px;height:32px;background:var(--primary-color);border-radius:6px;display:flex;align-items:center;justify-content:center">
-       <svg width="18" height="18" viewbox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5">
-        <circle cx="12" cy="12" r="10" /><path d="M12 6v12M6 12h12" />
-       </svg>
-      </div><span class="font-display font-bold" style="font-size:18px;color:var(--text-color)">Rättvisa Malmö</span> </button>
-    <nav class="desktop-nav flex items-center gap-3" aria-label="Main navigation"><button class="nav-link" data-nav="home" onclick="goTo('home')" data-i18n="nav.home">Hem</button> <button class="nav-link" data-nav="about" onclick="goTo('about')" data-i18n="nav.about">Om kampanjen</button> <button class="nav-link" data-nav="faq" onclick="goTo('faq')" data-i18n="nav.faq">Frågor &amp; Svar</button> <div class="language-switcher" id="desktopLanguageSwitcher" role="group" aria-label="Choose language" data-i18n-aria-label="language.switcher"><button type="button" data-language-button="sv" onclick="setLanguage('sv')">SV</button><button type="button" data-language-button="en" onclick="setLanguage('en')">EN</button></div> <button class="btn-primary btn-pulse" style="padding:8px 20px;font-size:14px" onclick="goTo('petition')" data-i18n="nav.sign">Skriv under</button>
+  <header class="sticky top-0 z-50" style="background:rgba(247,245,240,0.95);backdrop-filter:blur(10px);border-bottom:1px solid #e5e2db">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between" style="height:64px"><button type="button" onclick="goTo('home')" class="flex items-center border-none bg-transparent cursor-pointer p-0" aria-label="Go to homepage" data-i18n-aria-label="language.goHome"><img src="assets/brand/logo-horizontal-dark.png" alt="" class="brand-logo brand-logo-header" width="435" height="74" decoding="async" fetchpriority="high"></button>
+    <nav class="desktop-nav flex items-center gap-3" aria-label="Main navigation"><button class="nav-link" data-nav="home" onclick="goTo('home')" data-i18n="nav.home">Hem</button> <button class="nav-link" data-nav="about" onclick="goTo('about')" data-i18n="nav.about">Om kampanjen</button> <button class="nav-link" data-nav="legal-deepdive" onclick="goTo('legal-deepdive')" data-i18n="nav.legal">Juridisk analys</button> <button class="nav-link" data-nav="faq" onclick="goTo('faq')" data-i18n="nav.faq">Frågor &amp; Svar</button> <div class="language-switcher" id="desktopLanguageSwitcher" role="group" aria-label="Choose language" data-i18n-aria-label="language.switcher"><button type="button" data-language-button="sv" onclick="setLanguage('sv')">SV</button><button type="button" data-language-button="en" onclick="setLanguage('en')">EN</button></div> <button class="btn-primary btn-pulse" style="padding:8px 20px;font-size:14px" onclick="goTo('petition')" data-i18n="nav.sign">Skriv under</button>
     </nav><button class="mobile-trigger p-2 bg-transparent border-none cursor-pointer" onclick="toggleMobileMenu()" aria-label="Open menu" data-i18n-aria-label="language.openMenu"> <i data-lucide="menu" style="width:24px;height:24px"></i> </button>
     </div>
    </header><!-- ========== HOME PAGE ========== -->
@@ -989,6 +1141,10 @@ body {
       </div>
      </div>
     </div>
+    <div class="scroll-reveal mt-8 text-center">
+     <p style="font-size:15px;color:#666;max-width:640px;margin:0 auto 16px;line-height:1.7" data-i18n="legal.deepDiveText">Vill du se hur internationell rätt, EU-rätt och upphandlingsregler hänger ihop i praktiken?</p>
+     <button class="btn-outline" onclick="goTo('legal-deepdive')"><i data-lucide="scale" style="width:18px;height:18px"></i> <span data-i18n="legal.deepDiveCta">Läs fördjupad juridisk analys</span></button>
+    </div>
    </section><!-- MOMENTUM / TIMELINE -->
     <section id="timeline" style="padding:80px 0;background:var(--bg-color)">
      <div class="max-w-6xl mx-auto px-4 sm:px-6">
@@ -1305,7 +1461,144 @@ body {
       </div>
      </div>
     </section>
-   </main><!-- ========== FAQ PAGE ========== -->
+  </main><!-- ========== LEGAL DEEP-DIVE PAGE ========== -->
+  <main id="page-legal-deepdive" class="page" role="main">
+   <section style="padding:60px 0 80px;background:linear-gradient(180deg,var(--bg-color) 0%, white 22%, var(--bg-color) 100%)">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6"><button onclick="goTo('home')" class="flex items-center gap-2 mb-8 bg-transparent border-none cursor-pointer" style="color:var(--secondary-color);font-weight:500;font-size:14px"> <i data-lucide="arrow-left" style="width:16px;height:16px"></i> <span data-i18n="back">Tillbaka</span> </button>
+    <div style="display:inline-block;padding:6px 14px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:0.08em;background:rgba(43,90,75,0.08);color:var(--secondary-color);margin-bottom:18px" data-i18n="legalDeep.eyebrow">FÖRDJUPAD ANALYS</div>
+    <h1 class="font-display" style="font-size:clamp(30px,4.4vw,52px);font-weight:800;line-height:1.08;margin-bottom:16px" data-i18n="legalDeep.title">Den juridiska grunden för etisk upphandling</h1>
+    <p style="font-size:18px;line-height:1.75;color:#555;max-width:760px;margin-bottom:34px" data-i18n="legalDeep.intro">Den här sidan sammanfattar varför Malmö stad redan i dag har ett starkt rättsligt stöd för att ställa etiska krav i upphandling och för att utesluta företag vars verksamhet allvarligt undergräver mänskliga rättigheter eller internationell rätt.</p>
+    <div class="grid gap-5" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr));margin-bottom:48px">
+     <div class="info-card" style="padding:24px;border-radius:18px;background:white;border:1px solid #e5e2db;box-shadow:0 10px 28px rgba(10,22,40,0.05)">
+      <div style="width:46px;height:46px;border-radius:12px;background:rgba(194,58,34,0.1);display:flex;align-items:center;justify-content:center;margin-bottom:16px"><i data-lucide="badge-check" style="width:22px;height:22px;color:var(--primary-color)"></i></div>
+      <h2 class="font-display" style="font-size:22px;font-weight:700;margin-bottom:10px" data-i18n="legalDeep.summary1Title">Inte bara tillåtet</h2>
+      <p style="font-size:15px;line-height:1.65;color:#666" data-i18n="legalDeep.summary1Text">Både internationell rätt och EU:s upphandlingsregler ger utrymme för att väga in mänskliga rättigheter, professionell integritet och hållbarhet i offentliga kontrakt.</p>
+     </div>
+     <div class="info-card" style="padding:24px;border-radius:18px;background:white;border:1px solid #e5e2db;box-shadow:0 10px 28px rgba(10,22,40,0.05)">
+      <div style="width:46px;height:46px;border-radius:12px;background:rgba(43,90,75,0.1);display:flex;align-items:center;justify-content:center;margin-bottom:16px"><i data-lucide="shield-alert" style="width:22px;height:22px;color:var(--secondary-color)"></i></div>
+      <h2 class="font-display" style="font-size:22px;font-weight:700;margin-bottom:10px" data-i18n="legalDeep.summary2Title">Verktygen finns redan</h2>
+      <p style="font-size:15px;line-height:1.65;color:#666" data-i18n="legalDeep.summary2Text">Kommuner kan använda exkluderingsgrunder, due diligence-krav, upplysningsskyldighet och kontraktsvillkor för att undvika att offentliga medel stödjer grova övergrepp.</p>
+     </div>
+     <div class="info-card" style="padding:24px;border-radius:18px;background:white;border:1px solid #e5e2db;box-shadow:0 10px 28px rgba(10,22,40,0.05)">
+      <div style="width:46px;height:46px;border-radius:12px;background:rgba(194,58,34,0.1);display:flex;align-items:center;justify-content:center;margin-bottom:16px"><i data-lucide="map-pin" style="width:22px;height:22px;color:var(--primary-color)"></i></div>
+      <h2 class="font-display" style="font-size:22px;font-weight:700;margin-bottom:10px" data-i18n="legalDeep.summary3Title">Det gäller Malmö</h2>
+      <p style="font-size:15px;line-height:1.65;color:#666" data-i18n="legalDeep.summary3Text">Frågan är inte om kommunen får bry sig om detta, utan hur den använder sitt handlingsutrymme på ett tydligt, proportionerligt och rättssäkert sätt.</p>
+     </div>
+    </div>
+    <div style="margin-bottom:48px">
+     <div class="text-center mb-10">
+      <h2 class="font-display" style="font-size:clamp(28px,4vw,40px);font-weight:700;margin-bottom:12px" data-i18n="legalDeep.foundationsTitle">Så ser den juridiska grunden ut</h2>
+      <p style="font-size:16px;color:#666;max-width:700px;margin:0 auto;line-height:1.7" data-i18n="legalDeep.foundationsIntro">Den djupare analysen bygger på två spår samtidigt: vad internationell rätt kräver av offentliga organ, och vilka konkreta verktyg EU:s upphandlingsregler redan ger kommuner.</p>
+     </div>
+     <div class="grid gap-6" style="grid-template-columns:repeat(auto-fit,minmax(320px,1fr))">
+      <div style="padding:30px;border-radius:20px;background:white;border:1px solid #e5e2db">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px"><div style="width:46px;height:46px;border-radius:12px;background:rgba(43,90,75,0.1);display:flex;align-items:center;justify-content:center"><i data-lucide="globe-2" style="width:22px;height:22px;color:var(--secondary-color)"></i></div><h3 class="font-display" style="font-size:24px;font-weight:700" data-i18n="legalDeep.intlTitle">Internationell rätt</h3></div>
+      <div class="flex flex-col gap-4" style="font-size:15px;line-height:1.7;color:#555">
+       <div data-i18n-html="legalDeep.intl1"><strong>Kommuner är delar av staten.</strong> När en kommun upphandlar gör den inte det i ett rättsligt vakuum, utan inom ramen för statens internationella förpliktelser.</div>
+       <div data-i18n-html="legalDeep.intl2"><strong>Plikten att inte bistå allvarliga folkrättsbrott spelar roll.</strong> Offentliga organ ska inte genom ekonomiska relationer bidra till att upprätthålla olagliga situationer.</div>
+       <div data-i18n-html="legalDeep.intl3"><strong>Mänskliga rättigheter innebär också positiva skyldigheter.</strong> Staten ska vidta rimliga åtgärder för att skydda rättigheter även mot skador som orsakas av privata aktörer.</div>
+       <div data-i18n-html="legalDeep.intl4"><strong>FN:s vägledande principer skärper ansvaret i kommersiella relationer.</strong> Särskilt i konfliktpåverkade områden måste offentliga aktörer vara försiktiga med vilka bolag de kontrakterar.</div>
+      </div>
+      </div>
+      <div style="padding:30px;border-radius:20px;background:white;border:1px solid #e5e2db">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px"><div style="width:46px;height:46px;border-radius:12px;background:rgba(194,58,34,0.1);display:flex;align-items:center;justify-content:center"><i data-lucide="scale" style="width:22px;height:22px;color:var(--primary-color)"></i></div><h3 class="font-display" style="font-size:24px;font-weight:700" data-i18n="legalDeep.euTitle">EU:s upphandlingsregler</h3></div>
+      <div class="flex flex-col gap-4" style="font-size:15px;line-height:1.7;color:#555">
+       <div data-i18n-html="legalDeep.eu1"><strong>Artikel 18.2 gör efterlevnad central.</strong> Upphandlande myndigheter ska säkerställa att leverantörer följer tillämpliga miljö-, sociala och arbetsrättsliga skyldigheter.</div>
+       <div data-i18n-html="legalDeep.eu2"><strong>Artikel 56 gör priset underordnat lagligheten.</strong> Det mest ekonomiskt fördelaktiga anbudet behöver inte antas om det inte uppfyller dessa skyldigheter.</div>
+       <div data-i18n-html="legalDeep.eu3"><strong>Artikel 57 öppnar för uteslutning.</strong> Myndigheter kan agera både vid brott mot skyldigheter och vid allvarligt oprofessionellt beteende som gör ett bolags integritet tveksam.</div>
+       <div data-i18n-html="legalDeep.eu4"><strong>Processen slutar inte vid anbudets start.</strong> Leverantörer kan uteslutas under pågående förfarande, och återinträde kräver trovärdig remediation och förebyggande åtgärder.</div>
+      </div>
+      </div>
+     </div>
+      <div style="margin-top:18px;padding:24px;border-radius:18px;background:linear-gradient(135deg, rgba(194,58,34,0.08), rgba(43,90,75,0.08));border:1px solid rgba(10,22,40,0.12)">
+       <div style="display:flex;align-items:flex-start;gap:14px;margin-bottom:14px">
+        <div style="width:42px;height:42px;border-radius:10px;background:white;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i data-lucide="badge-alert" style="width:21px;height:21px;color:var(--primary-color)"></i></div>
+        <div>
+         <h3 class="font-display" style="font-size:22px;font-weight:700;margin-bottom:6px" data-i18n="legalDeep.gpmTitle">Varför "allvarligt oprofessionellt beteende" är avgorande</h3>
+         <p style="font-size:15px;line-height:1.7;color:#555;margin-bottom:0" data-i18n="legalDeep.gpmIntro">Detta är ofta den mest praktiska och juridiskt användbara vägen i upphandling: myndigheten behöver inte alltid vänta pa en brottmalsdom om tillforlitligheten redan ar allvarligt ifragasatt.</p>
+        </div>
+       </div>
+       <div class="grid gap-5" style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr));margin-bottom:14px">
+        <div style="padding:16px;border-radius:14px;background:white;border:1px solid #e5e2db">
+         <h4 style="font-size:16px;font-weight:700;margin-bottom:10px;color:var(--text-color)" data-i18n="legalDeep.gpmTestTitle">Ett praktiskt trestegstest</h4>
+         <div class="flex flex-col gap-2" style="font-size:14px;color:#555;line-height:1.55">
+          <div data-i18n="legalDeep.gpmStep1">1. Finns det allvarligt felaktigt beteende?</div>
+          <div data-i18n="legalDeep.gpmStep2">2. Undergraver beteendet leverantorens professionella integritet/tillforlitlighet?</div>
+          <div data-i18n="legalDeep.gpmStep3">3. Finns tillracklig och tillforlitlig dokumentation for en proportionerlig bedomning?</div>
+         </div>
+        </div>
+        <div style="padding:16px;border-radius:14px;background:white;border:1px solid #e5e2db">
+         <h4 style="font-size:16px;font-weight:700;margin-bottom:10px;color:var(--text-color)" data-i18n="legalDeep.gpmHrTitle">Kopplingen till manniskorattsbrott</h4>
+         <p style="font-size:14px;color:#555;line-height:1.6" data-i18n="legalDeep.gpmHrText">Nar ett foretags agerande visar uthallig eller allvarlig inblandning i grova manniskorattskrankningar kan det tala direkt till fragan om professionell integritet. Da ar argumentet inte "politik", utan tillforlitlighet i offentlig upphandling.</p>
+        </div>
+       </div>
+       <div style="padding:16px;border-radius:14px;background:white;border:1px solid #e5e2db;margin-bottom:12px">
+        <h4 style="font-size:16px;font-weight:700;margin-bottom:10px;color:var(--text-color)" data-i18n="legalDeep.gpmCasesTitle">CJEU-linjen i korthet</h4>
+        <div class="grid gap-3" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr));font-size:14px;color:#555;line-height:1.55">
+         <div><strong data-i18n="legalDeep.gpmCase1Title">Forposta (C-465/11)</strong><br><span data-i18n="legalDeep.gpmCase1Text">Begreppet ar brett och begransas inte till snava yrkesetiska overtradelser.</span></div>
+         <div><strong data-i18n="legalDeep.gpmCase2Title">Generali-Providencia (C-470/13)</strong><br><span data-i18n="legalDeep.gpmCase2Text">Aven allvarliga konkurrensrattsliga overtradelser kan utgora relevant misconduct.</span></div>
+         <div><strong data-i18n="legalDeep.gpmCase3Title">CNS (C-425/18)</strong><br><span data-i18n="legalDeep.gpmCase3Text">Bedomningen ar inte begransad till fel inom ett enskilt offentligt kontrakt.</span></div>
+        </div>
+       </div>
+       <p style="font-size:13px;color:#666;line-height:1.6;margin:0" data-i18n="legalDeep.gpmSafeguard">Detta kraver fortfarande rattssaker metod: objektiva kriterier, likabehandling, proportionalitet, transparent motivering och mojlighet till forklaring/remediering.</p>
+      </div>
+    </div>
+    <div style="margin-bottom:48px">
+     <div class="text-center mb-10">
+      <h2 class="font-display" style="font-size:clamp(28px,4vw,40px);font-weight:700;margin-bottom:12px" data-i18n="legalDeep.pathTitle">Hur uteslutning kan fungera i praktiken</h2>
+      <p style="font-size:16px;color:#666;max-width:720px;margin:0 auto;line-height:1.7" data-i18n="legalDeep.pathIntro">Det finns inte bara en väg. Flera kompletterande spår kan användas parallellt för att göra en kommunal policy operativ i praktiken.</p>
+     </div>
+     <div class="grid gap-5" style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr))">
+      <div style="padding:24px;border-radius:18px;background:white;border:1px solid #e5e2db"><div style="width:40px;height:40px;border-radius:10px;background:var(--primary-color);color:white;display:flex;align-items:center;justify-content:center;font-weight:700;margin-bottom:14px">1</div><h3 style="font-size:18px;font-weight:700;margin-bottom:10px" data-i18n="legalDeep.path1Title">Klausuler i kontrakten</h3><p style="font-size:15px;line-height:1.65;color:#666" data-i18n="legalDeep.path1Text">Kommunen kan införa tydliga människorätts- och due diligence-klausuler som gör det möjligt att neka eller häva avtal när leverantörer är djupt inblandade i grova övergrepp.</p></div>
+      <div style="padding:24px;border-radius:18px;background:white;border:1px solid #e5e2db"><div style="width:40px;height:40px;border-radius:10px;background:var(--secondary-color);color:white;display:flex;align-items:center;justify-content:center;font-weight:700;margin-bottom:14px">2</div><h3 style="font-size:18px;font-weight:700;margin-bottom:10px" data-i18n="legalDeep.path2Title">Exkludering före prövning</h3><p style="font-size:15px;line-height:1.65;color:#666" data-i18n="legalDeep.path2Text">Om det finns tillräckligt underlag kan leverantörer uteslutas redan innan kontrakt tilldelas, antingen på grund av bristande efterlevnad eller på grund av allvarligt oprofessionellt beteende.</p></div>
+      <div style="padding:24px;border-radius:18px;background:white;border:1px solid #e5e2db"><div style="width:40px;height:40px;border-radius:10px;background:var(--primary-color);color:white;display:flex;align-items:center;justify-content:center;font-weight:700;margin-bottom:14px">3</div><h3 style="font-size:18px;font-weight:700;margin-bottom:10px" data-i18n="legalDeep.path3Title">Kontroll under processen</h3><p style="font-size:15px;line-height:1.65;color:#666" data-i18n="legalDeep.path3Text">Ny information kan beaktas under pågående upphandling. Om ett bolags handlingar eller underlåtelser visar att det befinner sig i en exkluderingssituation kan kommunen agera då också.</p></div>
+      <div style="padding:24px;border-radius:18px;background:white;border:1px solid #e5e2db"><div style="width:40px;height:40px;border-radius:10px;background:var(--secondary-color);color:white;display:flex;align-items:center;justify-content:center;font-weight:700;margin-bottom:14px">4</div><h3 style="font-size:18px;font-weight:700;margin-bottom:10px" data-i18n="legalDeep.path4Title">Återinträde kräver verklig bättring</h3><p style="font-size:15px;line-height:1.65;color:#666" data-i18n="legalDeep.path4Text">En leverantör som vill återfå förtroende måste visa mer än fina ord: ersättning, faktaklargörande, samarbete och trovärdiga åtgärder mot upprepning väger tungt.</p></div>
+     </div>
+    </div>
+    <div style="margin-bottom:48px;padding:26px 28px;border-radius:18px;background:rgba(43,90,75,0.06);border:1px solid rgba(43,90,75,0.16)">
+     <div class="flex items-start gap-4"><div style="width:44px;height:44px;border-radius:12px;background:white;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i data-lucide="shield-check" style="width:22px;height:22px;color:var(--secondary-color)"></i></div><div><h2 class="font-display" style="font-size:24px;font-weight:700;margin-bottom:10px" data-i18n="legalDeep.safeguardsTitle">Vad som fortfarande krävs</h2><p style="font-size:15px;line-height:1.7;color:#555" data-i18n="legalDeep.safeguardsText">En etisk upphandlingspolicy kan inte bygga på lös retorik. Kriterierna måste vara tydliga, bedömningarna måste vara objektiva, bevisningen måste vara tillräcklig och åtgärderna måste vara proportionerliga. Det stärker policyn juridiskt i stället för att försvaga den.</p></div></div>
+    </div>
+    <div style="margin-bottom:48px">
+     <div class="text-center mb-10">
+      <h2 class="font-display" style="font-size:clamp(28px,4vw,40px);font-weight:700;margin-bottom:12px" data-i18n="legalDeep.objectionsTitle">Centrala juridiska frågor i tillämpningen</h2>
+      <p style="font-size:16px;color:#666;max-width:760px;margin:0 auto;line-height:1.7" data-i18n="legalDeep.objectionsIntro">Debatten rymmer flera juridiska frågor, men den avgörande punkten är hur kriterier utformas, motiveras och tillämpas i praktiken.</p>
+     </div>
+     <div style="background:white;padding:8px 28px;border-radius:18px;border:1px solid #e5e2db">
+      <div class="faq-item"><button class="faq-question" onclick="toggleFaq(this)"> <span data-i18n="legalDeep.obj1Q">Är inte detta diskriminering av vissa företag eller länder?</span> <i data-lucide="chevron-down" style="width:20px;height:20px;flex-shrink:0;transition:transform 0.3s"></i> </button><div class="faq-answer"><span data-i18n="legalDeep.obj1A">Inte om kriterierna knyts till leverantörens beteende, integritet och efterlevnad i stället för till nationalitet. Det centrala är objektiva och generellt tillämpliga regler.</span></div></div>
+      <div class="faq-item"><button class="faq-question" onclick="toggleFaq(this)"> <span data-i18n="legalDeep.obj2Q">Begränsar det inte konkurrensen för mycket?</span> <i data-lucide="chevron-down" style="width:20px;height:20px;flex-shrink:0;transition:transform 0.3s"></i> </button><div class="faq-answer"><span data-i18n="legalDeep.obj2A">All upphandling begränsar marknaden genom kvalificeringskrav. Frågan är om kraven är proportionerliga, transparenta och kopplade till legitimt skydd av rättigheter och offentlig integritet.</span></div></div>
+      <div class="faq-item"><button class="faq-question" onclick="toggleFaq(this)"> <span data-i18n="legalDeep.obj3Q">Blir inte upphandling politiserad?</span> <i data-lucide="chevron-down" style="width:20px;height:20px;flex-shrink:0;transition:transform 0.3s"></i> </button><div class="faq-answer"><span data-i18n="legalDeep.obj3A">Upphandling är redan ett rättsligt och politiskt verktyg. Det som ska undvikas är godtycke, inte värderingsstyrning i sig. När kriterierna bygger på rättsliga skyldigheter blir de mindre godtyckliga, inte mer.</span></div></div>
+      <div class="faq-item"><button class="faq-question" onclick="toggleFaq(this)"> <span data-i18n="legalDeep.obj4Q">Måste varje krav vara direkt kopplat till kontraktets innehåll?</span> <i data-lucide="chevron-down" style="width:20px;height:20px;flex-shrink:0;transition:transform 0.3s"></i> </button><div class="faq-answer"><span data-i18n="legalDeep.obj4A">Det finns kopplingskrav i upphandlingsrätten, men de utesluter inte integritets- och exkluderingsbedömningar. Just därför är det viktigt att arbeta med rätt verktyg: kontraktsvillkor, uteslutningsgrunder, upplysningar och kontrollmekanismer.</span></div></div>
+      <div class="faq-item"><button class="faq-question" onclick="toggleFaq(this)"> <span data-i18n="legalDeep.obj5Q">Räcker inte en domstolsdom innan man kan agera?</span> <i data-lucide="chevron-down" style="width:20px;height:20px;flex-shrink:0;transition:transform 0.3s"></i> </button><div class="faq-answer"><span data-i18n="legalDeep.obj5A">Inte alltid. Delar av upphandlingsrätten, särskilt bedömningen av allvarligt oprofessionellt beteende, tillåter beslut på annan tillräcklig och trovärdig dokumentation. Men underlaget måste fortfarande granskas noggrant och rättssäkert.</span></div></div>
+     </div>
+    </div>
+    <div style="margin-bottom:52px;padding:30px;border-radius:20px;background:white;border:1px solid #e5e2db">
+    <div class="grid gap-8 items-start" style="grid-template-columns:repeat(auto-fit,minmax(280px,1fr))">
+      <div>
+      <h2 class="font-display" style="font-size:clamp(28px,4vw,38px);font-weight:700;margin-bottom:12px" data-i18n="legalDeep.policyTitle">Vad en policy för Malmö skulle kunna innehålla</h2>
+      <p style="font-size:16px;color:#666;line-height:1.7;margin-bottom:18px" data-i18n="legalDeep.policyIntro">En fungerande policy måste vara både etiskt skarp och juridiskt genomförbar. Det handlar mindre om stora slagord och mer om tydliga processer.</p>
+      <div class="flex flex-col gap-4">
+       <div class="flex items-start gap-3"><i data-lucide="check" style="width:20px;height:20px;color:var(--secondary-color);flex-shrink:0;margin-top:3px"></i><span data-i18n="legalDeep.policy1">Klart formulerade exkluderingsgrunder för allvarliga och väl underbyggda människorättsbrott.</span></div>
+       <div class="flex items-start gap-3"><i data-lucide="check" style="width:20px;height:20px;color:var(--secondary-color);flex-shrink:0;margin-top:3px"></i><span data-i18n="legalDeep.policy2">Due diligence-, upplysnings- och certifieringskrav för leverantörer och deras värdekedjor.</span></div>
+       <div class="flex items-start gap-3"><i data-lucide="check" style="width:20px;height:20px;color:var(--secondary-color);flex-shrink:0;margin-top:3px"></i><span data-i18n="legalDeep.policy3">Rutiner för löpande kontroll, uppföljning och åtgärder om ny information framkommer.</span></div>
+       <div class="flex items-start gap-3"><i data-lucide="check" style="width:20px;height:20px;color:var(--secondary-color);flex-shrink:0;margin-top:3px"></i><span data-i18n="legalDeep.policy4">Tydliga remedieringskrav för leverantörer som vill visa att de ändrat sitt beteende.</span></div>
+       <div class="flex items-start gap-3"><i data-lucide="check" style="width:20px;height:20px;color:var(--secondary-color);flex-shrink:0;margin-top:3px"></i><span data-i18n="legalDeep.policy5">Öppen kommunikation om varför kommunen ställer dessa krav och hur de prövas rättssäkert.</span></div>
+      </div>
+      </div>
+      <div style="padding:24px;border-radius:18px;background:var(--bg-color);border:1px solid #e5e2db">
+      <div style="width:52px;height:52px;border-radius:14px;background:rgba(194,58,34,0.1);display:flex;align-items:center;justify-content:center;margin-bottom:16px"><i data-lucide="file-stack" style="width:24px;height:24px;color:var(--primary-color)"></i></div>
+      <h3 class="font-display" style="font-size:24px;font-weight:700;margin-bottom:10px" data-i18n="legalDeep.bottomLineTitle">Kort sagt</h3>
+      <p style="font-size:15px;line-height:1.7;color:#555" data-i18n="legalDeep.bottomLineText">Den djupa juridiska frågan är inte om upphandling får handla om mänskliga rättigheter. Den gör redan det. Frågan är om Malmö är berett att använda de verktyg som redan finns på ett konsekvent och modigt sätt.</p>
+      </div>
+     </div>
+    </div>
+    <div style="padding:34px;border-radius:24px;background:var(--text-color);color:white;text-align:center;box-shadow:0 18px 40px rgba(10,22,40,0.18)">
+     <h2 class="font-display" style="font-size:clamp(28px,4vw,40px);font-weight:700;margin-bottom:12px" data-i18n="legalDeep.closingTitle">Juridiken är inte ursäkten. Den är verktyget.</h2>
+     <p style="font-size:16px;line-height:1.75;color:rgba(255,255,255,0.72);max-width:720px;margin:0 auto 24px" data-i18n="legalDeep.closingText">Om Malmö vill anta en etisk upphandlingspolicy finns det redan ett rättsligt ramverk att bygga på. Nästa fråga är om staden väljer att använda det.</p>
+     <div class="flex flex-wrap justify-center gap-3"><button class="btn-primary" onclick="goTo('petition')"><i data-lucide="pen-tool" style="width:18px;height:18px"></i> <span data-i18n="nav.sign">Skriv under</span></button> <button class="btn-secondary" onclick="goTo('volunteer')"><i data-lucide="users" style="width:18px;height:18px"></i> <span data-i18n="nav.volunteer">Engagera dig</span></button></div>
+    </div>
+    </div>
+   </section>
+  </main><!-- ========== FAQ PAGE ========== -->
    <main id="page-faq" class="page" role="main">
     <section style="padding:60px 0 80px">
      <div class="max-w-3xl mx-auto px-4 sm:px-6"><button onclick="goTo('home')" class="flex items-center gap-2 mb-8 bg-transparent border-none cursor-pointer" style="color:var(--secondary-color);font-weight:500;font-size:14px"> <i data-lucide="arrow-left" style="width:16px;height:16px"></i> <span data-i18n="back">Tillbaka</span> </button>
@@ -1357,16 +1650,14 @@ body {
     <div class="max-w-6xl mx-auto px-4 sm:px-6">
      <div class="grid gap-8" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr));margin-bottom:32px">
       <div>
-       <div class="font-display" style="font-weight:700;color:white;font-size:18px;margin-bottom:12px">
-        Rättvisa Malmö
-       </div>
+       <button type="button" onclick="goTo('home')" class="border-none bg-transparent cursor-pointer p-0 mb-3" aria-label="Go to homepage" data-i18n-aria-label="language.goHome"><img src="assets/brand/logo-horizontal-light.png" alt="" class="brand-logo brand-logo-footer" width="435" height="74" loading="lazy" decoding="async"></button>
       <p style="color:rgba(255,255,255,0.5);font-size:14px;line-height:1.6" data-i18n="footer.description">En gräsrotsrörelse för etisk offentlig upphandling och mänskliga rättigheter i Malmö.</p>
       </div>
       <div>
       <div style="font-weight:600;color:white;font-size:14px;margin-bottom:12px" data-i18n="footer.pages">
        Sidor
        </div>
-      <div class="flex flex-col gap-2"><button onclick="goTo('home')" style="color:rgba(255,255,255,0.5);font-size:14px;background:none;border:none;cursor:pointer;text-align:left;padding:0" data-i18n="nav.home">Hem</button> <button onclick="goTo('about')" style="color:rgba(255,255,255,0.5);font-size:14px;background:none;border:none;cursor:pointer;text-align:left;padding:0" data-i18n="nav.about">Om kampanjen</button> <button onclick="goTo('faq')" style="color:rgba(255,255,255,0.5);font-size:14px;background:none;border:none;cursor:pointer;text-align:left;padding:0" data-i18n="nav.faq">Frågor &amp; Svar</button>
+      <div class="flex flex-col gap-2"><button onclick="goTo('home')" style="color:rgba(255,255,255,0.5);font-size:14px;background:none;border:none;cursor:pointer;text-align:left;padding:0" data-i18n="nav.home">Hem</button> <button onclick="goTo('about')" style="color:rgba(255,255,255,0.5);font-size:14px;background:none;border:none;cursor:pointer;text-align:left;padding:0" data-i18n="nav.about">Om kampanjen</button> <button onclick="goTo('legal-deepdive')" style="color:rgba(255,255,255,0.5);font-size:14px;background:none;border:none;cursor:pointer;text-align:left;padding:0" data-i18n="nav.legal">Juridisk analys</button> <button onclick="goTo('faq')" style="color:rgba(255,255,255,0.5);font-size:14px;background:none;border:none;cursor:pointer;text-align:left;padding:0" data-i18n="nav.faq">Frågor &amp; Svar</button>
        </div>
       </div>
       <div>
@@ -1408,6 +1699,7 @@ const translations = {
     nav: {
       home: 'Hem',
       about: 'Om kampanjen',
+      legal: 'Juridisk analys',
       faq: 'Frågor & Svar',
       sign: 'Skriv under',
       volunteer: 'Engagera dig'
@@ -1514,7 +1806,83 @@ const translations = {
       concept1: '<strong>Bred juridisk definition i EU-rätten</strong><br>Omfattar långt mer än bara tekniska fel eller kontraktskränkningar.',
       concept2: '<strong>Täcker beteende som undergräver företagets integritet</strong><br>Inklusive allvarlig inblandning i brott mot folkerättsliga normer.',
       concept3: '<strong>Kräver ingen fällande dom</strong><br>Dokumentation från oberoende källor räcker som bevisning.',
-      concept4: '<strong>Kan omfatta människorättskränkningar</strong><br>Krigsbrott, brott mot mänskligheten och systematiska kränkningar.'
+      concept4: '<strong>Kan omfatta människorättskränkningar</strong><br>Krigsbrott, brott mot mänskligheten och systematiska kränkningar.',
+      deepDiveText: 'Vill du se hur internationell rätt, EU-rätt och upphandlingsregler hänger ihop i praktiken?',
+      deepDiveCta: 'Läs fördjupad juridisk analys'
+    },
+    legalDeep: {
+      eyebrow: 'FÖRDJUPAD ANALYS',
+      title: 'Den juridiska grunden för etisk upphandling',
+      intro: 'Den här sidan sammanfattar varför Malmö stad redan i dag har ett starkt rättsligt stöd för att ställa etiska krav i upphandling och för att utesluta företag vars verksamhet allvarligt undergräver mänskliga rättigheter eller internationell rätt.',
+      summary1Title: 'Inte bara tillåtet',
+      summary1Text: 'Både internationell rätt och EU:s upphandlingsregler ger utrymme för att väga in mänskliga rättigheter, professionell integritet och hållbarhet i offentliga kontrakt.',
+      summary2Title: 'Verktygen finns redan',
+      summary2Text: 'Kommuner kan använda exkluderingsgrunder, due diligence-krav, upplysningsskyldighet och kontraktsvillkor för att undvika att offentliga medel stödjer grova övergrepp.',
+      summary3Title: 'Det gäller Malmö',
+      summary3Text: 'Frågan är inte om kommunen får bry sig om detta, utan hur den använder sitt handlingsutrymme på ett tydligt, proportionerligt och rättssäkert sätt.',
+      foundationsTitle: 'Så ser den juridiska grunden ut',
+      foundationsIntro: 'Den djupare analysen bygger på två spår samtidigt: vad internationell rätt kräver av offentliga organ, och vilka konkreta verktyg EU:s upphandlingsregler redan ger kommuner.',
+      intlTitle: 'Internationell rätt',
+      intl1: '<strong>Kommuner är delar av staten.</strong> När en kommun upphandlar gör den inte det i ett rättsligt vakuum, utan inom ramen för statens internationella förpliktelser.',
+      intl2: '<strong>Plikten att inte bistå allvarliga folkrättsbrott spelar roll.</strong> Offentliga organ ska inte genom ekonomiska relationer bidra till att upprätthålla olagliga situationer.',
+      intl3: '<strong>Mänskliga rättigheter innebär också positiva skyldigheter.</strong> Staten ska vidta rimliga åtgärder för att skydda rättigheter även mot skador som orsakas av privata aktörer.',
+      intl4: '<strong>FN:s vägledande principer skärper ansvaret i kommersiella relationer.</strong> Särskilt i konfliktpåverkade områden måste offentliga aktörer vara försiktiga med vilka bolag de kontrakterar.',
+      euTitle: 'EU:s upphandlingsregler',
+      eu1: '<strong>Artikel 18.2 gör efterlevnad central.</strong> Upphandlande myndigheter ska säkerställa att leverantörer följer tillämpliga miljö-, sociala och arbetsrättsliga skyldigheter.',
+      eu2: '<strong>Artikel 56 gör priset underordnat lagligheten.</strong> Det mest ekonomiskt fördelaktiga anbudet behöver inte antas om det inte uppfyller dessa skyldigheter.',
+      eu3: '<strong>Artikel 57 öppnar för uteslutning.</strong> Myndigheter kan agera både vid brott mot skyldigheter och vid allvarligt oprofessionellt beteende som gör ett bolags integritet tveksam.',
+      eu4: '<strong>Processen slutar inte vid anbudets start.</strong> Leverantörer kan uteslutas under pågående förfarande, och återinträde kräver trovärdig remediation och förebyggande åtgärder.',
+      gpmTitle: 'Varfor "allvarligt oprofessionellt beteende" ar avgorande',
+      gpmIntro: 'Detta ar ofta den mest praktiska och juridiskt anvandbara vagen i upphandling: myndigheten behover inte alltid vanta pa en brottmalsdom om tillforlitligheten redan ar allvarligt ifragasatt.',
+      gpmTestTitle: 'Ett praktiskt trestegstest',
+      gpmStep1: '1. Finns det allvarligt felaktigt beteende?',
+      gpmStep2: '2. Undergraver beteendet leverantorens professionella integritet/tillforlitlighet?',
+      gpmStep3: '3. Finns tillracklig och tillforlitlig dokumentation for en proportionerlig bedomning?',
+      gpmHrTitle: 'Kopplingen till manniskorattsbrott',
+      gpmHrText: 'Nar ett foretags agerande visar uthallig eller allvarlig inblandning i grova manniskorattskrankningar kan det tala direkt till fragan om professionell integritet. Da ar argumentet inte "politik", utan tillforlitlighet i offentlig upphandling.',
+      gpmCasesTitle: 'EU-domstolens (CJEU) linje i korthet',
+      gpmCase1Title: 'Forposta (C-465/11)',
+      gpmCase1Text: 'Begreppet ar brett och begransas inte till snava yrkesetiska overtradelser.',
+      gpmCase2Title: 'Generali-Providencia (C-470/13)',
+      gpmCase2Text: 'Aven allvarliga konkurrensrattsliga overtradelser kan utgora relevant misconduct.',
+      gpmCase3Title: 'CNS (C-425/18)',
+      gpmCase3Text: 'Bedomningen ar inte begransad till fel inom ett enskilt offentligt kontrakt.',
+      gpmSafeguard: 'Detta kraver fortfarande rattssaker metod: objektiva kriterier, likabehandling, proportionalitet, transparent motivering och mojlighet till forklaring/remediering.',
+      pathTitle: 'Hur uteslutning kan fungera i praktiken',
+      pathIntro: 'Det finns inte bara en väg. Flera kompletterande spår kan användas parallellt för att göra en kommunal policy operativ i praktiken.',
+      path1Title: 'Klausuler i kontrakten',
+      path1Text: 'Kommunen kan införa tydliga människorätts- och due diligence-klausuler som gör det möjligt att neka eller häva avtal när leverantörer är djupt inblandade i grova övergrepp.',
+      path2Title: 'Exkludering före prövning',
+      path2Text: 'Om det finns tillräckligt underlag kan leverantörer uteslutas redan innan kontrakt tilldelas, antingen på grund av bristande efterlevnad eller på grund av allvarligt oprofessionellt beteende.',
+      path3Title: 'Kontroll under processen',
+      path3Text: 'Ny information kan beaktas under pågående upphandling. Om ett bolags handlingar eller underlåtelser visar att det befinner sig i en exkluderingssituation kan kommunen agera då också.',
+      path4Title: 'Återinträde kräver verklig bättring',
+      path4Text: 'En leverantör som vill återfå förtroende måste visa mer än fina ord: ersättning, faktaklargörande, samarbete och trovärdiga åtgärder mot upprepning väger tungt.',
+      safeguardsTitle: 'Vad som fortfarande krävs',
+      safeguardsText: 'En etisk upphandlingspolicy kan inte bygga på lös retorik. Kriterierna måste vara tydliga, bedömningarna måste vara objektiva, bevisningen måste vara tillräcklig och åtgärderna måste vara proportionerliga. Det stärker policyn juridiskt i stället för att försvaga den.',
+      objectionsTitle: 'Centrala juridiska frågor i tillämpningen',
+      objectionsIntro: 'Den avgörande punkten är hur kriterier utformas, motiveras och tillämpas i praktiken.',
+      obj1Q: 'Är inte detta diskriminering av vissa företag eller länder?',
+      obj1A: 'Inte om kriterierna knyts till leverantörens beteende, integritet och efterlevnad i stället för till nationalitet. Det centrala är objektiva och generellt tillämpliga regler.',
+      obj2Q: 'Begränsar det inte konkurrensen för mycket?',
+      obj2A: 'All upphandling begränsar marknaden genom kvalificeringskrav. Frågan är om kraven är proportionerliga, transparenta och kopplade till legitimt skydd av rättigheter och offentlig integritet.',
+      obj3Q: 'Blir inte upphandling politiserad?',
+      obj3A: 'Upphandling är redan ett rättsligt och politiskt verktyg. Det som ska undvikas är godtycke, inte värderingsstyrning i sig. När kriterierna bygger på rättsliga skyldigheter blir de mindre godtyckliga, inte mer.',
+      obj4Q: 'Måste varje krav vara direkt kopplat till kontraktets innehåll?',
+      obj4A: 'Det finns kopplingskrav i upphandlingsrätten, men de utesluter inte integritets- och exkluderingsbedömningar. Just därför är det viktigt att arbeta med rätt verktyg: kontraktsvillkor, uteslutningsgrunder, upplysningar och kontrollmekanismer.',
+      obj5Q: 'Räcker inte en domstolsdom innan man kan agera?',
+      obj5A: 'Inte alltid. Delar av upphandlingsrätten, särskilt bedömningen av allvarligt oprofessionellt beteende, tillåter beslut på annan tillräcklig och trovärdig dokumentation. Men underlaget måste fortfarande granskas noggrant och rättssäkert.',
+      policyTitle: 'Vad en policy för Malmö skulle kunna innehålla',
+      policyIntro: 'En fungerande policy måste vara både etiskt skarp och juridiskt genomförbar. Det handlar mindre om stora slagord och mer om tydliga processer.',
+      policy1: 'Klart formulerade exkluderingsgrunder för allvarliga och väl underbyggda människorättsbrott.',
+      policy2: 'Due diligence-, upplysnings- och certifieringskrav för leverantörer och deras värdekedjor.',
+      policy3: 'Rutiner för löpande kontroll, uppföljning och åtgärder om ny information framkommer.',
+      policy4: 'Tydliga remedieringskrav för leverantörer som vill visa att de ändrat sitt beteende.',
+      policy5: 'Öppen kommunikation om varför kommunen ställer dessa krav och hur de prövas rättssäkert.',
+      bottomLineTitle: 'Kort sagt',
+      bottomLineText: 'Den djupa juridiska frågan är inte om upphandling får handla om mänskliga rättigheter. Den gör redan det. Frågan är om Malmö är berett att använda de verktyg som redan finns på ett konsekvent och modigt sätt.',
+      closingTitle: 'Juridiken är inte ursäkten. Den är verktyget.',
+      closingText: 'Om Malmö vill anta en etisk upphandlingspolicy finns det redan ett rättsligt ramverk att bygga på. Nästa fråga är om staden väljer att använda det.'
     },
     timeline: {
       title: 'Kampanjens framsteg',
@@ -1717,7 +2085,8 @@ const translations = {
     },
     nav: {
       home: 'Home',
-      about: 'About the campaign',
+      about: 'About us',
+      legal: 'Legal analysis',
       faq: 'FAQ',
       sign: 'Sign the petition',
       volunteer: 'Get involved'
@@ -1824,7 +2193,83 @@ const translations = {
       concept1: '<strong>Broad legal definition in EU law</strong><br>Covers far more than technical errors or breaches of contract.',
       concept2: '<strong>Covers conduct that undermines corporate integrity</strong><br>Including serious involvement in violations of international law.',
       concept3: '<strong>Does not require a criminal conviction</strong><br>Documentation from independent sources is enough.',
-      concept4: '<strong>Can include human rights abuses</strong><br>War crimes, crimes against humanity, and systematic violations.'
+      concept4: '<strong>Can include human rights abuses</strong><br>War crimes, crimes against humanity, and systematic violations.',
+      deepDiveText: 'Do you want to see how international law, EU law, and procurement rules connect in practice?',
+      deepDiveCta: 'Read the in-depth legal analysis'
+    },
+    legalDeep: {
+      eyebrow: 'IN-DEPTH ANALYSIS',
+      title: 'The legal basis for ethical procurement',
+      intro: 'This page summarizes why the City of Malmö already has a strong legal basis for imposing ethical procurement requirements and for excluding companies whose conduct seriously undermines human rights or international law.',
+      summary1Title: 'Not merely allowed',
+      summary1Text: 'Both international law and EU procurement rules leave room to consider human rights, professional integrity, and sustainability in public contracting.',
+      summary2Title: 'The tools already exist',
+      summary2Text: 'Municipalities can rely on exclusion grounds, due diligence requirements, disclosure duties, and contract conditions to avoid directing public money to severe abuses.',
+      summary3Title: 'This applies to Malmö',
+      summary3Text: 'The real issue is not whether the municipality may care about this, but how it uses its discretion in a clear, proportionate, and legally secure way.',
+      foundationsTitle: 'What the legal foundation looks like',
+      foundationsIntro: 'The deeper analysis runs on two tracks at once: what international law requires from public authorities, and which concrete tools EU procurement law already gives municipalities.',
+      intlTitle: 'International law',
+      intl1: '<strong>Municipalities are part of the state.</strong> When a municipality procures, it does not act in a legal vacuum, but within the state\'s wider international obligations.',
+      intl2: '<strong>The duty not to support serious international-law violations matters.</strong> Public authorities should not use economic relationships to help maintain unlawful situations.',
+      intl3: '<strong>Human rights also create positive duties.</strong> The state must take reasonable steps to protect rights against harm caused by private actors too.',
+      intl4: '<strong>The UN Guiding Principles sharpen responsibility in commercial relationships.</strong> Especially in conflict-affected areas, public authorities must be cautious about which companies they contract with.',
+      euTitle: 'EU procurement law',
+      eu1: '<strong>Article 18.2 makes compliance central.</strong> Contracting authorities must ensure that suppliers comply with applicable environmental, social, and labour obligations.',
+      eu2: '<strong>Article 56 means price does not override legality.</strong> The most economically advantageous tender need not be accepted if it fails to meet those obligations.',
+      eu3: '<strong>Article 57 opens the door to exclusion.</strong> Authorities may act both where obligations are breached and where grave professional misconduct makes a company\'s integrity questionable.',
+      eu4: '<strong>The process does not end when the bid is filed.</strong> Suppliers may be excluded during the procedure, and readmission requires credible remediation and preventive action.',
+      gpmTitle: 'Why "grave professional misconduct" is decisive',
+      gpmIntro: 'This is often the most practical and legally usable route in procurement: authorities do not always need to wait for a criminal conviction when reliability is already seriously in doubt.',
+      gpmTestTitle: 'A practical three-step test',
+      gpmStep1: '1. Is there serious wrongful conduct?',
+      gpmStep2: '2. Does that conduct undermine the supplier\'s professional integrity/reliability?',
+      gpmStep3: '3. Is there sufficiently reliable documentation for a proportionate assessment?',
+      gpmHrTitle: 'The link to severe human-rights abuse',
+      gpmHrText: 'When a company shows sustained or serious involvement in grave human-rights abuse, that can speak directly to professional integrity. In procurement law terms, that is an integrity question, not merely a political one.',
+      gpmCasesTitle: 'The Court of Justice of the European Union (CJEU) line, in brief',
+      gpmCase1Title: 'Forposta (C-465/11)',
+      gpmCase1Text: 'The concept is broad and is not limited to narrow professional-ethics breaches.',
+      gpmCase2Title: 'Generali-Providencia (C-470/13)',
+      gpmCase2Text: 'Serious competition-law infringements can also qualify as relevant misconduct.',
+      gpmCase3Title: 'CNS (C-425/18)',
+      gpmCase3Text: 'The assessment is not limited to failures within one specific public contract.',
+      gpmSafeguard: 'This still requires due process: objective criteria, equal treatment, proportionality, transparent reasoning, and an opportunity for explanation/remediation.',
+      pathTitle: 'How exclusion can work in practice',
+      pathIntro: 'There is not only one route. Several complementary tracks can be used in parallel to make a municipal policy operational in practice.',
+      path1Title: 'Contract clauses',
+      path1Text: 'The municipality can introduce clear human-rights and due diligence clauses that make it possible to deny or terminate contracts where suppliers are deeply implicated in severe abuses.',
+      path2Title: 'Exclusion before award',
+      path2Text: 'Where the record is strong enough, suppliers can be excluded before contract award, either for non-compliance or for grave professional misconduct.',
+      path3Title: 'Checks during the procedure',
+      path3Text: 'New information can matter during an ongoing procurement. If a company\'s acts or omissions place it in an exclusion situation, the authority can act then as well.',
+      path4Title: 'Readmission requires real change',
+      path4Text: 'A supplier that wants to regain trust must show more than promises: compensation, clarification of facts, cooperation, and credible non-repetition measures all matter.',
+      safeguardsTitle: 'What still has to be in place',
+      safeguardsText: 'An ethical procurement policy cannot rest on loose rhetoric. Criteria must be clear, assessments objective, evidence sufficient, and measures proportionate. That strengthens the policy legally rather than weakening it.',
+      objectionsTitle: 'Key legal questions in implementation',
+      objectionsIntro: 'The decisive issue is how criteria are designed, justified, and applied in practice.',
+      obj1Q: 'Is this not discrimination against certain companies or countries?',
+      obj1A: 'Not if the criteria are tied to conduct, integrity, and compliance rather than nationality. The key is objective rules that apply generally.',
+      obj2Q: 'Does this not restrict competition too much?',
+      obj2A: 'All procurement limits the market through qualification rules. The real question is whether those rules are proportionate, transparent, and linked to legitimate protection of rights and public integrity.',
+      obj3Q: 'Does this not politicize procurement?',
+      obj3A: 'Procurement is already a legal and political instrument. What must be avoided is arbitrariness, not value-based judgment as such. When criteria are grounded in legal obligations, they become less arbitrary, not more.',
+      obj4Q: 'Must every requirement be directly linked to the contract subject matter?',
+      obj4A: 'Procurement law does contain linkage requirements, but they do not eliminate integrity and exclusion assessments. That is why it matters to use the right tools: contract conditions, exclusion grounds, disclosures, and control mechanisms.',
+      obj5Q: 'Do you not need a court judgment before acting?',
+      obj5A: 'Not always. Parts of procurement law, especially grave professional misconduct, allow action on other sufficiently reliable documentation. But the material must still be assessed carefully and fairly.',
+      policyTitle: 'What a Malmö policy could contain',
+      policyIntro: 'A workable policy must be both ethically sharp and legally operable. It is less about slogans and more about clear procedures.',
+      policy1: 'Clearly formulated exclusion grounds for serious and well-supported human-rights abuses.',
+      policy2: 'Due diligence, disclosure, and certification requirements for suppliers and their value chains.',
+      policy3: 'Procedures for ongoing monitoring, follow-up, and action if new information emerges.',
+      policy4: 'Clear remediation requirements for suppliers that want to show real behavioral change.',
+      policy5: 'Open communication about why the municipality applies these standards and how they are reviewed fairly.',
+      bottomLineTitle: 'Bottom line',
+      bottomLineText: 'The deeper legal question is not whether procurement may concern human rights. It already does. The question is whether Malmö is prepared to use the tools that already exist in a consistent and serious way.',
+      closingTitle: 'The law is not the excuse. It is the tool.',
+      closingText: 'If Malmö wants to adopt an ethical procurement policy, there is already a legal framework to build on. The next question is whether the city chooses to use it.'
     },
     timeline: {
       title: 'Campaign progress',
