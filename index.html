@@ -2564,16 +2564,14 @@ function getPageFromHash() {
 
 function scrollToSection(sectionId) {
   const appWrapper = document.getElementById('appWrapper');
-  const section = sectionId && document.getElementById(sectionId);
-  appWrapper.style.scrollBehavior = 'auto';
-  if (section) {
-    const headerOffset = 70;
-    const sectionTop = section.offsetTop - headerOffset;
-    appWrapper.scrollTop = sectionTop;
-  } else {
-    appWrapper.scrollTop = 0;
-  }
-  requestAnimationFrame(() => { appWrapper.style.scrollBehavior = ''; });
+  if (!sectionId) { appWrapper.scrollTop = 0; return; }
+  const section = document.getElementById(sectionId);
+  if (!section) { appWrapper.scrollTop = 0; return; }
+  // Use getBoundingClientRect so offset is always relative to the scroll container
+  const headerOffset = 70;
+  const sectionRect = section.getBoundingClientRect();
+  const wrapperRect = appWrapper.getBoundingClientRect();
+  appWrapper.scrollTop += sectionRect.top - wrapperRect.top - headerOffset;
 }
 
 function goTo(page, options = {}) {
@@ -2587,8 +2585,13 @@ function goTo(page, options = {}) {
     n.classList.toggle('active-nav', n.getAttribute('data-nav') === page);
   });
   if (pushHistory) {
-    const sectionToSave = fromSection || lastVisibleSectionId || null;
-    window.history.pushState({ page, fromSection: sectionToSave }, '', getPageUrl(page));
+    // Store where the user was on the CURRENT page before leaving, so popstate can restore it
+    const currentState = window.history.state || {};
+    window.history.replaceState(
+      { ...currentState, fromSection: fromSection || lastVisibleSectionId || null },
+      '', getPageUrl(currentPage)
+    );
+    window.history.pushState({ page }, '', getPageUrl(page));
   }
   appWrapper.scrollTop = 0;
   lucide.createIcons();
@@ -2596,6 +2599,7 @@ function goTo(page, options = {}) {
 
 window.addEventListener('popstate', (event) => {
   const page = event.state?.page || getPageFromHash();
+  // fromSection lives on the entry we're returning TO (stored before we left it)
   const sectionId = event.state?.fromSection || null;
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   const target = document.getElementById('page-' + page);
@@ -2605,7 +2609,8 @@ window.addEventListener('popstate', (event) => {
     n.classList.toggle('active-nav', n.getAttribute('data-nav') === page);
   });
   lucide.createIcons();
-  requestAnimationFrame(() => scrollToSection(sectionId));
+  // Double rAF ensures layout is computed after the page becomes visible
+  requestAnimationFrame(() => requestAnimationFrame(() => scrollToSection(sectionId)));
 });
 
 function toggleMobileMenu() {
