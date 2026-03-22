@@ -1691,7 +1691,7 @@ let currentPage = 'home';
 let currentEndorsementType = 'organization';
 let currentLanguage = 'sv';
 let activeConfig = null;
-const pageScrollPositions = { home: 0 };
+let lastVisibleSectionId = null;
 
 const LANGUAGE_STORAGE_KEY = 'rm-lang';
 
@@ -2562,62 +2562,50 @@ function getPageFromHash() {
   return document.getElementById('page-' + hash) ? hash : 'home';
 }
 
-function setAppScrollTop(scrollTop) {
+function scrollToSection(sectionId) {
   const appWrapper = document.getElementById('appWrapper');
-  const previousBehavior = appWrapper.style.scrollBehavior;
+  const section = sectionId && document.getElementById(sectionId);
   appWrapper.style.scrollBehavior = 'auto';
-  appWrapper.scrollTop = scrollTop;
-  requestAnimationFrame(() => {
-    appWrapper.style.scrollBehavior = previousBehavior;
-  });
-}
-
-function updateCurrentHistoryState() {
-  const state = window.history.state || {};
-  window.history.replaceState({
-    ...state,
-    page: currentPage,
-    scrollTop: pageScrollPositions[currentPage] || 0
-  }, '', getPageUrl(currentPage));
-}
-
-function restorePageScroll(page, scrollTop) {
-  const nextScrollTop = typeof scrollTop === 'number' ? scrollTop : (pageScrollPositions[page] || 0);
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      setAppScrollTop(nextScrollTop);
-    });
-  });
+  if (section) {
+    const headerOffset = 70;
+    const sectionTop = section.offsetTop - headerOffset;
+    appWrapper.scrollTop = sectionTop;
+  } else {
+    appWrapper.scrollTop = 0;
+  }
+  requestAnimationFrame(() => { appWrapper.style.scrollBehavior = ''; });
 }
 
 function goTo(page, options = {}) {
-  const { pushHistory = true, restoreScroll = false, scrollTop } = options;
+  const { pushHistory = true, fromSection } = options;
   const appWrapper = document.getElementById('appWrapper');
-  pageScrollPositions[currentPage] = appWrapper.scrollTop;
-  updateCurrentHistoryState();
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   const target = document.getElementById('page-' + page);
   if (target) target.classList.add('active');
   currentPage = page;
-  // Update nav active state
   document.querySelectorAll('[data-nav]').forEach(n => {
     n.classList.toggle('active-nav', n.getAttribute('data-nav') === page);
   });
   if (pushHistory) {
-    window.history.pushState({ page, scrollTop: 0 }, '', getPageUrl(page));
+    const sectionToSave = fromSection || lastVisibleSectionId || null;
+    window.history.pushState({ page, fromSection: sectionToSave }, '', getPageUrl(page));
   }
-  if (restoreScroll) {
-    restorePageScroll(page, scrollTop);
-  } else {
-    setAppScrollTop(0);
-  }
+  appWrapper.scrollTop = 0;
   lucide.createIcons();
 }
 
 window.addEventListener('popstate', (event) => {
   const page = event.state?.page || getPageFromHash();
-  const scrollTop = typeof event.state?.scrollTop === 'number' ? event.state.scrollTop : (pageScrollPositions[page] || 0);
-  goTo(page, { pushHistory: false, restoreScroll: true, scrollTop });
+  const sectionId = event.state?.fromSection || null;
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const target = document.getElementById('page-' + page);
+  if (target) target.classList.add('active');
+  currentPage = page;
+  document.querySelectorAll('[data-nav]').forEach(n => {
+    n.classList.toggle('active-nav', n.getAttribute('data-nav') === page);
+  });
+  lucide.createIcons();
+  requestAnimationFrame(() => scrollToSection(sectionId));
 });
 
 function toggleMobileMenu() {
@@ -2928,18 +2916,21 @@ function applyConfig(config) {
     window.history.scrollRestoration = 'manual';
   }
 
-  const appWrapper = document.getElementById('appWrapper');
-  appWrapper.addEventListener('scroll', () => {
-    pageScrollPositions[currentPage] = appWrapper.scrollTop;
-    if (window.history.state?.page === currentPage) {
-      updateCurrentHistoryState();
-    }
-  }, { passive: true });
+  // Track which home-page section is most visible so we can restore it on back navigation
+  const homeSections = document.querySelectorAll('#page-home section[id]');
+  if (homeSections.length && 'IntersectionObserver' in window) {
+    const sectionObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) lastVisibleSectionId = entry.target.id;
+      });
+    }, { root: document.getElementById('appWrapper'), threshold: 0.3 });
+    homeSections.forEach(s => sectionObserver.observe(s));
+  }
 
   const initialPage = getPageFromHash();
   currentPage = initialPage;
-  goTo(initialPage, { pushHistory: false, restoreScroll: true });
-  window.history.replaceState({ page: initialPage, scrollTop: pageScrollPositions[initialPage] || 0 }, '', getPageUrl(initialPage));
+  goTo(initialPage, { pushHistory: false });
+  window.history.replaceState({ page: initialPage, fromSection: null }, '', getPageUrl(initialPage));
 
   // Init Element SDK
   if (window.elementSdk) {
