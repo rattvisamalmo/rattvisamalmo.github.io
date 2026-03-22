@@ -659,8 +659,8 @@ body {
        <div class="info-card" style="padding:36px 28px;border-radius:16px;background:var(--bg-color);border:1px solid #e5e2db">
         <div style="width:56px;height:56px;border-radius:12px;background:rgba(194,58,34,0.1);display:flex;align-items:center;justify-content:center;margin-bottom:20px"><i data-lucide="banknote" style="width:28px;height:28px;color:var(--primary-color)"></i>
         </div>
-        <div class="font-display" style="font-size:42px;font-weight:800;color:var(--primary-color);margin-bottom:8px">
-         11 mdr
+        <div class="font-display" style="font-size:42px;font-weight:800;color:var(--primary-color);margin-bottom:8px" data-i18n="impact.amount">
+         11 miljarder
         </div>
         <div style="font-size:18px;font-weight:600;margin-bottom:8px" data-i18n="impact.yearly">
          SEK per år
@@ -963,9 +963,9 @@ body {
       </div>
      </div><!-- Final Step - The Question -->
      <div class="scroll-reveal pt-4 mt-12 border-t-2 border-ember/30">
-      <div class="max-w-2xl">
+        <div class="max-w-2xl mx-auto text-center">
       <h3 class="font-display text-2xl md:text-3xl font-bold text-midnight mb-3" data-i18n="legal.whyTitle">Så varför gör inte Malmö det?</h3>
-      <p class="text-ocean/80 text-base md:text-lg leading-relaxed" data-i18n="legal.whyText">Det finns ingen juridisk anledning. Det finns bara politisk vilja — eller bristen på sådan.</p>
+        <p class="text-ocean/80 text-base md:text-lg leading-relaxed max-w-xl mx-auto" data-i18n="legal.whyText">Det finns ingen juridisk anledning. Det finns bara politisk vilja — eller bristen på sådan.</p>
       </div>
      </div>
     </div><!-- Key Legal Concept Box -->
@@ -1002,49 +1002,61 @@ body {
         <div class="timeline-step">
          <div class="timeline-dot completed"></div>
          <div style="font-size:12px;color:var(--secondary-color);font-weight:600;margin-bottom:4px" data-i18n="timeline.jan">
-          JANUARI 2025
+            10 JULI 2025
          </div>
          <div style="font-weight:600;font-size:16px;margin-bottom:4px" data-i18n="timeline.janTitle">
-          Namninsamlingen lanserad
+            Kampanjlansering
          </div>
          <div style="color:#666;font-size:14px" data-i18n="timeline.janText">
-          Kampanjen Rättvisa Malmö startar officiellt
+            Kampanjen Rättvisa Malmö startar officiellt
          </div>
         </div>
         <div class="timeline-step">
          <div class="timeline-dot completed"></div>
          <div style="font-size:12px;color:var(--secondary-color);font-weight:600;margin-bottom:4px" data-i18n="timeline.mar">
-          MARS 2025
+            30 SEPTEMBER 2025
          </div>
          <div style="font-weight:600;font-size:16px;margin-bottom:4px" data-i18n="timeline.marTitle">
-          1 000 underskrifter
+            Över 1 000 Malmöbor röstar för vårt medborgarinitiativ
          </div>
          <div style="color:#666;font-size:14px" data-i18n="timeline.marText">
-          Första tusen namnteckningar insamlade
+            Medborgarinitiativet passerar 1 000 röster
          </div>
         </div>
         <div class="timeline-step">
          <div class="timeline-dot completed"></div>
          <div style="font-size:12px;color:var(--secondary-color);font-weight:600;margin-bottom:4px" data-i18n="timeline.may">
-          MAJ 2025
+            6 JANUARI 2026
          </div>
          <div style="font-weight:600;font-size:16px;margin-bottom:4px" data-i18n="timeline.mayTitle">
-          Möte med kommunfullmäktige
+            Malmö kommunstyrelse avslår vårt förslag
          </div>
          <div style="color:#666;font-size:14px" data-i18n="timeline.mayText">
-          Kampanjen presenteras för förtroendevalda
+            Förslaget får avslag i kommunstyrelsen
          </div>
         </div>
         <div class="timeline-step">
          <div class="timeline-dot" style="background:var(--primary-color)"></div>
          <div style="font-size:12px;color:var(--primary-color);font-weight:600;margin-bottom:4px" data-i18n="timeline.ongoing">
-          PÅGÅENDE
+            NULÄGE
          </div>
          <div style="font-weight:600;font-size:16px;margin-bottom:4px" data-i18n="timeline.ongoingTitle">
-          5 000 underskrifter — nästa mål
+            2 APRIL 2026, kampanjen nylanseras
          </div>
          <div style="color:#666;font-size:14px" data-i18n="timeline.ongoingText">
-          Hjälp oss nå nästa milstolpe
+            Detta är kampanjens nuvarande läge
+           </div>
+          </div>
+          <div class="timeline-step">
+           <div class="timeline-dot" style="background:#ccc"></div>
+           <div style="font-size:12px;color:#999;font-weight:600;margin-bottom:4px" data-i18n="timeline.next">
+            KOMMANDE
+           </div>
+           <div style="font-weight:600;font-size:16px;margin-bottom:4px" data-i18n="timeline.nextTitle">
+            10 organisationsstöd
+           </div>
+           <div style="color:#666;font-size:14px" data-i18n="timeline.nextText">
+            Nästa milstolpe: tio offentliga stöduttalanden från organisationer
          </div>
         </div>
         <div class="timeline-step">
@@ -1056,7 +1068,7 @@ body {
           10 000 underskrifter
          </div>
          <div style="color:#666;font-size:14px" data-i18n="timeline.goalText">
-          Formell petition till Malmö stad
+            Nästa stora mål för medborgarinitiativet
          </div>
         </div>
        </div>
@@ -1129,25 +1141,25 @@ body {
        <div class="w-full aspect-[4/3] bg-gradient-to-br from-ember/10 to-ember/5 rounded-lg flex flex-col items-center justify-center mb-4"><i data-lucide="file-text" style="width:36px;height:36px;color:#d4553a;"></i> <span class="text-xs text-ember font-semibold mt-2">PDF</span>
        </div>
       <h3 class="font-semibold text-midnight text-sm mb-1" data-i18n="materials.infoTitle">Informationsblad</h3>
-      <p class="text-ocean/60 text-xs mb-3" data-i18n="materials.infoText">Översikt av kampanjen och dess mål — perfekt att dela ut.</p><button class="w-full flex items-center justify-center gap-2 py-2 bg-chalk text-midnight text-xs font-semibold rounded-lg hover:bg-sand transition-colors border border-sand mt-auto" style="min-height:36px" onclick="simulateDownload(this, 'Informationsblad.pdf')"> <i data-lucide="download" style="width:14px;height:14px;"></i> <span data-i18n="materials.download">Ladda ner</span> </button>
+      <p class="text-ocean/60 text-xs mb-3" data-i18n="materials.infoText">Översikt av kampanjen och dess mål — perfekt att dela ut.</p><a class="w-full flex items-center justify-center gap-2 py-2 bg-chalk text-midnight text-xs font-semibold rounded-lg hover:bg-sand transition-colors border border-sand mt-auto" style="min-height:36px" href="downloads/rattvisa-malmo-informationsblad.pdf" download> <i data-lucide="download" style="width:14px;height:14px;"></i> <span data-i18n="materials.download">Ladda ner</span> </a>
       </div><!-- Material Card 2 -->
       <div class="scroll-reveal material-card bg-white rounded-xl p-6 border border-sand cursor-pointer flex flex-col h-full" style="transition-delay:0.08s;">
        <div class="w-full aspect-[4/3] bg-gradient-to-br from-ocean/10 to-ocean/5 rounded-lg flex flex-col items-center justify-center mb-4"><i data-lucide="image" style="width:36px;height:36px;color:#1a3a5c;"></i> <span class="text-xs text-ocean font-semibold mt-2">PNG / PDF</span>
        </div>
       <h3 class="font-semibold text-midnight text-sm mb-1" data-i18n="materials.posterTitle">Affisch A3</h3>
-      <p class="text-ocean/60 text-xs mb-3" data-i18n="materials.posterText">Tryckfärdig affisch för anslagstavlor, fönster och evenemang.</p><button class="w-full flex items-center justify-center gap-2 py-2 bg-chalk text-midnight text-xs font-semibold rounded-lg hover:bg-sand transition-colors border border-sand mt-auto" style="min-height:36px" onclick="simulateDownload(this, 'Affisch_A3.pdf')"> <i data-lucide="download" style="width:14px;height:14px;"></i> <span data-i18n="materials.download">Ladda ner</span> </button>
+      <p class="text-ocean/60 text-xs mb-3" data-i18n="materials.posterText">Tryckfärdig affisch för anslagstavlor, fönster och evenemang.</p><a class="w-full flex items-center justify-center gap-2 py-2 bg-chalk text-midnight text-xs font-semibold rounded-lg hover:bg-sand transition-colors border border-sand mt-auto" style="min-height:36px" href="downloads/rattvisa-malmo-affisch-a3.pdf" download> <i data-lucide="download" style="width:14px;height:14px;"></i> <span data-i18n="materials.download">Ladda ner</span> </a>
       </div><!-- Material Card 3 -->
       <div class="scroll-reveal material-card bg-white rounded-xl p-6 border border-sand cursor-pointer flex flex-col h-full" style="transition-delay:0.16s;">
        <div class="w-full aspect-[4/3] bg-gradient-to-br from-ember/10 to-ocean/5 rounded-lg flex flex-col items-center justify-center mb-4"><i data-lucide="mail" style="width:36px;height:36px;color:#d4553a;"></i> <span class="text-xs text-ember font-semibold mt-2">DOCX</span>
        </div>
       <h3 class="font-semibold text-midnight text-sm mb-1" data-i18n="materials.letterTitle">Brevmall till politiker</h3>
-      <p class="text-ocean/60 text-xs mb-3" data-i18n="materials.letterText">Färdig mall för att kontakta dina lokala politiker om etisk upphandling.</p><button class="w-full flex items-center justify-center gap-2 py-2 bg-chalk text-midnight text-xs font-semibold rounded-lg hover:bg-sand transition-colors border border-sand mt-auto" style="min-height:36px" onclick="simulateDownload(this, 'Brevmall.docx')"> <i data-lucide="download" style="width:14px;height:14px;"></i> <span data-i18n="materials.download">Ladda ner</span> </button>
+      <p class="text-ocean/60 text-xs mb-3" data-i18n="materials.letterText">Färdig mall för att kontakta dina lokala politiker om etisk upphandling.</p><a class="w-full flex items-center justify-center gap-2 py-2 bg-chalk text-midnight text-xs font-semibold rounded-lg hover:bg-sand transition-colors border border-sand mt-auto" style="min-height:36px" href="downloads/rattvisa-malmo-brevmall-politiker.docx" download> <i data-lucide="download" style="width:14px;height:14px;"></i> <span data-i18n="materials.download">Ladda ner</span> </a>
       </div><!-- Material Card 4 -->
       <div class="scroll-reveal material-card bg-white rounded-xl p-6 border border-sand cursor-pointer flex flex-col h-full" style="transition-delay:0.24s;">
        <div class="w-full aspect-[4/3] bg-gradient-to-br from-ocean/10 to-ember/5 rounded-lg flex flex-col items-center justify-center mb-4"><i data-lucide="presentation" style="width:36px;height:36px;color:#1a3a5c;"></i> <span class="text-xs text-ocean font-semibold mt-2">PPTX</span>
        </div>
       <h3 class="font-semibold text-midnight text-sm mb-1" data-i18n="materials.presentationTitle">Presentationsmaterial</h3>
-      <p class="text-ocean/60 text-xs mb-3" data-i18n="materials.presentationText">Bildspel för möten, studiecirklar och informationsträffar.</p><button class="w-full flex items-center justify-center gap-2 py-2 bg-chalk text-midnight text-xs font-semibold rounded-lg hover:bg-sand transition-colors border border-sand mt-auto" style="min-height:36px" onclick="simulateDownload(this, 'Presentation.pptx')"> <i data-lucide="download" style="width:14px;height:14px;"></i> <span data-i18n="materials.download">Ladda ner</span> </button>
+      <p class="text-ocean/60 text-xs mb-3" data-i18n="materials.presentationText">Bildspel för möten, studiecirklar och informationsträffar.</p><a class="w-full flex items-center justify-center gap-2 py-2 bg-chalk text-midnight text-xs font-semibold rounded-lg hover:bg-sand transition-colors border border-sand mt-auto" style="min-height:36px" href="downloads/rattvisa-malmo-presentationsmaterial.pptx" download> <i data-lucide="download" style="width:14px;height:14px;"></i> <span data-i18n="materials.download">Ladda ner</span> </a>
       </div>
      </div>
     </div>
@@ -1366,7 +1378,7 @@ body {
       </div>
      </div>
      <div style="border-top:1px solid rgba(255,255,255,0.1);padding-top:20px;text-align:center">
-      <p style="color:rgba(255,255,255,0.3);font-size:13px" data-i18n="footer.rights">© 2025 Rättvisa Malmö. Alla rättigheter förbehållna.</p>
+      <p style="color:rgba(255,255,255,0.3);font-size:13px" data-i18n="footer.rights">© 2026 Rättvisa Malmö. Alla rättigheter förbehållna.</p>
      </div>
     </div>
    </footer>
@@ -1416,6 +1428,7 @@ const translations = {
     impact: {
       title: 'Varför det spelar roll',
       intro: 'Offentlig upphandling är ett av de mest kraftfulla verktygen en kommun har. Det handlar om hur vi använder gemensamma resurser.',
+      amount: '11 miljarder',
       yearly: 'SEK per år',
       yearlyText: 'Malmö stad spenderar 11 miljarder kronor årligen på inköp av varor och tjänster. Det är enorma summor av skattebetalarnas pengar.',
       values: 'Gemensamma värderingar',
@@ -1506,21 +1519,24 @@ const translations = {
     timeline: {
       title: 'Kampanjens framsteg',
       intro: 'Rörelsen växer. Följ hur kampanjen utvecklas.',
-      jan: 'JANUARI 2025',
-      janTitle: 'Namninsamlingen lanserad',
+      jan: '10 JULI 2025',
+      janTitle: 'Kampanjlansering',
       janText: 'Kampanjen Rättvisa Malmö startar officiellt',
-      mar: 'MARS 2025',
-      marTitle: '1 000 underskrifter',
-      marText: 'Första tusen namnteckningar insamlade',
-      may: 'MAJ 2025',
-      mayTitle: 'Möte med kommunfullmäktige',
-      mayText: 'Kampanjen presenteras för förtroendevalda',
-      ongoing: 'PÅGÅENDE',
-      ongoingTitle: '5 000 underskrifter - nästa mål',
-      ongoingText: 'Hjälp oss nå nästa milstolpe',
+      mar: '30 SEPTEMBER 2025',
+      marTitle: 'Över 1 000 Malmöbor röstar för vårt medborgarinitiativ',
+      marText: 'Medborgarinitiativet passerar 1 000 röster',
+      may: '6 JANUARI 2026',
+      mayTitle: 'Malmö kommunstyrelse avslår vårt förslag',
+      mayText: 'Förslaget får avslag i kommunstyrelsen',
+      ongoing: 'NULÄGE',
+      ongoingTitle: '2 APRIL 2026, kampanjen nylanseras',
+      ongoingText: 'Detta är kampanjens nuvarande läge',
+      next: 'KOMMANDE',
+      nextTitle: '10 organisationsstöd',
+      nextText: 'Nästa milstolpe: tio offentliga stöduttalanden från organisationer',
       goal: 'MÅL',
       goalTitle: '10 000 underskrifter',
-      goalText: 'Formell petition till Malmö stad',
+      goalText: 'Nästa stora mål för medborgarinitiativet',
       videoTitle: 'Introduktion till kampanjen',
       videoText: 'Se vår korta kampanjvideo som förklarar varför vi kräver etisk upphandling i Malmö.',
       videoFrameTitle: 'Kampanjintroduktion'
@@ -1679,7 +1695,7 @@ const translations = {
       description: 'En gräsrotsrörelse för etisk offentlig upphandling och mänskliga rättigheter i Malmö.',
       pages: 'Sidor',
       participate: 'Delta',
-      rights: '© 2025 Rättvisa Malmö. Alla rättigheter förbehållna.'
+      rights: '© 2026 Rättvisa Malmö. Alla rättigheter förbehållna.'
     },
     generic: {
       maxRecords: 'Maximalt antal poster nått (999).',
@@ -1690,7 +1706,7 @@ const translations = {
   },
   en: {
     meta: {
-      title: 'Justice Malmo'
+      title: 'Justice Malmö'
     },
     language: {
       switcher: 'Choose language',
@@ -1707,9 +1723,9 @@ const translations = {
       volunteer: 'Get involved'
     },
     hero: {
-      badge: 'CITIZENS\' INITIATIVE IN MALMO',
+      badge: 'CITIZENS\' INITIATIVE IN MALMÖ',
       headline: 'Public funds must never finance war crimes',
-      subtext: 'The City of Malmo spends SEK 11 billion every year on procurement. We demand an ethical procurement policy that ensures tax money never goes to companies involved in gross human rights violations.',
+      subtext: 'The City of Malmö spends SEK 11 billion every year on procurement. We demand an ethical procurement policy that ensures tax money never goes to companies involved in gross human rights violations.',
       sign: 'Sign the petition',
       volunteer: 'Get involved',
       note: 'It only takes 10 seconds to sign.'
@@ -1722,8 +1738,9 @@ const translations = {
     impact: {
       title: 'Why it matters',
       intro: 'Public procurement is one of the most powerful tools a municipality has. It is about how we use our shared resources.',
+      amount: '11 billion',
       yearly: 'SEK per year',
-      yearlyText: 'The City of Malmo spends SEK 11 billion every year on goods and services. That is an enormous amount of public money.',
+      yearlyText: 'The City of Malmö spends SEK 11 billion every year on goods and services. That is an enormous amount of public money.',
       values: 'Shared values',
       valuesText: 'Public funds should reflect our shared values. Tax money should never go to companies that violate human rights.',
       cities: 'Cities are leading',
@@ -1731,7 +1748,7 @@ const translations = {
     },
     demand: {
       eyebrow: 'OUR DEMAND',
-      title: 'The City of Malmo must adopt an ethical procurement policy',
+      title: 'The City of Malmö must adopt an ethical procurement policy',
       intro: 'The policy must exclude companies involved in:',
       warCrimes: 'War crimes',
       warCrimesText: 'Violations of international humanitarian law in armed conflicts',
@@ -1747,26 +1764,26 @@ const translations = {
       example4: '<strong>EU directives</strong>: support sustainable and ethical procurement'
     },
     companies: {
-      title: 'Examples from the City of Malmo',
-      intro: 'Here are two examples of companies that hold contracts with the City of Malmo despite their involvement in violations of international legal norms.',
+      title: 'Examples from the City of Malmö',
+      intro: 'Here are two examples of companies that hold contracts with the City of Malmö despite their involvement in violations of international legal norms.',
       wspSubtitle: 'Part of WSP Global Inc.',
-      wspValue: 'City of Malmo: SEK 10 million',
+      wspValue: 'City of Malmö: SEK 10 million',
       wspContract: 'Contract value for consultancy services',
       wspHeading: 'Involvement in violations of international law',
       wspBullet1: '<strong>Jerusalem Light Rail:</strong> Designed rail systems linking illegal settlements in occupied East Jerusalem with the western part of the city.',
       wspBullet2: '<strong>Tel Aviv-Jerusalem Railway:</strong> Provided financial and technical support for a railway crossing occupied land in the West Bank.',
       ateaSubtitle: 'IT and technology distributor',
-      ateaValue: 'City of Malmo: Funds Atea',
+      ateaValue: 'City of Malmö: Funds Atea',
       ateaContract: 'Through IT procurement and system deliveries',
       ateaHeading: 'Involvement in abuses',
       ateaBullet1: '<strong>Conflict minerals:</strong> Involved in supply chains with minerals from the DRC where human rights abuses occur.',
       ateaBullet2: '<strong>Military technology:</strong> Distributes surveillance and control technology to occupying powers and conflict parties.',
       ateaBullet3: '<strong>Complicity:</strong> Together with partners, involved in human rights abuses in Israel and other conflict areas.',
-      relevance: '<strong>Why is this relevant?</strong> These are only two examples of how the City of Malmo\'s tax money may end up financing companies involved in violations of international law. An ethical procurement policy would prevent this by requiring suppliers to guarantee that they are not involved in war crimes, crimes against humanity, or serious human rights violations.'
+      relevance: '<strong>Why is this relevant?</strong> These are only two examples of how the City of Malmö\'s tax money may end up financing companies involved in violations of international law. An ethical procurement policy would prevent this by requiring suppliers to guarantee that they are not involved in war crimes, crimes against humanity, or serious human rights violations.'
     },
     endorsers: {
-      title: 'Support for ethical procurement in Malmo',
-      intro: 'Organizations and individuals backing the campaign for ethical procurement in Malmo.',
+      title: 'Support for ethical procurement in Malmö',
+      intro: 'Organizations and individuals backing the campaign for ethical procurement in Malmö.',
       aria: 'Supporting voices',
       orgs: 'Organizations',
       people: 'Individuals',
@@ -1781,7 +1798,7 @@ const translations = {
     },
     legal: {
       title: 'Is it legally possible?',
-      intro: 'Politicians often claim that ethical procurement is impossible under EU procurement law. That is not true. A thorough legal analysis shows that the City of Malmo already has the legal basis needed to introduce an ethical procurement policy.',
+      intro: 'Politicians often claim that ethical procurement is impossible under EU procurement law. That is not true. A thorough legal analysis shows that the City of Malmö already has the legal basis needed to introduce an ethical procurement policy.',
       card1Question: 'Does EU law allow ethical requirements?',
       card1Subtitle: 'Directive 2014/24/EU - obstacle or foundation?',
       card2Question: 'Can companies be excluded for misconduct?',
@@ -1792,7 +1809,7 @@ const translations = {
       card1BackLead: 'Yes - and much more than that',
       card1BackText1: 'Directive 2014/24/EU explicitly requires public procurement to be carried out <strong>in compliance with applicable environmental, social and labor law, as well as international conventions</strong>.',
       card1BackQuote: '"Authorities must ensure that public funds are used in ways that respect international law and human rights."',
-      card1BackText2: 'That means the City of Malmo <strong>already has the legal foundation</strong> - the question is whether it will <strong>use it</strong>.',
+      card1BackText2: 'That means the City of Malmö <strong>already has the legal foundation</strong> - the question is whether it will <strong>use it</strong>.',
       card2BackLead: 'Yes - the Court of Justice interprets this very broadly',
       card2BackText1: 'The concept of <strong>"serious professional misconduct"</strong> is not limited to technical errors or breaches within a specific contract.',
       card2BackText2: '<strong>EU case law:</strong> It covers <strong>any conduct that calls the company\'s reliability into question</strong> - including serious involvement in human rights abuses or violations of international law.',
@@ -1801,7 +1818,7 @@ const translations = {
       card3BackText1: 'Sweden is bound by human rights conventions and international humanitarian law. Public authorities have a legal <strong>duty not to assist or facilitate serious violations of international law</strong>.',
       card3BackText2: '<strong>UN Guiding Principles:</strong> States must ensure that business activity does not contribute to human rights abuses.',
       card3BackText3: 'Documentation from the UN, human rights organizations and independent journalism <strong>is sufficient evidence</strong> - no criminal conviction is required.',
-      whyTitle: 'So why is Malmo not doing this?',
+      whyTitle: 'So why is Malmö not doing this?',
       whyText: 'There is no legal obstacle. There is only political will - or the lack of it.',
       conceptTitle: 'Key concept: SERIOUS PROFESSIONAL MISCONDUCT',
       concept1: '<strong>Broad legal definition in EU law</strong><br>Covers far more than technical errors or breaches of contract.',
@@ -1812,28 +1829,31 @@ const translations = {
     timeline: {
       title: 'Campaign progress',
       intro: 'The movement is growing. Follow how the campaign is developing.',
-      jan: 'JANUARY 2025',
-      janTitle: 'Petition launched',
-      janText: 'The Justice Malmo campaign officially begins',
-      mar: 'MARCH 2025',
-      marTitle: '1,000 signatures',
-      marText: 'The first thousand signatures collected',
-      may: 'MAY 2025',
-      mayTitle: 'Meeting with city council',
-      mayText: 'The campaign is presented to elected representatives',
-      ongoing: 'ONGOING',
-      ongoingTitle: '5,000 signatures - next goal',
-      ongoingText: 'Help us reach the next milestone',
+      jan: 'JULY 10, 2025',
+      janTitle: 'Campaign launch',
+      janText: 'The Justice Malmö campaign officially begins',
+      mar: 'SEPTEMBER 30, 2025',
+      marTitle: 'More than 1,000 Malmöites vote for our citizen\'s initiative',
+      marText: 'The citizen\'s initiative passes 1,000 votes',
+      may: 'JANUARY 6, 2026',
+      mayTitle: 'Malmö kommunstyrelsen rejects our proposal',
+      mayText: 'The proposal is rejected by the executive committee',
+      ongoing: 'CURRENT STATE',
+      ongoingTitle: 'APRIL 2, 2026, campaign relaunch',
+      ongoingText: 'This is the campaign\'s current stage',
+      next: 'UP NEXT',
+      nextTitle: '10 organizational endorsements',
+      nextText: 'Next milestone: ten public endorsements from organizations',
       goal: 'GOAL',
       goalTitle: '10,000 signatures',
-      goalText: 'Formal petition to the City of Malmo',
+      goalText: 'Next major milestone for the citizen\'s initiative',
       videoTitle: 'Campaign introduction',
-      videoText: 'Watch our short campaign video explaining why we demand ethical procurement in Malmo.',
+      videoText: 'Watch our short campaign video explaining why we demand ethical procurement in Malmö.',
       videoFrameTitle: 'Campaign introduction'
     },
     spread: {
       title: 'Spread the campaign',
-      intro: 'Every voice matters. Here are concrete ways you can help the campaign reach more people in Malmo.',
+      intro: 'Every voice matters. Here are concrete ways you can help the campaign reach more people in Malmö.',
       socialTitle: 'Share on social media',
       socialText: 'Share the campaign message with your networks on Instagram, Facebook, and TikTok.',
       talkTitle: 'Talk to your neighbors',
@@ -1871,15 +1891,15 @@ const translations = {
       loading: 'Downloading...'
     },
     closing: {
-      headline: 'Malmo can lead the way.',
-      text: 'Join the growing number of Malmo residents who believe public funds must never support human rights abuses.',
+      headline: 'Malmö can lead the way.',
+      text: 'Join the growing number of Malmö residents who believe public funds must never support human rights abuses.',
       sign: 'Sign the petition',
       volunteer: 'Get involved'
     },
     back: 'Back',
     petition: {
       title: 'Sign the petition',
-      intro: 'I demand that the City of Malmo adopt an ethical procurement policy excluding companies involved in war crimes, crimes against humanity, and serious human rights violations.',
+      intro: 'I demand that the City of Malmö adopt an ethical procurement policy excluding companies involved in war crimes, crimes against humanity, and serious human rights violations.',
       privacy: 'Your information is safe and never shared with third parties',
       name: 'Name *',
       namePlaceholder: 'Your full name',
@@ -1944,20 +1964,20 @@ const translations = {
       successPerson: 'Thank you. We will follow up on your endorsement.'
     },
     about: {
-      title: 'About Justice Malmo',
-      lead: 'Justice Malmo is a grassroots movement working for ethical public procurement and accountability for human rights in the City of Malmo.',
-      body1: 'The campaign is led by Malmo residents and supported by a broad network of civil society organizations, trade unions, student groups, and faith communities. We believe that public funds - tax money that belongs to all of us - should never finance companies involved in war crimes, crimes against humanity, or serious human rights violations.',
-      body2: 'The City of Malmo procures goods and services worth about SEK 11 billion every year. That makes the municipality one of Sweden\'s largest public buyers. With that power comes responsibility. We believe the city should adopt an ethical procurement policy that puts human rights at the center.',
+      title: 'About Justice Malmö',
+      lead: 'Justice Malmö is a grassroots movement working for ethical public procurement and accountability for human rights in the City of Malmö.',
+      body1: 'The campaign is led by Malmö residents and supported by a broad network of civil society organizations, trade unions, student groups, and faith communities. We believe that public funds - tax money that belongs to all of us - should never finance companies involved in war crimes, crimes against humanity, or serious human rights violations.',
+      body2: 'The City of Malmö procures goods and services worth about SEK 11 billion every year. That makes the municipality one of Sweden\'s largest public buyers. With that power comes responsibility. We believe the city should adopt an ethical procurement policy that puts human rights at the center.',
       quote: '"Public procurement is not only an economic issue - it is a moral issue."',
-      quoteBy: '- Justice Malmo',
+      quoteBy: '- Justice Malmö',
       doingTitle: 'What we do',
-      doing1: 'Collect signatures for a formal petition to the Malmo city council',
-      doing2: 'Inform Malmo residents about how their tax money is used',
+      doing1: 'Collect signatures for a formal petition to the Malmö city council',
+      doing2: 'Inform Malmö residents about how their tax money is used',
       doing3: 'Build a broad coalition of supporting organizations',
       doing4: 'Meet local politicians and officials to push for change',
       contextTitle: 'International context',
       contextBody: 'Ethical procurement is not new. Norway\'s sovereign wealth fund (Government Pension Fund Global) has long excluded companies that violate international law. Barcelona adopted its ethical procurement policy in 2017. The City of Oslo has introduced rules excluding suppliers involved in violations of international law. EU directives also explicitly support including social and ethical criteria in public procurement.',
-      contextClosing: 'Malmo can and should follow their example.',
+      contextClosing: 'Malmö can and should follow their example.',
       sign: 'Sign the petition',
       volunteer: 'Get involved'
     },
@@ -1971,21 +1991,21 @@ const translations = {
       q3: 'Which other cities have introduced similar policies?',
       a3: 'Barcelona, Oslo, Dublin, and several Belgian and Dutch municipalities have all adopted different forms of ethical procurement policy. Norway\'s state pension fund has the world\'s best-known ethical investment policy, excluding hundreds of companies.',
       q4: 'How much money is involved?',
-      a4: 'The City of Malmo spends about SEK 11 billion per year on procuring goods and services. That is an enormous amount of public money that can be directed toward companies that respect human rights.',
+      a4: 'The City of Malmö spends about SEK 11 billion per year on procuring goods and services. That is an enormous amount of public money that can be directed toward companies that respect human rights.',
       q5: 'How can I help?',
       a5: 'There are many ways to get involved. You can sign the petition, share the campaign on social media, collect signatures among friends and colleagues, attend campaign events, or contact local politicians directly. Visit our Get involved page to sign up as a volunteer.',
       q6: 'What happens to my signature?',
-      a6: 'Your signature is stored securely and used only to show support for ethical procurement in Malmo. When we reach our goal, the petition will be formally presented to the Malmo city council. Your personal information is never shared with third parties.',
-      q7: 'Do I need to live in Malmo to sign?',
-      a7: 'Everyone is welcome to sign. Even though the campaign focuses on the City of Malmo, support from people outside the municipality shows that the issue has broad resonance. Local signatures still carry extra weight in the political process.',
+      a6: 'Your signature is stored securely and used only to show support for ethical procurement in Malmö. When we reach our goal, the petition will be formally presented to the Malmö city council. Your personal information is never shared with third parties.',
+      q7: 'Do I need to live in Malmö to sign?',
+      a7: 'Everyone is welcome to sign. Even though the campaign focuses on the City of Malmö, support from people outside the municipality shows that the issue has broad resonance. Local signatures still carry extra weight in the political process.',
       sign: 'Sign the petition',
       volunteer: 'Get involved'
     },
     footer: {
-      description: 'A grassroots movement for ethical public procurement and human rights in Malmo.',
+      description: 'A grassroots movement for ethical public procurement and human rights in Malmö.',
       pages: 'Pages',
       participate: 'Participate',
-      rights: '© 2025 Justice Malmo. All rights reserved.'
+      rights: '© 2026 Justice Malmö. All rights reserved.'
     },
     generic: {
       maxRecords: 'Maximum number of records reached (999).',
@@ -2223,21 +2243,6 @@ function updateSignatureCount() {
     const pct = goal > 0 ? Math.min((count / goal) * 100, 100) : 0;
     bar.style.width = pct + '%';
   }
-}
-
-// Simulate download with inline feedback
-function simulateDownload(btn, filename) {
-  const original = btn.innerHTML;
-  btn.innerHTML = '<span class="flex items-center gap-1.5"><svg class="animate-spin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4m0 12v4m-7.07-3.93l2.83-2.83m8.48-8.48l2.83-2.83M2 12h4m12 0h4m-3.93 7.07l-2.83-2.83M7.76 7.76L4.93 4.93"/></svg> ' + getText('materials.loading') + '</span>';
-  btn.disabled = true;
-  setTimeout(() => {
-    btn.innerHTML = '<span class="flex items-center gap-1.5 text-green-700">✓ ' + filename + '</span>';
-    setTimeout(() => {
-      btn.innerHTML = original;
-      btn.disabled = false;
-      lucide.createIcons();
-    }, 2000);
-  }, 1200);
 }
 
 // ===== DATA SDK =====
