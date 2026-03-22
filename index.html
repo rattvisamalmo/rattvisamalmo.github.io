@@ -2562,18 +2562,39 @@ function getPageFromHash() {
   return document.getElementById('page-' + hash) ? hash : 'home';
 }
 
-function restorePageScroll(page) {
+function setAppScrollTop(scrollTop) {
   const appWrapper = document.getElementById('appWrapper');
-  const nextScrollTop = pageScrollPositions[page] || 0;
+  const previousBehavior = appWrapper.style.scrollBehavior;
+  appWrapper.style.scrollBehavior = 'auto';
+  appWrapper.scrollTop = scrollTop;
   requestAnimationFrame(() => {
-    appWrapper.scrollTop = nextScrollTop;
+    appWrapper.style.scrollBehavior = previousBehavior;
+  });
+}
+
+function updateCurrentHistoryState() {
+  const state = window.history.state || {};
+  window.history.replaceState({
+    ...state,
+    page: currentPage,
+    scrollTop: pageScrollPositions[currentPage] || 0
+  }, '', getPageUrl(currentPage));
+}
+
+function restorePageScroll(page, scrollTop) {
+  const nextScrollTop = typeof scrollTop === 'number' ? scrollTop : (pageScrollPositions[page] || 0);
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      setAppScrollTop(nextScrollTop);
+    });
   });
 }
 
 function goTo(page, options = {}) {
-  const { pushHistory = true, restoreScroll = false } = options;
+  const { pushHistory = true, restoreScroll = false, scrollTop } = options;
   const appWrapper = document.getElementById('appWrapper');
   pageScrollPositions[currentPage] = appWrapper.scrollTop;
+  updateCurrentHistoryState();
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   const target = document.getElementById('page-' + page);
   if (target) target.classList.add('active');
@@ -2583,19 +2604,20 @@ function goTo(page, options = {}) {
     n.classList.toggle('active-nav', n.getAttribute('data-nav') === page);
   });
   if (pushHistory) {
-    window.history.pushState({ page }, '', getPageUrl(page));
+    window.history.pushState({ page, scrollTop: 0 }, '', getPageUrl(page));
   }
   if (restoreScroll) {
-    restorePageScroll(page);
+    restorePageScroll(page, scrollTop);
   } else {
-    appWrapper.scrollTop = 0;
+    setAppScrollTop(0);
   }
   lucide.createIcons();
 }
 
 window.addEventListener('popstate', (event) => {
   const page = event.state?.page || getPageFromHash();
-  goTo(page, { pushHistory: false, restoreScroll: true });
+  const scrollTop = typeof event.state?.scrollTop === 'number' ? event.state.scrollTop : (pageScrollPositions[page] || 0);
+  goTo(page, { pushHistory: false, restoreScroll: true, scrollTop });
 });
 
 function toggleMobileMenu() {
@@ -2902,10 +2924,22 @@ function applyConfig(config) {
 // ===== INIT =====
 (async function init() {
   applyLanguage(detectInitialLanguage());
+  if ('scrollRestoration' in window.history) {
+    window.history.scrollRestoration = 'manual';
+  }
+
+  const appWrapper = document.getElementById('appWrapper');
+  appWrapper.addEventListener('scroll', () => {
+    pageScrollPositions[currentPage] = appWrapper.scrollTop;
+    if (window.history.state?.page === currentPage) {
+      updateCurrentHistoryState();
+    }
+  }, { passive: true });
+
   const initialPage = getPageFromHash();
   currentPage = initialPage;
   goTo(initialPage, { pushHistory: false, restoreScroll: true });
-  window.history.replaceState({ page: initialPage }, '', getPageUrl(initialPage));
+  window.history.replaceState({ page: initialPage, scrollTop: pageScrollPositions[initialPage] || 0 }, '', getPageUrl(initialPage));
 
   // Init Element SDK
   if (window.elementSdk) {
