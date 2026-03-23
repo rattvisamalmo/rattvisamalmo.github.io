@@ -625,6 +625,24 @@ body {
   box-shadow: 0 6px 16px rgba(10,22,40,0.12);
 }
 
+/* Mobile language switcher */
+.mobile-language-switcher {
+  animation: slideIn 0.3s ease-out forwards;
+}
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+.mobile-language-switcher button {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 /* ===== LOADING SCREEN ===== */
 #loading-screen {
   position: fixed;
@@ -778,7 +796,7 @@ body {
   <header class="sticky top-0 z-50" style="background:rgba(247,245,240,0.95);backdrop-filter:blur(10px);border-bottom:1px solid #e5e2db">
   <div class="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between" style="height:64px"><button type="button" onclick="goTo('home')" class="flex items-center border-none bg-transparent cursor-pointer p-0" aria-label="Go to homepage" data-i18n-aria-label="language.goHome"><img src="assets/brand/logo-horizontal-dark.png" alt="" class="brand-logo brand-logo-header" width="435" height="74" decoding="async" fetchpriority="high"></button>
     <nav class="desktop-nav flex items-center gap-3" aria-label="Main navigation"><button class="nav-link" data-nav="home" onclick="goTo('home')" data-i18n="nav.home">Hem</button> <button class="nav-link" data-nav="about" onclick="goTo('about')" data-i18n="nav.about">Om kampanjen</button> <button class="nav-link" data-nav="legal-deepdive" onclick="goTo('legal-deepdive')" data-i18n="nav.legal">Juridisk analys</button> <button class="nav-link" data-nav="faq" onclick="goTo('faq')" data-i18n="nav.faq">Frågor &amp; Svar</button> <div class="language-switcher" id="desktopLanguageSwitcher" role="group" aria-label="Choose language" data-i18n-aria-label="language.switcher"><button type="button" data-language-button="sv" onclick="setLanguage('sv')">SV</button><button type="button" data-language-button="en" onclick="setLanguage('en')">EN</button></div> <button class="btn-primary btn-pulse" style="padding:8px 20px;font-size:14px" onclick="goTo('petition')" data-i18n="nav.sign">Skriv under</button>
-    </nav><div class="flex items-center gap-2"><button type="button" class="flex md:hidden p-2 bg-transparent border-none cursor-pointer" onclick="toggleLanguage()" aria-label="Toggle language" data-i18n-aria-label="language.toggleLanguage"><i data-lucide="globe" style="width:20px;height:20px"></i></button><button class="mobile-trigger p-2 bg-transparent border-none cursor-pointer md:hidden" onclick="toggleMobileMenu()" aria-label="Open menu" data-i18n-aria-label="language.openMenu"> <i data-lucide="menu" style="width:24px;height:24px"></i> </button></div>
+    </nav><div class="flex items-center gap-2"><div class="language-switcher mobile-language-switcher md:hidden" id="mobileLanguageSwitcher" role="group" aria-label="Choose language" data-i18n-aria-label="language.switcher"><button type="button" data-language-button="sv" onclick="setLanguage('sv')">SV</button><button type="button" data-language-button="en" onclick="setLanguage('en')">EN</button></div><button class="mobile-trigger p-2 bg-transparent border-none cursor-pointer md:hidden" onclick="toggleMobileMenu()" aria-label="Open menu" data-i18n-aria-label="language.openMenu"> <i data-lucide="menu" style="width:24px;height:24px"></i> </button></div>
     </div>
    </header><!-- ========== HOME PAGE ========== -->
    <main id="page-home" class="page active"><!-- HERO -->
