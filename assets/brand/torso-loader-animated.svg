@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 240" width="400" height="960" role="img" aria-label="Turning torso teaser animation" style="overflow:visible">
+  <title>Turning torso teaser animation</title>
+  <defs>
+    <linearGradient id="torsoGrad" x1="0" y1="193" x2="0" y2="5" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#C23A22" stop-opacity="1"/>
+      <stop offset="100%" stop-color="#e05840" stop-opacity="0.75"/>
+    </linearGradient>
+    <filter id="torsoGlow" x="-40%" y="-10%" width="180%" height="120%">
+      <feGaussianBlur stdDeviation="2.5" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <style>
+      .torso-segment { opacity: 0; }
+    </style>
+  </defs>
+
+  <g fill="none" stroke="#C23A22" stroke-width="1" opacity="0.25">
+    <rect x="35" y="185" width="30" height="8"/>
+    <rect x="30" y="165" width="40" height="12" transform="rotate(-4 50 171)"/>
+    <rect x="28" y="145" width="44" height="12" transform="rotate(-8 50 151)"/>
+    <rect x="26" y="125" width="48" height="12" transform="rotate(-12 50 131)"/>
+    <rect x="24" y="105" width="52" height="12" transform="rotate(-16 50 111)"/>
+    <rect x="22" y="85" width="56" height="12" transform="rotate(-20 50 91)"/>
+    <rect x="20" y="65" width="60" height="12" transform="rotate(-24 50 71)"/>
+    <rect x="22" y="45" width="56" height="12" transform="rotate(-28 50 51)"/>
+    <rect x="24" y="25" width="52" height="12" transform="rotate(-32 50 31)"/>
+    <rect x="28" y="5" width="44" height="12" transform="rotate(-36 50 11)"/>
+  </g>
+
+  <g fill="url(#torsoGrad)" filter="url(#torsoGlow)">
+    <rect class="torso-segment" x="35" y="185" width="30" height="8">
+      <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.04;0.08;0.88;1" dur="2.8s" begin="0s" repeatCount="indefinite"/>
+    </rect>
+    <rect class="torso-segment" x="30" y="165" width="40" height="12" transform="rotate(-4 50 171)">
+      <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.04;0.08;0.88;1" dur="2.8s" begin="0.15s" repeatCount="indefinite"/>
+    </rect>
+    <rect class="torso-segment" x="28" y="145" width="44" height="12" transform="rotate(-8 50 151)">
+      <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.04;0.08;0.88;1" dur="2.8s" begin="0.30s" repeatCount="indefinite"/>
+    </rect>
+    <rect class="torso-segment" x="26" y="125" width="48" height="12" transform="rotate(-12 50 131)">
+      <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.04;0.08;0.88;1" dur="2.8s" begin="0.45s" repeatCount="indefinite"/>
+    </rect>
+    <rect class="torso-segment" x="24" y="105" width="52" height="12" transform="rotate(-16 50 111)">
+      <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.04;0.08;0.88;1" dur="2.8s" begin="0.60s" repeatCount="indefinite"/>
+    </rect>
+    <rect class="torso-segment" x="22" y="85" width="56" height="12" transform="rotate(-20 50 91)">
+      <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.04;0.08;0.88;1" dur="2.8s" begin="0.75s" repeatCount="indefinite"/>
+    </rect>
+    <rect class="torso-segment" x="20" y="65" width="60" height="12" transform="rotate(-24 50 71)">
+      <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.04;0.08;0.88;1" dur="2.8s" begin="0.90s" repeatCount="indefinite"/>
+    </rect>
+    <rect class="torso-segment" x="22" y="45" width="56" height="12" transform="rotate(-28 50 51)">
+      <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.04;0.08;0.88;1" dur="2.8s" begin="1.05s" repeatCount="indefinite"/>
+    </rect>
+    <rect class="torso-segment" x="24" y="25" width="52" height="12" transform="rotate(-32 50 31)">
+      <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.04;0.08;0.88;1" dur="2.8s" begin="1.20s" repeatCount="indefinite"/>
+    </rect>
+    <rect class="torso-segment" x="28" y="5" width="44" height="12" transform="rotate(-36 50 11)">
+      <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.04;0.08;0.88;1" dur="2.8s" begin="1.35s" repeatCount="indefinite"/>
+    </rect>
+  </g>
+</svg>

@@ -5,6 +5,13 @@
         "git push": true,
         "git -C \"c:\\FeathersInCap\\Projects\\Webpages\\RM\"": true,
         "Copy-Item": true,
-        "git remote": true
+        "git remote": true,
+        "Test-Path": true,
+        "New-Item": true,
+        "Out-Null": true,
+        "npm init": true,
+        "npm pkg": true,
+        "Set-Content": true,
+        "npm install": true
     }
 }

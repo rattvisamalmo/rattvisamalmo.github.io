@@ -1,0 +1,13 @@
+{
+  "name": "rm-webpage-tools",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "export:torso": "node tools/export-torso-animation.mjs"
+  },
+  "dependencies": {
+    "@ffmpeg-installer/ffmpeg": "^1.1.0",
+    "playwright-core": "^1.53.2"
+  }
+}
