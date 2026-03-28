@@ -186,7 +186,7 @@ body {
 }
 
 .flip-card-question {
-  font-family: 'Playfair Display', Georgia, serif;
+  font-family: 'Poppins', sans-serif;
   font-size: 20px;
   font-weight: bold;
   color: #0a1628;
@@ -456,9 +456,9 @@ body {
 }
 .individual-name {
   font-size: 17px;
-  font-weight: 700;
+  font-weight: 400;
   color: var(--text-color);
-  margin-bottom: 6px;
+  margin-bottom: 0;
 }
 .individual-title {
   font-size: 14px;
@@ -609,10 +609,16 @@ body {
 @media (max-width: 768px) {
   .desktop-nav { display: none !important; }
   .mobile-trigger { display: flex !important; }
-  .brand-logo-header { height: 26px; }
+  .brand-logo-header { height: 34px; }
+  .brand-logo-menu { height: 38px; }
+  .header-inner { height: 72px !important; }
 }
 @media (min-width: 769px) {
   .mobile-trigger { display: none !important; }
+  .hero-actions {
+    flex-direction: row-reverse;
+    justify-content: flex-start;
+  }
 }
 .language-switcher {
   display: inline-flex;
@@ -810,7 +816,7 @@ body {
     </nav>
    </div><!-- HEADER / NAV -->
   <header class="sticky top-0 z-50" style="background:rgba(247,245,240,0.95);backdrop-filter:blur(10px);border-bottom:1px solid #e5e2db">
-  <div class="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between" style="height:64px"><button type="button" onclick="goTo('home')" class="flex items-center border-none bg-transparent cursor-pointer p-0" aria-label="Go to homepage" data-i18n-aria-label="language.goHome"><img src="assets/brand/logo-horizontal-dark.png" alt="" class="brand-logo brand-logo-header" width="435" height="74" decoding="async" fetchpriority="high"></button>
+  <div class="header-inner max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between" style="height:64px"><button type="button" onclick="goTo('home')" class="flex items-center border-none bg-transparent cursor-pointer p-0" aria-label="Go to homepage" data-i18n-aria-label="language.goHome"><img src="assets/brand/logo-horizontal-dark.png" alt="" class="brand-logo brand-logo-header" width="435" height="74" decoding="async" fetchpriority="high"></button>
     <nav class="desktop-nav flex items-center gap-3" aria-label="Main navigation"><button class="nav-link" data-nav="home" onclick="goTo('home')" data-i18n="nav.home">Hem</button> <button class="nav-link" data-nav="about" onclick="goTo('about')" data-i18n="nav.about">Om kampanjen</button> <button class="nav-link" data-nav="legal-deepdive" onclick="goTo('legal-deepdive')" data-i18n="nav.legal">Juridisk analys</button> <button class="nav-link" data-nav="faq" onclick="goTo('faq')" data-i18n="nav.faq">Frågor &amp; Svar</button> <div class="language-switcher" id="desktopLanguageSwitcher" role="group" aria-label="Choose language" data-i18n-aria-label="language.switcher"><button type="button" data-language-button="sv" onclick="setLanguage('sv')">SV</button><button type="button" data-language-button="en" onclick="setLanguage('en')">EN</button></div> <button class="btn-primary btn-pulse" style="padding:8px 20px;font-size:14px" onclick="goTo('petition')" data-i18n="nav.sign">Skriv under</button>
     </nav><div class="flex items-center gap-2"><div class="language-switcher mobile-language-switcher md:hidden" id="mobileLanguageSwitcher" role="group" aria-label="Choose language" data-i18n-aria-label="language.switcher"><button type="button" data-language-button="sv" onclick="setLanguage('sv')">SV</button><button type="button" data-language-button="en" onclick="setLanguage('en')">EN</button></div><button class="mobile-trigger p-2 bg-transparent border-none cursor-pointer md:hidden" onclick="toggleMobileMenu()" aria-label="Open menu" data-i18n-aria-label="language.openMenu"> <i data-lucide="menu" style="width:24px;height:24px"></i> </button></div>
     </div>
@@ -824,7 +830,7 @@ body {
         </div>
         <h1 id="heroHeadline" class="font-display fade-up fade-up-d1" style="font-size:clamp(36px,5.5vw,64px);font-weight:800;line-height:1.08;margin-bottom:20px;color:var(--text-color)" data-i18n="hero.headline">Offentliga medel ska aldrig finansiera krigsbrott</h1>
         <p id="heroSubtext" class="fade-up fade-up-d2" style="font-size:clamp(17px,2vw,20px);line-height:1.6;color:#555;margin-bottom:32px;max-width:600px" data-i18n="hero.subtext">Malmö stad spenderar 11 miljarder kronor årligen på upphandling. Vi kräver en etisk upphandlingspolicy som säkerställer att skattepengar aldrig går till företag inblandade i grova brott mot mänskliga rättigheter.</p>
-        <div class="fade-up fade-up-d3 flex flex-wrap gap-3"><button class="btn-primary btn-pulse" style="min-width:230px" onclick="goTo('petition')"> <i data-lucide="pen-tool" style="width:18px;height:18px"></i> <span data-i18n="hero.sign">Skriv under</span> </button> <button class="btn-secondary" onclick="goTo('volunteer')"> <i data-lucide="users" style="width:18px;height:18px"></i> <span data-i18n="hero.volunteer">Engagera dig</span> </button>
+        <div class="hero-actions fade-up fade-up-d3 flex flex-wrap gap-3"><button class="btn-primary btn-pulse" style="min-width:230px" onclick="goTo('petition')"> <i data-lucide="pen-tool" style="width:18px;height:18px"></i> <span data-i18n="hero.sign">Skriv under</span> </button> <button class="btn-secondary" onclick="goTo('volunteer')"> <i data-lucide="users" style="width:18px;height:18px"></i> <span data-i18n="hero.volunteer">Engagera dig</span> </button>
         </div>
         <p style="margin-top:8px;font-size:14px;color:#444;opacity:0.9" data-i18n="hero.note">Det tar bara 10 sekunder att skriva under.</p>
        </div>
@@ -968,17 +974,17 @@ body {
         </div>
         <div>
          <h3 class="font-display text-xl font-bold text-midnight">WSP Sverige</h3>
-         <p class="text-ocean/60 text-sm" data-i18n="companies.wspSubtitle">Del av WSP Global Inc.</p>
+         <p class="text-ocean/60 text-base" data-i18n="companies.wspSubtitle">Del av WSP Global Inc.</p>
         </div>
        </div>
        <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
-        <p class="text-red-900 font-semibold text-sm mb-2 flex items-center gap-2"><i data-lucide="alert-circle" style="width:16px;height:16px;"></i> <span data-i18n="companies.wspValue">Malmö stad: 10 miljoner kronor</span></p>
-        <p class="text-red-800 text-xs" data-i18n="companies.wspContract">Kontraktsvärde för konsulttjänster</p>
+        <p class="text-red-900 font-semibold text-base mb-2 flex items-center gap-2"><i data-lucide="alert-circle" style="width:16px;height:16px;"></i> <span data-i18n="companies.wspValue">Malmö stad: 10 miljoner kronor</span></p>
+        <p class="text-red-800 text-sm" data-i18n="companies.wspContract">Kontraktsvärde för konsulttjänster</p>
        </div>
        <div class="space-y-3">
         <div>
-         <p class="text-xs font-semibold text-ocean/50 uppercase mb-1" data-i18n="companies.wspHeading">Inblandning i folkerättsbrott</p>
-         <ul class="text-sm text-ocean/80 space-y-1.5">
+         <p class="text-sm font-semibold text-ocean/50 uppercase mb-1" data-i18n="companies.wspHeading">Inblandning i folkerättsbrott</p>
+         <ul class="text-base text-ocean/80 space-y-1.5">
           <li class="flex items-start gap-2"><span class="text-ember font-bold flex-shrink-0">•</span> <span data-i18n-html="companies.wspBullet1"><strong>Jerusalem spårväg:</strong> Designade spårvägssystem som förbinder olagliga bosättningar i ockuperad Östjerusalem med västra delen av staden.</span></li>
           <li class="flex items-start gap-2"><span class="text-ember font-bold flex-shrink-0">•</span> <span data-i18n-html="companies.wspBullet2"><strong>Tel Aviv–Jerusalem järnväg:</strong> Tillhandahållit finansiellt och tekniskt stöd för järnväg som går över ockuperad mark i Västbanken.</span></li>
          </ul>
@@ -991,17 +997,17 @@ body {
         </div>
         <div>
          <h3 class="font-display text-xl font-bold text-midnight">Atea</h3>
-         <p class="text-ocean/60 text-sm" data-i18n="companies.ateaSubtitle">IT och teknikdistributör</p>
+         <p class="text-ocean/60 text-base" data-i18n="companies.ateaSubtitle">IT och teknikdistributör</p>
         </div>
        </div>
        <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
-        <p class="text-red-900 font-semibold text-sm mb-2 flex items-center gap-2"><i data-lucide="alert-circle" style="width:16px;height:16px;"></i> <span data-i18n="companies.ateaValue">Malmö stad: Finansierar Atea</span></p>
-        <p class="text-red-800 text-xs" data-i18n="companies.ateaContract">Genom IT-upphandling och systemleveranser</p>
+        <p class="text-red-900 font-semibold text-base mb-2 flex items-center gap-2"><i data-lucide="alert-circle" style="width:16px;height:16px;"></i> <span data-i18n="companies.ateaValue">Malmö stad: Finansierar Atea</span></p>
+        <p class="text-red-800 text-sm" data-i18n="companies.ateaContract">Genom IT-upphandling och systemleveranser</p>
        </div>
        <div class="space-y-3">
         <div>
-         <p class="text-xs font-semibold text-ocean/50 uppercase mb-1" data-i18n="companies.ateaHeading">Inblandning i kränkningar</p>
-         <ul class="text-sm text-ocean/80 space-y-1.5">
+         <p class="text-sm font-semibold text-ocean/50 uppercase mb-1" data-i18n="companies.ateaHeading">Inblandning i kränkningar</p>
+         <ul class="text-base text-ocean/80 space-y-1.5">
           <li class="flex items-start gap-2"><span class="text-ember font-bold flex-shrink-0">•</span> <span data-i18n-html="companies.ateaBullet1"><strong>Konfliktmineraler:</strong> Involverad i värdekedjor med mineraler från DR Kongo där människorättsbrott förekommer.</span></li>
           <li class="flex items-start gap-2"><span class="text-ember font-bold flex-shrink-0">•</span> <span data-i18n-html="companies.ateaBullet2"><strong>Militär teknologi:</strong> Distribuerar övervaknings- och kontrollteknik till ockupationsmakt och konfliktparter.</span></li>
           <li class="flex items-start gap-2"><span class="text-ember font-bold flex-shrink-0">•</span> <span data-i18n-html="companies.ateaBullet3"><strong>Partner i brott:</strong> Tillsammans med partners involverad i människorättskränkningar i Israel och andra konfliktområden.</span></li>
@@ -1046,25 +1052,13 @@ body {
         </div>
         <div id="endorsers-panel-individuals" class="endorser-panel" role="tabpanel" aria-labelledby="endorsers-tab-individuals" aria-hidden="true">
           <div class="endorser-grid">
-          <div class="individual-card">
-            <div class="individual-name">Nicolas Lunabba</div>
-            <div class="individual-title" data-i18n="endorsers.person1Title">författare och hedersdoktor i socialt arbete</div>
-          </div>
-          <div class="individual-card">
-            <div class="individual-name">Halimo Nuur</div>
-            <div class="individual-title" data-i18n="endorsers.person2Title">community-arbetare och folkrörelseutvecklare</div>
-          </div>
-          <div class="individual-card">
-            <div class="individual-name">Anfal Mahdi</div>
-            <div class="individual-title" data-i18n="endorsers.person3Title">oppositionsråd för Vänsterpartiet</div>
-           </div>
-           <div class="individual-card">
-            <div class="individual-name">Nina Jakku</div>
-            <div class="individual-title" data-i18n="endorsers.person4Title">oppositionsråd för Vänsterpartiet</div>
-          </div>
+          <div class="org-logo">Nicolas Lunabba</div>
+          <div class="org-logo">Halimo Nuur</div>
+          <div class="org-logo">Anfal Mahdi</div>
+          <div class="org-logo">Nina Jakku</div>
          </div>
            <div class="text-center mt-6">
-            <p style="font-size:14px;color:#999;margin-bottom:12px" data-i18n="endorsers.personPrompt">Vill du stödja kampanjen som person? Skicka in namn och titel för ett individuellt endorsement.</p>
+            <p style="font-size:14px;color:#999;margin-bottom:12px" data-i18n="endorsers.personPrompt">Vill du stödja kampanjen som person? Skicka in ditt namn för ett individuellt endorsement.</p>
             <button class="btn-primary" onclick="openEndorsement('individual')"><i data-lucide="badge-check" style="width:18px;height:18px"></i> <span data-i18n="endorsers.personCta">Stöd som person</span></button>
            </div>
         </div>
@@ -1817,7 +1811,7 @@ const translations = {
       people: 'Personer',
       orgPrompt: 'Vill din organisation offentligt stödja kampanjen? Skicka in ett organisationsstöd så följer vi upp det som en endorsement.',
       orgCta: 'Stöd som organisation',
-      personPrompt: 'Vill du stödja kampanjen som person? Skicka in namn och titel för ett individuellt endorsement.',
+      personPrompt: 'Vill du stödja kampanjen som person? Skicka in ditt namn för ett individuellt endorsement.',
       personCta: 'Stöd som person',
       person1Title: 'författare och hedersdoktor i socialt arbete',
       person2Title: 'community-arbetare och folkrörelseutvecklare',
@@ -2205,7 +2199,7 @@ const translations = {
       people: 'Individuals',
       orgPrompt: 'Does your organization want to publicly support the campaign? Send in an organizational endorsement and we will follow up before publishing anything.',
       orgCta: 'Support as an organization',
-      personPrompt: 'Do you want to support the campaign as an individual? Send in your name and title for an individual endorsement.',
+      personPrompt: 'Do you want to support the campaign as an individual? Send in your name for an individual endorsement.',
       personCta: 'Support as a person',
       person1Title: 'author and honorary doctor of social work',
       person2Title: 'community worker and movement organizer',
