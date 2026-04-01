@@ -1,0 +1,38 @@
+name: Sync Signature Counter
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '*/30 * * * *'
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      SKIFTET_PETITION_URL: https://kampanj.skiftet.org/bojkotta-eurovision/kampanj/signera/
+      SIGNATURE_OUTPUT_PATH: assets/data/signature-count.json
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Fetch latest petition count
+        run: node tools/sync-skiftet-signature-count.mjs
+
+      - name: Commit updated counter snapshot
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet -- assets/data/signature-count.json; then
+            echo "No counter changes to commit."
+            exit 0
+          fi
+          git add assets/data/signature-count.json
+          git commit -m "chore: sync signature counter"
+          git push

@@ -834,8 +834,8 @@ body {
       <div class="fade-up fade-up-d4" style="margin-top:48px;padding:32px;border-radius:16px;background:white;border:1px solid #e5e2db;max-width:560px">
       <div class="flex items-center gap-2 mb-2" style="color:var(--secondary-color);font-size:13px;font-weight:600;letter-spacing:0.5px"><span style="width:8px;height:8px;background:var(--secondary-color);border-radius:50%;display:inline-block;animation:countPulse 2s infinite"></span> <span data-i18n="counter.live">LIVE — NAMNINSAMLING</span>
        </div>
-       <div class="counter-pulse font-display" style="font-size:clamp(42px,6vw,56px);font-weight:800;color:var(--primary-color)" id="signatureCount">
-        1704
+      <div class="counter-pulse font-display" style="font-size:clamp(42px,6vw,56px);font-weight:800;color:var(--primary-color)" id="signatureCount">
+       30 139
        </div>
       <div style="font-size:15px;color:#777;margin-bottom:16px">
        <span data-i18n="counter.signed">personer har skrivit under</span>
@@ -843,7 +843,7 @@ body {
        <div style="height:8px;background:#eee;border-radius:4px;overflow:hidden">
         <div id="progressBar" class="progress-fill" style="height:100%;background:linear-gradient(90deg,var(--primary-color),var(--secondary-color));border-radius:4px;width:0%"></div>
        </div>
-      <div class="flex justify-between mt-2" style="font-size:12px;color:#999"><span id="progressStart">0</span> <span><span data-i18n="counter.goal">Mål:</span> <span id="progressGoal">10 000</span></span>
+      <div class="flex justify-between mt-2" style="font-size:12px;color:#999"><span id="progressStart">0</span> <span><span data-i18n="counter.goal">Mål:</span> <span id="progressGoal">30 400</span></span>
        </div>
       </div>
      </div>
@@ -2747,8 +2747,17 @@ function toggleFlip(card) {
 }
 
 // ===== SIGNATURE COUNTER =====
-const signatureCountStatic = 439;
+const signatureCountStatic = 30139;
+const signatureGoalStatic = 30400;
+const signatureCounterDataUrl = 'assets/data/signature-count.json';
 const signatureMilestones = [500, 1000, 1500, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000];
+let signatureCounterState = {
+  count: signatureCountStatic,
+  goal: signatureGoalStatic,
+  source: 'local-fallback',
+  fetchedAt: null
+};
+
 function calculateSignatureGoal(count) {
   for (const milestone of signatureMilestones) {
     if (count < milestone) return milestone;
@@ -2761,9 +2770,41 @@ function calculateSignatureGoal(count) {
   return scaled;
 }
 
+async function loadSignatureCount() {
+  try {
+    const response = await fetch(signatureCounterDataUrl, { cache: 'no-store' });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+    const payload = await response.json();
+    const nextCount = Number.parseInt(payload?.count, 10);
+    const nextGoal = Number.parseInt(payload?.goal, 10);
+
+    if (!Number.isFinite(nextCount) || nextCount < 0) {
+      throw new Error('Invalid signature count payload');
+    }
+
+    signatureCounterState = {
+      count: nextCount,
+      goal: Number.isFinite(nextGoal) && nextGoal > 0 ? nextGoal : calculateSignatureGoal(nextCount),
+      source: typeof payload?.source === 'string' ? payload.source : 'synced-json',
+      fetchedAt: typeof payload?.fetched_at === 'string' ? payload.fetched_at : null
+    };
+  } catch (error) {
+    console.warn('Signature counter sync failed, using fallback.', error);
+    signatureCounterState = {
+      count: signatureCountStatic,
+      goal: signatureGoalStatic,
+      source: 'local-fallback',
+      fetchedAt: null
+    };
+  }
+
+  updateSignatureCount();
+}
+
 function updateSignatureCount() {
-  const count = signatureCountStatic;
-  const goal = calculateSignatureGoal(count);
+  const count = signatureCounterState.count;
+  const goal = signatureCounterState.goal;
   const el = document.getElementById('signatureCount');
   const locale = currentLanguage === 'en' ? 'en-US' : 'sv-SE';
   if (el) el.textContent = count.toLocaleString(locale);
@@ -3009,6 +3050,7 @@ function applyConfig(config) {
   setupForms();
   updateEndorsementForm();
   updateSignatureCount();
+  await loadSignatureCount();
   lucide.createIcons();
 })();
 </script>
