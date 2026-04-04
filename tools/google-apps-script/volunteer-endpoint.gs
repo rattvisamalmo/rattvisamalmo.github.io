@@ -1,8 +1,11 @@
 const CONFIG = {
+  spreadsheetId: '',
   sheetName: 'Volunteer Submissions',
   notifyEmail: 'campaign@example.org',
   allowedType: 'volunteer',
-  requiredFields: ['type', 'name', 'email', 'submitted_at']
+  requiredFields: ['type', 'name', 'email', 'submitted_at'],
+  sheetHeaders: ['submitted_at', 'name', 'email', 'volunteer_areas', 'message', 'source_page', 'locale', 'honeypot_status'],
+  debugErrors: true
 };
 
 function doPost(e) {
@@ -28,7 +31,7 @@ function doPost(e) {
     return jsonResponse_({ ok: true });
   } catch (error) {
     console.error(error);
-    return jsonResponse_({ ok: false, error: 'server-error' });
+    return jsonResponse_(buildErrorResponse_(error));
   }
 }
 
@@ -57,12 +60,38 @@ function validatePayload_(payload) {
 }
 
 function getTargetSheet_() {
-  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(CONFIG.sheetName);
+  const spreadsheet = getTargetSpreadsheet_();
+  let sheet = spreadsheet.getSheetByName(CONFIG.sheetName);
+
   if (!sheet) {
-    throw new Error(`Missing sheet: ${CONFIG.sheetName}`);
+    sheet = spreadsheet.insertSheet(CONFIG.sheetName);
   }
 
+  ensureHeaders_(sheet);
   return sheet;
+}
+
+function getTargetSpreadsheet_() {
+  if (CONFIG.spreadsheetId) {
+    return SpreadsheetApp.openById(CONFIG.spreadsheetId);
+  }
+
+  const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+  if (!spreadsheet) {
+    throw new Error('No active spreadsheet. Set CONFIG.spreadsheetId or bind this script to a spreadsheet.');
+  }
+
+  return spreadsheet;
+}
+
+function ensureHeaders_(sheet) {
+  const headerRange = sheet.getRange(1, 1, 1, CONFIG.sheetHeaders.length);
+  const currentHeaders = headerRange.getValues()[0];
+  const hasHeaders = currentHeaders.some(cell => String(cell || '').trim());
+
+  if (!hasHeaders) {
+    headerRange.setValues([CONFIG.sheetHeaders]);
+  }
 }
 
 function buildRow_(payload) {
@@ -95,6 +124,38 @@ function sendNotification_(payload) {
   ].filter(Boolean).join('\n');
 
   MailApp.sendEmail(CONFIG.notifyEmail, subject, body);
+}
+
+function buildErrorResponse_(error) {
+  const detail = error && error.message ? String(error.message) : 'Unknown error';
+  const response = { ok: false, error: 'server-error' };
+
+  if (CONFIG.debugErrors) {
+    response.detail = detail;
+  }
+
+  return response;
+}
+
+function testVolunteerWrite() {
+  const payload = {
+    type: 'volunteer',
+    name: 'Test User',
+    email: 'test@example.com',
+    volunteer_areas: ['share'],
+    message: 'Test write from Apps Script editor',
+    source_page: 'volunteer',
+    locale: 'en',
+    honeypot: '',
+    submitted_at: new Date().toISOString()
+  };
+
+  const validationError = validatePayload_(payload);
+  if (validationError) {
+    throw new Error(validationError);
+  }
+
+  getTargetSheet_().appendRow(buildRow_(payload));
 }
 
 function jsonResponse_(payload) {

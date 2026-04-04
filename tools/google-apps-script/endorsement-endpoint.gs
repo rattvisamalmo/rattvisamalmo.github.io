@@ -1,9 +1,12 @@
 const CONFIG = {
+  spreadsheetId: '',
   sheetName: 'Endorsement Submissions',
   notifyEmail: 'campaign@example.org',
   allowedType: 'endorsement',
   allowedModes: ['organization', 'individual'],
-  requiredFields: ['type', 'name', 'email', 'submitted_at', 'endorsement_mode', 'secondary_label', 'secondary_value', 'review_status']
+  requiredFields: ['type', 'name', 'email', 'submitted_at', 'endorsement_mode', 'secondary_label', 'secondary_value', 'review_status'],
+  sheetHeaders: ['submitted_at', 'endorsement_mode', 'name', 'secondary_label', 'secondary_value', 'email', 'message', 'review_status', 'source_page', 'locale', 'honeypot_status'],
+  debugErrors: true
 };
 
 function doPost(e) {
@@ -29,7 +32,7 @@ function doPost(e) {
     return jsonResponse_({ ok: true });
   } catch (error) {
     console.error(error);
-    return jsonResponse_({ ok: false, error: 'server-error' });
+    return jsonResponse_(buildErrorResponse_(error));
   }
 }
 
@@ -62,12 +65,38 @@ function validatePayload_(payload) {
 }
 
 function getTargetSheet_() {
-  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(CONFIG.sheetName);
+  const spreadsheet = getTargetSpreadsheet_();
+  let sheet = spreadsheet.getSheetByName(CONFIG.sheetName);
+
   if (!sheet) {
-    throw new Error(`Missing sheet: ${CONFIG.sheetName}`);
+    sheet = spreadsheet.insertSheet(CONFIG.sheetName);
   }
 
+  ensureHeaders_(sheet);
   return sheet;
+}
+
+function getTargetSpreadsheet_() {
+  if (CONFIG.spreadsheetId) {
+    return SpreadsheetApp.openById(CONFIG.spreadsheetId);
+  }
+
+  const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+  if (!spreadsheet) {
+    throw new Error('No active spreadsheet. Set CONFIG.spreadsheetId or bind this script to a spreadsheet.');
+  }
+
+  return spreadsheet;
+}
+
+function ensureHeaders_(sheet) {
+  const headerRange = sheet.getRange(1, 1, 1, CONFIG.sheetHeaders.length);
+  const currentHeaders = headerRange.getValues()[0];
+  const hasHeaders = currentHeaders.some(cell => String(cell || '').trim());
+
+  if (!hasHeaders) {
+    headerRange.setValues([CONFIG.sheetHeaders]);
+  }
 }
 
 function buildRow_(payload) {
@@ -105,6 +134,41 @@ function sendNotification_(payload) {
   ].filter(Boolean).join('\n');
 
   MailApp.sendEmail(CONFIG.notifyEmail, subject, body);
+}
+
+function buildErrorResponse_(error) {
+  const detail = error && error.message ? String(error.message) : 'Unknown error';
+  const response = { ok: false, error: 'server-error' };
+
+  if (CONFIG.debugErrors) {
+    response.detail = detail;
+  }
+
+  return response;
+}
+
+function testEndorsementWrite() {
+  const payload = {
+    type: 'endorsement',
+    endorsement_mode: 'organization',
+    name: 'Test Organization',
+    secondary_label: 'Contact person',
+    secondary_value: 'Test Contact',
+    email: 'test@example.com',
+    message: 'Test write from Apps Script editor',
+    review_status: 'pending',
+    source_page: 'endorse',
+    locale: 'en',
+    honeypot: '',
+    submitted_at: new Date().toISOString()
+  };
+
+  const validationError = validatePayload_(payload);
+  if (validationError) {
+    throw new Error(validationError);
+  }
+
+  getTargetSheet_().appendRow(buildRow_(payload));
 }
 
 function jsonResponse_(payload) {
