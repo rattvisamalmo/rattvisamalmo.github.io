@@ -1254,7 +1254,7 @@ body {
             NÄSTA UNDERSKRIFTSMÅL
            </div>
            <div id="timelineSignatureGoalTitle" style="font-weight:600;font-size:16px;margin-bottom:4px">
-            30 400 underskrifter
+            100 underskrifter
            </div>
            <div id="timelineSignatureGoalText" style="color:#666;font-size:14px" data-i18n="timeline.signatureGoalText">
             Nästa underskriftsmål i namninsamlingen
@@ -2648,6 +2648,7 @@ const defaultConfig = {
 
 const siteConfig = {
   petitionLaunchState: 'prelaunch',
+  prelaunchTimelineSignatureGoal: 100,
   petitionUrl: '',
   volunteerEndpointUrl: 'https://script.google.com/macros/s/AKfycbwoSRQQ8G2_yS-Tqd0pKIb8rEyP9_ipO7dB5xhBg7toS1Rox_5b5gMizwRu4JCIafUY/exec',
   endorsementEndpointUrl: 'https://script.google.com/macros/s/AKfycbwltAeEAxIEOSdLGyJrXiAeC1VmusdImxanD4Ro0RgDPMoZeSNe7xiY_fx-kOkZDCmA/exec'
@@ -2684,6 +2685,15 @@ function applyPetitionLaunchState() {
 
 function isConfiguredUrl(url) {
   return typeof url === 'string' && /^https:\/\//i.test(url.trim());
+}
+
+function getTimelineSignatureGoal() {
+  if (isPetitionPrelaunchMode()) {
+    const prelaunchGoal = Number.parseInt(siteConfig.prelaunchTimelineSignatureGoal, 10);
+    return Number.isFinite(prelaunchGoal) && prelaunchGoal > 0 ? prelaunchGoal : 100;
+  }
+
+  return signatureCounterState.goal;
 }
 
 function openPetition(options = {}) {
@@ -2999,6 +3009,7 @@ async function loadSignatureCount() {
 function updateSignatureCount() {
   const count = signatureCounterState.count;
   const goal = signatureCounterState.goal;
+  const timelineGoal = getTimelineSignatureGoal();
   const el = document.getElementById('signatureCount');
   const locale = currentLanguage === 'en' ? 'en-US' : 'sv-SE';
   if (el) el.textContent = count.toLocaleString(locale);
@@ -3016,7 +3027,7 @@ function updateSignatureCount() {
 
   const timelineGoalTitle = document.getElementById('timelineSignatureGoalTitle');
   if (timelineGoalTitle) {
-    timelineGoalTitle.textContent = getText('timeline.signatureGoalTitle').replace('{goal}', goal.toLocaleString(locale));
+    timelineGoalTitle.textContent = getText('timeline.signatureGoalTitle').replace('{goal}', timelineGoal.toLocaleString(locale));
   }
 }
 
