@@ -11,7 +11,7 @@ jobs:
     permissions:
       contents: write
     env:
-      SKIFTET_PETITION_URL: https://kampanj.skiftet.org/bojkotta-eurovision/kampanj/signera/
+      SKIFTET_PETITION_URL: https://www.mittskifte.org/petitions/rattvisa-malmo-inte-en-krona-till-manniskorattsbrott
       SIGNATURE_OUTPUT_PATH: assets/data/signature-count.json
     steps:
       - name: Check out repository

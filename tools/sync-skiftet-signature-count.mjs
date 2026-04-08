@@ -1,7 +1,7 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
-const petitionUrl = process.env.SKIFTET_PETITION_URL || 'https://kampanj.skiftet.org/bojkotta-eurovision/kampanj/signera/';
+const petitionUrl = process.env.SKIFTET_PETITION_URL || 'https://www.mittskifte.org/petitions/rattvisa-malmo-inte-en-krona-till-manniskorattsbrott';
 const outputPath = path.resolve(process.env.SIGNATURE_OUTPUT_PATH || 'assets/data/signature-count.json');
 
 function extractNumber(html, attributeName) {
@@ -12,6 +12,31 @@ function extractNumber(html, attributeName) {
   }
 
   return Number.parseInt(match[1], 10);
+}
+
+function extractProgressNumber(html, fieldName) {
+  const encodedPattern = new RegExp(`${fieldName}&quot;:(\\d+)`, 'i');
+  const plainPattern = new RegExp(`"${fieldName}":(\\d+)`, 'i');
+  const match = html.match(encodedPattern) || html.match(plainPattern);
+  if (!match) {
+    throw new Error(`Could not find ${fieldName} in petition page`);
+  }
+
+  return Number.parseInt(match[1], 10);
+}
+
+function extractCountAndGoal(html) {
+  try {
+    return {
+      count: extractNumber(html, 'currentvalue'),
+      goal: extractNumber(html, 'maxvalue')
+    };
+  } catch {
+    return {
+      count: extractProgressNumber(html, 'currentSignaturesCount'),
+      goal: extractProgressNumber(html, 'currentSignaturesGoal')
+    };
+  }
 }
 
 function extractTitle(html) {
@@ -31,8 +56,7 @@ if (!response.ok) {
 }
 
 const html = await response.text();
-const count = extractNumber(html, 'currentvalue');
-const goal = extractNumber(html, 'maxvalue');
+const { count, goal } = extractCountAndGoal(html);
 const title = extractTitle(html);
 
 const payload = {
