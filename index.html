@@ -2711,7 +2711,7 @@ function openPetition(options = {}) {
     return false;
   }
 
-  window.location.assign(siteConfig.petitionUrl);
+  window.open(siteConfig.petitionUrl, '_blank', 'noopener,noreferrer');
   return true;
 }
 
