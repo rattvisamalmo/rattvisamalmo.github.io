@@ -1242,10 +1242,22 @@ body {
             NULÄGE
          </div>
          <div style="font-weight:600;font-size:16px;margin-bottom:4px" data-i18n="timeline.ongoingTitle">
-            2 APRIL 2026, kampanjen nylanseras
+            9 APRIL 2026, kampanjen nylanseras
          </div>
          <div style="color:#666;font-size:14px" data-i18n="timeline.ongoingText">
             Detta är kampanjens nuvarande läge
+           </div>
+          </div>
+          <div class="timeline-step">
+           <div class="timeline-dot" style="background:#ccc"></div>
+           <div style="font-size:12px;color:#999;font-weight:600;margin-bottom:4px" data-i18n="timeline.signatureGoal">
+            NÄSTA UNDERSKRIFTSMÅL
+           </div>
+           <div id="timelineSignatureGoalTitle" style="font-weight:600;font-size:16px;margin-bottom:4px">
+            30 400 underskrifter
+           </div>
+           <div id="timelineSignatureGoalText" style="color:#666;font-size:14px" data-i18n="timeline.signatureGoalText">
+            Nästa underskriftsmål i namninsamlingen
            </div>
           </div>
           <div class="timeline-step">
@@ -1944,8 +1956,11 @@ const translations = {
       mayTitle: 'Malmö kommunstyrelse avslår vårt förslag',
       mayText: 'Förslaget får avslag i kommunstyrelsen',
       ongoing: 'NULÄGE',
-      ongoingTitle: '2 APRIL 2026, kampanjen nylanseras',
+      ongoingTitle: '9 APRIL 2026, kampanjen nylanseras',
       ongoingText: 'Detta är kampanjens nuvarande läge',
+      signatureGoal: 'NÄSTA UNDERSKRIFTSMÅL',
+      signatureGoalTitle: '{goal} underskrifter',
+      signatureGoalText: 'Nästa underskriftsmål i namninsamlingen',
       next: 'KOMMANDE',
       nextTitle: '10 organisationsstöd',
       nextText: 'Nästa milstolpe: tio offentliga stöduttalanden från organisationer',
@@ -2352,8 +2367,11 @@ const translations = {
       mayTitle: 'Malmö kommunstyrelsen rejects our proposal',
       mayText: 'The proposal is rejected by the executive committee',
       ongoing: 'CURRENT STATE',
-      ongoingTitle: 'APRIL 2, 2026, campaign relaunch',
+      ongoingTitle: 'APRIL 9, 2026, campaign relaunch',
       ongoingText: 'This is the campaign\'s current stage',
+      signatureGoal: 'NEXT SIGNATURE GOAL',
+      signatureGoalTitle: '{goal} signatures',
+      signatureGoalText: 'Next signature milestone for the petition',
       next: 'UP NEXT',
       nextTitle: '10 organizational endorsements',
       nextText: 'Next milestone: ten public endorsements from organizations',
@@ -2994,6 +3012,11 @@ function updateSignatureCount() {
   if (bar) {
     const pct = goal > 0 ? Math.min((count / goal) * 100, 100) : 0;
     bar.style.width = pct + '%';
+  }
+
+  const timelineGoalTitle = document.getElementById('timelineSignatureGoalTitle');
+  if (timelineGoalTitle) {
+    timelineGoalTitle.textContent = getText('timeline.signatureGoalTitle').replace('{goal}', goal.toLocaleString(locale));
   }
 }
 
