@@ -1241,7 +1241,7 @@ body {
          <div style="font-size:12px;color:var(--primary-color);font-weight:600;margin-bottom:4px" data-i18n="timeline.ongoing">
             NULÄGE
          </div>
-         <div style="font-weight:600;font-size:16px;margin-bottom:4px" data-i18n="timeline.ongoingTitle">
+         <div id="timelineOngoingTitle" style="font-weight:600;font-size:16px;margin-bottom:4px" data-i18n="timeline.ongoingTitle">
             9 APRIL 2026, kampanjen nylanseras
          </div>
          <div style="color:#666;font-size:14px" data-i18n="timeline.ongoingText">
@@ -3041,6 +3041,11 @@ function updateSignatureCount() {
   if (bar) {
     const pct = goal > 0 ? Math.min((count / goal) * 100, 100) : 0;
     bar.style.width = pct + '%';
+  }
+
+  const ongoingTitleEl = document.getElementById('timelineOngoingTitle');
+  if (ongoingTitleEl) {
+    ongoingTitleEl.textContent = getText('timeline.signatureGoalTitle').replace('{goal}', timelineGoal.toLocaleString(locale));
   }
 
   const timelineGoalTitle = document.getElementById('timelineSignatureGoalTitle');
