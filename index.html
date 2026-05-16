@@ -1100,6 +1100,7 @@ body {
          <div class="flip-card-content">
           <p class="mb-4"><strong data-i18n="legal.card1BackLead">Ja — och långt mer än så</strong></p>
           <p class="mb-4" data-i18n-html="legal.card1BackText1">Direktiv 2014/24/EU kräver uttryckligen att offentliga upphandlingar genomförs <strong>i enlighet med gällande miljö-, social- och arbetsmiljölag, samt internationella konventioner</strong>.</p>
+          <p class="mb-4" data-i18n="legal.card1BackText3">Svensk lagstiftning stödjer detta också: LOU genomför EU-direktivet 2014/24 i svensk rätt och ger upphandlande myndigheter möjlighet att ställa sociala och etiska krav i upphandlingar.</p>
           <p class="mb-3 italic text-sm opacity-90" data-i18n="legal.card1BackQuote">"Myndigheter ska säkerställa att offentliga medel används på sätt som respekterar internationell rätt och mänskliga rättigheter."</p>
           <p data-i18n-html="legal.card1BackText2">Det betyder att Malmö stad <strong>redan har den juridiska grunden</strong> — det handlar om att <strong>använda den</strong>.</p>
          </div>
@@ -1569,6 +1570,10 @@ body {
        <div data-i18n-html="legalDeep.eu4"><strong>Processen slutar inte vid anbudets start.</strong> Leverantörer kan uteslutas under pågående förfarande, och återinträde kräver trovärdig remediation och förebyggande åtgärder.</div>
       </div>
       </div>
+      <div style="padding:30px;border-radius:20px;background:white;border:1px solid #e5e2db">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px"><div style="width:46px;height:46px;border-radius:12px;background:rgba(43,90,75,0.1);display:flex;align-items:center;justify-content:center"><i data-lucide="book-open" style="width:22px;height:22px;color:var(--secondary-color)"></i></div><h3 class="font-display" style="font-size:24px;font-weight:700" data-i18n="legalDeep.summary5Title">Svensk lagstiftning stödjer det</h3></div>
+      <p style="font-size:15px;line-height:1.65;color:#666" data-i18n-html="legalDeep.summary5Text">LOU genomför EU-direktivet 2014/24 i svensk rätt och ger kommuner möjlighet att ställa sociala, etiska och arbetsrättsliga krav i upphandlingar.</p>
+      </div>
      </div>
       <div style="margin-top:18px;padding:24px;border-radius:18px;background:linear-gradient(135deg, rgba(194,58,34,0.08), rgba(43,90,75,0.08));border:1px solid rgba(10,22,40,0.12)">
        <div style="display:flex;align-items:flex-start;gap:14px;margin-bottom:14px">
@@ -1599,6 +1604,10 @@ body {
          <div><strong data-i18n="legalDeep.gpmCase2Title">Generali-Providencia (C-470/13)</strong><br><span data-i18n="legalDeep.gpmCase2Text">Även allvarliga konkurrensrättsliga överträdelser kan utgöra fel i yrkesutövningen.</span></div>
          <div><strong data-i18n="legalDeep.gpmCase3Title">CNS (C-425/18)</strong><br><span data-i18n="legalDeep.gpmCase3Text">Bedömningen är inte begränsad till fel inom ett enskilt offentligt kontrakt.</span></div>
         </div>
+       </div>
+       <div style="padding:16px;border-radius:14px;background:white;border:1px solid #e5e2db;margin-bottom:12px">
+        <h4 style="font-size:16px;font-weight:700;margin-bottom:10px;color:var(--text-color)" data-i18n="legalDeep.gpmSwedishTitle">Svenska referenser: ingen brottmålsdom krävs</h4>
+        <p style="font-size:14px;color:#555;line-height:1.6" data-i18n="legalDeep.gpmSwedishText">Svensk praxis visar att uteslutning enligt 13 kap. 3 § 3 p. LOU kan baseras på ett allvarligt fel i yrkesutövningen utan att ett brott måste prövas i brottmål. HFD 2013 ref. 61 slog fast att en leverantör kunde uteslutas med hänvisning till osanna fakturor och svart arbetskraft, och att bevisbördan ligger på den upphandlande myndigheten.</p>
        </div>
        <p style="font-size:13px;color:#666;line-height:1.6;margin:0" data-i18n="legalDeep.gpmSafeguard">Ovanstående kräver fortfarande rättssäkra metoder: objektiva kriterier, likabehandling, proportionalitet, transparent motivering och möjlighet till förklaring/remediering.</p>
       </div>
@@ -1867,6 +1876,7 @@ const translations = {
       card1BackText1: 'Direktiv 2014/24/EU kräver uttryckligen att offentliga upphandlingar genomförs <strong>i enlighet med gällande miljö-, social- och arbetsmiljölag, samt internationella konventioner</strong>.',
       card1BackQuote: '"Myndigheter ska säkerställa att offentliga medel används på sätt som respekterar internationell rätt och mänskliga rättigheter."',
       card1BackText2: 'Det betyder att Malmö stad <strong>redan har den juridiska grunden</strong> - det handlar om att <strong>använda den</strong>.',
+      card1BackText3: 'Svensk lagstiftning stödjer detta också: LOU genomför EU-direktivet 2014/24 i svensk rätt och ger upphandlande myndigheter möjlighet att ställa sociala och etiska krav i upphandlingar.',
       card2BackLead: 'Ja - EU-domstolen tolkar detta mycket brett',
       card2BackText1: 'Begreppet <strong>"allvarliga fel i yrkesutövningen"</strong> är inte begränsat till tekniska fel eller brott inom ett specifikt kontrakt.',
       card2BackText2: '<strong>EU-domstolspraxis:</strong> Det omfattar <strong>allt beteende som ifrågasätter företagets tillförlitlighet</strong> - inklusive allvarlig inblandning i brott mot mänskliga rättigheter eller internationell rätt.',
@@ -1897,8 +1907,11 @@ const translations = {
       summary3Text: 'Frågan är inte om kommunen får bry sig om detta, utan hur den använder sitt handlingsutrymme på ett tydligt, proportionerligt och rättssäkert sätt.',
       summary4Title: 'Andra städer har redan gjort det',
       summary4Text: 'Flera europeiska kommuner och städer har infört etiska upphandlingskrav som visar att principen är möjlig och praktiskt genomförbar i offentlig upphandling.',
+      summary5Title: 'Svensk lag',
+      summary5Text: '<strong>Vad säger svensk rätt?</strong> Enligt lagen om offentlig upphandling (LOU) kan en upphandlande myndighet utesluta en leverantör som inte lever upp till fastställda krav och skyldigheter. <br><br> <strong>Uteslutningsgrunder:</strong> 13 kap. 3 § p. 3 är en fakultativ grund för uteslutning vid allvarliga fel i yrkesutövningen, särskilt när leverantörens redbarhet, professionalitet eller trovärdighet kan ifrågasättas. <br><br> <strong>Inget krav på brott:</strong> En uteslutning kan bli aktuell även utan att ett brott har prövats; tillförlitlig dokumentation från oberoende källor kan vara tillräcklig. <br><br> <strong>Förarbeten och EU-koppling:</strong> Prop. 2015/16:195 visar att bestämmelsen tar sin utgångspunkt i artikel 57.4 i direktiv 2014/24 och är avsedd att skydda upphandlingen mot opålitliga leverantörer.',
       foundationsTitle: 'Så ser den juridiska grunden ut',
       foundationsIntro: 'Den djupare analysen bygger på två spår samtidigt: vad internationell rätt kräver av offentliga organ, och vilka konkreta verktyg EU:s upphandlingsregler redan ger kommuner.',
+      gpmTitle: 'Varför "allvarliga fel i yrkesutövningen" är avgörande',
       intlTitle: 'Internationell rätt',
       intl1: '<strong>Kommunen är en del av det offentliga.</strong> När en kommun upphandlar gör den inte det i ett rättsligt vakuum, utan inom ramen för statens internationella förpliktelser.',
       intl2: '<strong>Länder har en skyldighet att inte medverka till allvarliga folkrättsbrott.</strong> Offentliga organ ska inte genom ekonomiska relationer bidra till att upprätthålla olagliga situationer.',
@@ -1924,6 +1937,8 @@ const translations = {
       gpmCase2Text: 'Även allvarliga konkurrensrättsliga överträdelser kan utgöra fel i yrkesutövningen.',
       gpmCase3Title: 'CNS (C-425/18)',
       gpmCase3Text: 'Bedömningen är inte begränsad till fel inom ett enskilt offentligt kontrakt.',
+      gpmSwedishTitle: 'Svenska referenser: ingen brottmålsdom krävs',
+      gpmSwedishText: 'Svensk praxis visar att uteslutning enligt 13 kap. 3 § 3 p. LOU kan baseras på ett allvarligt fel i yrkesutövningen utan att ett brott måste prövas i brottmål. HFD 2013 ref. 61 slog fast att en leverantör kunde uteslutas med hänvisning till osanna fakturor och svart arbetskraft, och att bevisbördan ligger på den upphandlande myndigheten.',
       gpmSafeguard: 'Ovanstående kräver fortfarande rättssäkra metoder: objektiva kriterier, likabehandling, proportionalitet, transparent motivering och möjlighet till förklaring/remediering.',
       pathTitle: 'Hur uteslutning kan fungera i praktiken',
       pathIntro: 'Det finns inte bara en väg. Flera kompletterande spår kan användas parallellt för att göra en kommunal policy operativ i praktiken.',
@@ -2282,6 +2297,7 @@ const translations = {
       click: 'Click to reveal the answer',
       card1BackLead: 'Yes - and much more than that',
       card1BackText1: 'Directive 2014/24/EU explicitly requires public procurement to be carried out <strong>in compliance with applicable environmental, social and labor law, as well as international conventions</strong>.',
+      card1BackText3: 'Swedish law supports this too: LOU implements Directive 2014/24 in Swedish law and gives contracting authorities the ability to set social and ethical requirements in procurement.',
       card1BackQuote: '"Authorities must ensure that public funds are used in ways that respect international law and human rights."',
       card1BackText2: 'That means the City of Malmö <strong>already has the legal foundation</strong> - the question is whether it will <strong>use it</strong>.',
       card2BackLead: 'Yes - the Court of Justice interprets this very broadly',
@@ -2314,6 +2330,8 @@ const translations = {
       summary3Text: 'The real issue is not whether the municipality may care about this, but how it uses its discretion in a clear, proportionate, and legally secure way.',
       summary4Title: 'Other cities have already done it',
       summary4Text: 'Several European municipalities and cities have adopted ethical procurement rules, demonstrating that the principle is possible and practically implementable in public procurement.',
+      summary5Title: 'Swedish law',
+      summary5Text: '<strong>What does Swedish law say?</strong> Under the Public Procurement Act (LOU), a contracting authority may exclude a supplier from a procurement process if the supplier fails to meet defined requirements and obligations. <br><br> <strong>Grounds for exclusion:</strong> Chapter 13, section 3 point 3 is an optional ground for exclusion where a supplier has committed grave professional misconduct and the supplier\'s integrity, professionalism or reliability is in doubt. <br><br> <strong>No criminal conviction required:</strong> Exclusion may be applied even if no criminal offense has been adjudicated; reliable documentation from independent sources can suffice. <br><br> <strong>Legislative context:</strong> Preparatory works (prop. 2015/16:195) link the provision to Article 57.4 of Directive 2014/24, reflecting the provision\'s purpose to protect public procurement from unreliable suppliers.',
       foundationsTitle: 'What the legal foundation looks like',
       foundationsIntro: 'The deeper analysis runs on two tracks at once: what international law requires from public authorities, and which concrete tools EU procurement law already gives municipalities.',
       intlTitle: 'International law',
@@ -2341,6 +2359,8 @@ const translations = {
       gpmCase2Text: 'Serious competition-law infringements can also qualify as professional misconduct.',
       gpmCase3Title: 'CNS (C-425/18)',
       gpmCase3Text: 'The assessment is not limited to failures within one specific public contract.',
+      gpmSwedishTitle: 'Swedish references: no criminal conviction required',
+      gpmSwedishText: 'Swedish practice shows that exclusion under LOU Chapter 13, point 3 can be based on grave professional misconduct without requiring a criminal conviction. HFD 2013 ref. 61 held that a supplier could be excluded for false invoices and undeclared labour, and that the contracting authority bears the burden of proof.',
       gpmSafeguard: 'This still requires due process: objective criteria, equal treatment, proportionality, transparent reasoning, and an opportunity for explanation/remediation.',
       pathTitle: 'How exclusion can work in practice',
       pathIntro: 'There is not only one route. Several complementary tracks can be used in parallel to make a municipal policy operational in practice.',
