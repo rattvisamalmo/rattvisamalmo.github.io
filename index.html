@@ -1294,7 +1294,10 @@ body {
         <h3 class="font-display" style="font-size:18px;font-weight:700;margin-bottom:10px" data-i18n="timeline.videoTitle">Introduktion till kampanjen</h3>
         <p style="font-size:13px;color:#888;margin-bottom:18px" data-i18n="timeline.videoText">Se vår korta kampanjvideo som förklarar varför vi kräver etisk upphandling i Malmö.</p>
         <div style="position:relative;padding-top:140%;max-width:420px;margin:0 auto;border-radius:12px;overflow:hidden;background:#000;min-height:420px">
-         <iframe src="https://www.instagram.com/reel/DPeUv2VjAHo/embed" title="Kampanjintroduktion" data-i18n-title="timeline.videoFrameTitle" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="position:absolute;top:0;left:0;width:100%;height:100%;"></iframe>
+         <video id="timelineVideoPlayer" controls preload="metadata" playsinline aria-label="Kampanjintroduktion" title="Kampanjintroduktion" style="position:absolute;top:0;left:0;width:100%;height:100%;background:#000;object-fit:cover">
+          <source id="timelineVideoSource" src="./assets/videos/sv-intro.mp4" type="video/mp4">
+          Din webbläsare stöder inte HTML5-video.
+         </video>
         </div>
        </div>
       </div>
@@ -2667,6 +2670,31 @@ function updateLanguageButtons() {
   });
 }
 
+const timelineVideoSources = {
+  sv: {
+    src: './assets/videos/sv-intro.mp4',
+    type: 'video/mp4'
+  },
+  en: {
+    src: './assets/videos/en-intro.mp4',
+    type: 'video/mp4'
+  }
+};
+
+function updateTimelineVideo() {
+  const video = document.getElementById('timelineVideoPlayer');
+  const source = document.getElementById('timelineVideoSource');
+  if (!video || !source) return;
+
+  const lang = currentLanguage === 'en' ? 'en' : 'sv';
+  const videoConfig = timelineVideoSources[lang] || timelineVideoSources.sv;
+  source.src = videoConfig.src || '';
+  source.type = videoConfig.type || 'video/mp4';
+  video.setAttribute('aria-label', getText('timeline.videoFrameTitle'));
+  video.setAttribute('title', getText('timeline.videoFrameTitle'));
+  video.load();
+}
+
 function applyLanguage(language) {
   currentLanguage = translations[language] ? language : 'sv';
   document.documentElement.lang = currentLanguage;
@@ -2688,6 +2716,8 @@ function applyLanguage(language) {
   document.querySelectorAll('[data-i18n-title]').forEach(element => {
     element.setAttribute('title', getText(element.getAttribute('data-i18n-title')));
   });
+
+  updateTimelineVideo();
 
   if (currentLanguage === 'sv' && activeConfig) {
     const heroH = document.getElementById('heroHeadline');
