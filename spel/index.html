@@ -98,9 +98,9 @@ const TEXT = {
     facts: [
       { head: 'VISSTE DU?', text: 'MALMÖ STAD KÖPER VAROR OCH TJÄNSTER FÖR CIRKA 9-10 MILJARDER KRONOR VARJE ÅR.' },
       { head: 'VISSTE DU?', text: 'OFFENTLIG UPPHANDLING UTGÖR CIRKA 18 % AV SVERIGES BNP.' },
-      { head: 'VISSTE DU?', text: 'EU:S UPPHANDLINGSDIREKTIV (2014/24) OCH LOU GER KOMMUNER RÄTT ATT STÄLLA SOCIALA OCH ETISKA KRAV.' },
+      { head: 'VISSTE DU?', text: 'EU:S UPPHANDLINGS~DIREKTIV (2014/24) OCH LOU GER KOMMUNER RÄTT ATT STÄLLA SOCIALA OCH ETISKA KRAV.' },
       { head: 'VISSTE DU?', text: 'INGEN FÄLLANDE DOM KRÄVS: DOKUMENTATION FRÅN FN OCH MR-ORGANISATIONER RÄCKER SOM BEVISNING.' },
-      { head: 'DU KLARADE DET!', text: 'MED EN ETISK UPPHANDLINGSPOLICY STOPPAR MALMÖ DEM PÅ RIKTIGT.' },
+      { head: 'DU KLARADE DET!', text: 'MED EN ETISK UPPHANDLINGS~POLICY STOPPAR MALMÖ DEM PÅ RIKTIGT.' },
     ],
     news: { disguised: ['FÖRKLÄDD!', 'SE DEN RÖDA SKUGGAN'], sprinter: ['SPRINTER!', 'SNABB OCH RÖD'], shell: ['BREVLÅDEFÖRETAG!', 'DELAR SIG I TVÅ'], armour: ['PANSAR!', 'TRYCK 3 GÅNGER'], green: ['GRÖNTVÄTT!', 'RÖD KANT = OETISK'] },
     live: (n, s) => `Spelet är slut. Du stoppade ${n} ${n === 1 ? 'oetiskt' : 'oetiska'} företag och fick ${s} poäng.`, aria: 'KÖPER EJ: tryck på de röda företagen för att stoppa dem.',
@@ -329,7 +329,7 @@ function drawCompany(w) {
   }
   // the KÖPER EJ stamp, slapped across its body: it moves with the company as it is knocked back and flees
   if (w.stampT != null) {
-    stamp(x, top + bh - 2, now - w.stampT);   // across its belly, like a sash: the (upset) face stays visible above it
+    seal(x, top + Math.floor(bh / 2), now - w.stampT, w.type === 'mini' ? 1 : 1);   // stamped onto its body: it travels with it
     if (w.policyStamp && now - w.stampT < 1) pixText('POLICY', x, top - 27, Q.lime, { align: 'center', shadow: Q.ink });
   }
 }
@@ -373,6 +373,30 @@ function drawJar(level) {
   const n = Math.round(clamp(level) * 16);
   for (let i = 0; i < n; i++) sprite(['.aaa.', 'ayyya', 'aywya', 'ayyya', '.aaa.'], { a: Q.orange, y: Q.yellow, w: Q.white }, JAR.x - 9 + (i % 4) * 4 + (Math.floor(i / 4) % 2) * 2, JAR.y - 9 + Math.floor(i / 4) * 4);
   pixBox(JAR.x - 15, JAR.y + 13, 31, 11, { bg: Q.white }); pixText('SKATT', JAR.x, JAR.y + 15, Q.ink, { align: 'center' });
+}
+// the seal stamped onto a stopped company: "KÖPER / EJ" in a tiny 3x5 font inside a worn outline (a fixed pattern of
+// missing pixels), on the company's own red so the lettering reads, a one-pixel tilt and a thin dark shadow
+const MINI = { K: [5, 5, 6, 5, 5], O: [7, 5, 5, 5, 7], P: [7, 5, 7, 4, 4], E: [7, 4, 6, 4, 7], R: [7, 5, 6, 5, 5], J: [1, 1, 1, 5, 7] };
+function seal(cx, cy, t, sc = 1, ground = Q.red) {
+  const W0 = 25, H0 = 18, jx = t < 0.2 ? (Math.floor(now * 24) % 2 ? 1 : -1) : 0;
+  const x0 = Math.round(cx - W0 * sc / 2) + jx, y0 = Math.round(cy - H0 * sc / 2);
+  const worn = (i, j) => srand(91, i, j) < 0.16;                                   // ink that did not take (the rim only)
+  // the right half sits a pixel higher (a slight tilt); the step falls between letters on each line (K-Ö-P | E-R, and E | J)
+  const lift = (i, j = 0) => (i >= (j >= 9 && j <= 16 ? 12 : 14) ? 1 : 0);
+  const dot = (i, j, c, rim) => { if (!(rim && worn(i, j))) prect(x0 + i * sc, y0 + (j - lift(i, j)) * sc, sc, sc, c); };
+  const plot = (c) => {
+    for (let i = 1; i < W0 - 1; i++) { dot(i, 0, c, true); dot(i, H0 - 1, c, true); }
+    for (let j = 1; j < H0 - 1; j++) { dot(0, j, c, true); dot(W0 - 1, j, c, true); }
+    const word = (str, gx, gy) => [...str].forEach((ch, k) => {
+      const g = MINI[ch === 'Ö' ? 'O' : ch]; if (!g) return;
+      for (let r = 0; r < 5; r++) for (let b = 0; b < 3; b++) if (g[r] & (4 >> b)) dot(gx + k * 4 + b, gy + r, c);
+      if (ch === 'Ö') { dot(gx + k * 4, gy - 2, c); dot(gx + k * 4 + 2, gy - 2, c); }
+    });
+    word('KÖPER', 3, 4); word('EJ', 9, 11);
+  };
+  for (let i = 1; i < W0 - 1; i++) prect(x0 + i * sc, y0 + (1 - lift(i)) * sc, sc, (H0 - 2) * sc, ground);   // the inked area covers the face beneath
+  ctx.save(); ctx.translate(sc, sc); plot(Q.ink); ctx.restore();                  // the shadow
+  plot(Q.lime);
 }
 function stamp(x, y, t, large = false) {
   // in play: a small, steady label (one rim, no shake); the title screen uses the large double-rimmed one
@@ -671,8 +695,14 @@ function showEnd() {
 // ---------------------------------------------------------------------
 const fmt = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 function wrap(str, max) {
+  // words longer than a line may carry '~' where they can break with a hyphen (UPPHANDLINGS~DIREKTIV); otherwise '~' vanishes
+  const words = [];
+  for (const w of str.split(' ')) {
+    if (w.replace(/~/g, '').length <= max) words.push(w.replace(/~/g, ''));
+    else { const parts = w.split('~'); parts.forEach((q, i) => words.push(i < parts.length - 1 ? q + '-' : q)); }
+  }
   const out = []; let line = '';
-  for (const word of str.split(' ')) { const t = line ? line + ' ' + word : word; if (t.length > max && line) { out.push(line); line = word; } else line = t; }
+  for (const word of words) { const t = line ? (line.endsWith('-') ? line + word : line + ' ' + word) : word; if (t.length > max && line) { out.push(line); line = word; } else line = t; }
   if (line) out.push(line); return out;
 }
 function drawBoss() {
@@ -691,7 +721,7 @@ function drawBoss() {
   prect(x - 9, top - 7, 18, 7, Q.ink); prect(x - 8, top - 6, 16, 5, Q.night); prect(x - 12, top - 1, 24, 2, Q.ink);
   for (let k = 0; k < 3; k++) coinAt(x - 6 + k * 6, top - 10, k);
   const sw = pixTextW(T().bossName) + 6; pixBox(x - Math.floor(sw / 2), top - 26, sw, 13, { bg: Q.ink }); pixText(T().bossName, x, top - 22, Q.red, { align: 'center' });
-  if (b.stampT != null) stamp(x, top + bh - 6, now - b.stampT);   // stamped, and carried off with it
+  if (b.stampT != null) seal(x, top + Math.floor(bh / 2), now - b.stampT, 2);   // stamped (twice the size), and carried off with it
   // its armour, as a bar
   if (b.state === 'fight' || b.state === 'exposed') { prect(x - 16, fy + 4, 32, 4, Q.ink); prect(x - 15, fy + 5, Math.round(30 * b.hp / b.maxHp), 2, Q.grey); if (exposed) for (let i = 0; i < 3; i++) prect(x - 7 + i * 5, fy + 5, 3, 2, i < 3 - b.hits ? Q.lime : Q.slate); }
 }
@@ -754,7 +784,7 @@ function drawHud() {
 }
 function panel(y, h) { prect(6, y, W - 12, h, Q.shadow); pixBox(5, y - 1, W - 12, h, { bg: Q.ink, edge: Q.white }); }
 function drawFact() {
-  const f = T().facts[factIdx], lines = wrap(f.text, 20), h = 40 + lines.length * 10;
+  const f = T().facts[factIdx], lines = wrap(f.text, 18), h = 40 + lines.length * 10;
   const y = Math.round(100 - h / 2);
   panel(y, h);
   pixText(f.head, W / 2, y + 6, Q.yellow, { align: 'center' });
