@@ -23,6 +23,8 @@
   .stage { position: relative; flex: none; height: calc(100dvh - 44px); max-height: calc(100vh - 44px); aspect-ratio: 9 / 16; max-width: 100vw; }
   @supports not (aspect-ratio: 9 / 16) { .stage { width: calc((100vh - 44px) * 9 / 16); } }
   canvas { display: block; width: 100%; height: 100%; image-rendering: pixelated; image-rendering: crisp-edges; cursor: pointer; }
+  /* phones shade a tapped element: on a full-screen canvas that is a white flash over everything, so turn it off */
+  .stage, canvas { -webkit-tap-highlight-color: transparent; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
   .end { position: absolute; left: 8%; right: 8%; bottom: 7%; display: none; flex-direction: column; gap: 10px; }
   .end.show { display: flex; }
   .end .row { display: flex; gap: 10px; }
@@ -325,7 +327,11 @@ function drawCompany(w) {
     pixBox(x - Math.floor(sw / 2), sy, sw, 13, { bg: red ? Q.ink : green ? Q.lime : Q.white, edge: green ? Q.red : Q.ink });
     pixText(w.label, x, sy + 4, red ? Q.red : Q.night, { align: 'center' });
   }
-  // the policy shield (while ETISK POLICY is on, every red one near the gate is stopped by itself)
+  // the KÖPER EJ stamp, slapped across its body: it moves with the company as it is knocked back and flees
+  if (w.stampT != null) {
+    stamp(x, top + bh - 2, now - w.stampT);   // across its belly, like a sash: the (upset) face stays visible above it
+    if (w.policyStamp && now - w.stampT < 1) pixText('POLICY', x, top - 27, Q.lime, { align: 'center', shadow: Q.ink });
+  }
 }
 function companyBox(w) { const { bw, bh } = sizeOf(w); return { x0: w.x - bw / 2 - 5, x1: w.x + bw / 2 + 5, y0: w.fy - bh - 24, y1: w.fy + 4 }; }
 
@@ -360,6 +366,7 @@ function drawGate(slam, policyOn) {
   prect(ROAD_X0, GATE_Y, ROAD_X1 - ROAD_X0, 4, Q.ink);
   for (let x = ROAD_X0 + 1; x < ROAD_X1; x++) { const c = Math.floor((x + (slam > 0 ? 2 : 0)) / 4) % 2 ? (policyOn && Math.floor(now * 8) % 2 ? Q.white : Q.lime) : Q.white; pset(x, GATE_Y + 1, c); pset(x, GATE_Y + 2, c); }
   for (const x of [ROAD_X0, 49, 85, ROAD_X1]) { prect(x - 1, GATE_Y - 2, 3, 8, Q.ink); pset(x, GATE_Y - 1, Q.lime); }
+  if (slam > 0) for (let k = 0; k < 4; k++) sprite(SPR.twinkle, { a: Q.lime, b: Q.white }, ROAD_X0 + 10 + k * 28, GATE_Y - 4);
 }
 function drawJar(level) {
   pcircle(JAR.x, JAR.y, 12, Q.ink); pcircle(JAR.x, JAR.y, 11, Q.ice);
@@ -370,7 +377,7 @@ function drawJar(level) {
 function stamp(x, y, t, large = false) {
   // in play: a small, steady label (one rim, no shake); the title screen uses the large double-rimmed one
   const pad = large ? 4 : 3, rim = large ? 2 : 0, tw = pixTextW('KÖPER EJ') + 2 * pad + 2 * rim, th = 7 + 2 * pad + 2 * rim;   // pad >= 3 keeps the Ö dots off the rim
-  const x0 = Math.round(clamp(x - tw / 2, 2, W - tw - 2)), y0 = Math.round(y - th / 2);
+  const x0 = Math.round(clamp(x - tw / 2, 2, W - tw - 2)), y0 = Math.round(y - th / 2) + (t < 0.2 ? (Math.floor(now * 24) % 2 ? 1 : -1) : 0);
   prect(x0 - 1, y0 - 1, tw + 2, th + 2, Q.ink); prect(x0, y0, tw, th, Q.lime);
   if (large) { prect(x0 + 1, y0 + 1, tw - 2, th - 2, Q.ink); prect(x0 + 2, y0 + 2, tw - 4, th - 4, Q.lime); }
   pixText('KÖPER EJ', x0 + tw / 2, y0 + pad + rim, Q.ink, { align: 'center' });
@@ -537,7 +544,8 @@ function loseLife() {
 function block(w, auto) {
   w.state = 'blocked'; w.tState = now; stopped++; streak++; const pts = 10 * mult(); score += pts;
   slamUntil = now + 0.3; heroMood = 'happy'; heroMoodUntil = now + 0.7;
-  fx.push({ kind: 'stamp', x: w.x, y: w.fy - 34, t: now, policy: !!auto }, { kind: 'plus', x: w.x, y: w.fy - 46, t: now, n: pts });
+  w.stampT = now; w.policyStamp = !!auto;
+  fx.push({ kind: 'plus', x: w.x, y: w.fy - 46, t: now, n: pts });
   sfx.block();
   if (w.type === 'shell') {   // a shell company splits into two small ones, in the lanes beside it
     for (const d of [-1, 1]) { const lane = clamp(w.lane + d, 0, 2); makeCompany(lane, 'mini', w.fy - 6, { x: LANES[lane] + (lane === w.lane ? d * 9 : 0), sub: w.sub }); }
@@ -579,7 +587,8 @@ function hitBoss(px, py) {
   boss.hits++; sfx.clank(); fx.push({ kind: 'clank', x: px, y: py, t: now }); shake = now + 0.15;
   if (boss.hits >= 3) {
     boss.state = 'beaten'; boss.t = now; const pts = 500; score += pts; stopped++; streak++;
-    fx.push({ kind: 'stamp', x: boss.x, y: boss.y - 24, t: now }, { kind: 'plus', x: boss.x, y: boss.y - 48, t: now, n: pts });
+    boss.stampT = now;
+    fx.push({ kind: 'plus', x: boss.x, y: boss.y - 48, t: now, n: pts });
     for (let k = 0; k < 10; k++) fx.push({ kind: 'coin', x0: boss.x + (k - 5) * 3, y0: boss.y - 10, x1: JAR.x + (k % 3 - 1) * 4, y1: JAR.y - 4, t: now + k * 0.06 });
     jar = 1; banner = { lines: T().bossDown, until: now + 2.2, color: Q.lime, center: true }; sfx.block(); sfx.policy();
   }
@@ -682,6 +691,7 @@ function drawBoss() {
   prect(x - 9, top - 7, 18, 7, Q.ink); prect(x - 8, top - 6, 16, 5, Q.night); prect(x - 12, top - 1, 24, 2, Q.ink);
   for (let k = 0; k < 3; k++) coinAt(x - 6 + k * 6, top - 10, k);
   const sw = pixTextW(T().bossName) + 6; pixBox(x - Math.floor(sw / 2), top - 26, sw, 13, { bg: Q.ink }); pixText(T().bossName, x, top - 22, Q.red, { align: 'center' });
+  if (b.stampT != null) stamp(x, top + bh - 6, now - b.stampT);   // stamped, and carried off with it
   // its armour, as a bar
   if (b.state === 'fight' || b.state === 'exposed') { prect(x - 16, fy + 4, 32, 4, Q.ink); prect(x - 15, fy + 5, Math.round(30 * b.hp / b.maxHp), 2, Q.grey); if (exposed) for (let i = 0; i < 3; i++) prect(x - 7 + i * 5, fy + 5, 3, 2, i < 3 - b.hits ? Q.lime : Q.slate); }
 }
@@ -699,7 +709,10 @@ function draw() {
   papers.forEach(drawPaper);
   for (const f of fx) {
     const a = now - f.t; if (a < 0) continue;
-    if (f.kind === 'stamp' && a < 0.7) { stamp(f.x, f.y, a); if (f.policy && a < 0.8) pixText('POLICY', f.x, f.y + 10, Q.lime, { align: 'center', shadow: Q.ink }); }
+    if (f.kind === 'tap' && a < 0.22) {   // a small ring where the finger touched: quiet feedback instead of the browser's flash
+      const r = 2 + Math.floor(a * 30);
+      for (let k = 0; k < 8; k++) pset(f.x + Math.round(Math.cos(k * Math.PI / 4) * r), f.y + Math.round(Math.sin(k * Math.PI / 4) * r), Q.white);
+    }
     else if (f.kind === 'plus') pixText('+' + f.n, f.x, f.y - Math.floor(a * 20), Q.yellow, { align: 'center', shadow: Q.ink });
     else if (f.kind === 'plus1' && a < 0.8) pixText(T().plusSig, f.x, f.y - Math.floor(a * 20), Q.white, { align: 'center', shadow: Q.ink });
     else if (f.kind === 'clank' && a < 0.4) { sprite(SPR.spark, { a: Q.white, b: Q.yellow }, f.x - 9, f.y - 2); sprite(SPR.spark, { a: Q.white, b: Q.yellow }, f.x + 5, f.y + 2); }
@@ -781,7 +794,7 @@ function frame(ms) {
 }
 function toPixel(e) { const r = cv.getBoundingClientRect(); return [(e.clientX - r.left) * W / r.width, (e.clientY - r.top) * H / r.height]; }
 let lastPointer = 'touch';
-cv.addEventListener('pointerdown', (e) => { e.preventDefault(); lastPointer = e.pointerType || 'touch'; audioStart(); const [x, y] = toPixel(e); tapAt(x, y); });
+cv.addEventListener('pointerdown', (e) => { e.preventDefault(); lastPointer = e.pointerType || 'touch'; audioStart(); const [x, y] = toPixel(e); if (state === 'play') fx.push({ kind: 'tap', x: Math.round(x), y: Math.round(y), t: now }); tapAt(x, y); });
 window.addEventListener('keydown', (e) => {
   if ((e.key === 'Enter' || e.key === ' ') && state === 'fact') { e.preventDefault(); tapAt(0, 0); return; }
   if ((e.key === 'Enter' || e.key === ' ') && (state === 'title' || (state === 'over' && now > overAt + 0.6)) && document.activeElement?.tagName !== 'BUTTON' && document.activeElement?.tagName !== 'A') { e.preventDefault(); audioStart(); newGame(); }
