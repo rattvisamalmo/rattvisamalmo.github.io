@@ -81,11 +81,25 @@ const TEXT = {
   sv: {
     how: ['TRYCK PÅ RÖDA', 'FÖRETAG: KÖPER EJ!', 'SLÄPP IN SCHYSSTA.', '3 MISSAR = SLUT.'], tap: 'TRYCK FÖR ATT SPELA',
     hint: 'TRYCK PÅ DE RÖDA!', over: 'SLUT!', stopped: (n) => ['DU STOPPADE', `${n} ${n === 1 ? 'OETISKT' : 'OETISKA'}`, n === 1 ? 'FÖRETAG' : 'FÖRETAG'],
-    score: 'POÄNG', best: 'REKORD', signed: (c) => `${c} HAR SKRIVIT PÅ`, newBest: 'NYTT REKORD!',
+    score: 'POÄNG', best: 'REKORD', signed: (c) => `${c} UNDERSKRIFTER`, newBest: 'NYTT REKORD!',
     sign: 'Skriv på', again: 'Spela igen', share: 'Dela', copied: 'LÄNK KOPIERAD', oops: 'SCHYSST!', bought: 'BETALT...',
     shareText: (n) => `Jag stoppade ${n} ${n === 1 ? 'oetiskt' : 'oetiska'} företag i KÖPER EJ, Rättvisa Malmös spel. Spela och skriv på:`,
     shops: ['MAT', 'VÅRD', 'BYGG', 'IT', 'BUSS', 'STÄD', 'SKOLA', 'TECH'], back: '← rattvisamalmo.se', title: 'KÖPER EJ – ett spel av Rättvisa Malmö',
-    shell: 'AB', armour: 'KONCERN', meter: 'NAMN', policy: ['ETISK POLICY!', 'GRINDEN STOPPAR ALLA'],
+    shell: 'AB', armour: 'BOLAG', bossName: 'KONCERN', meter: 'NAMN', policy: ['ETISK POLICY!', 'GRINDEN STOPPAR ALLA'], plusSig: '+1 NAMN',
+    level: 'NIVÅ', goal: (n) => `STOPPA ${n}`, clear: 'NIVÅ KLAR!', heal: '+1 HJÄRTA', next: 'TRYCK FÖR NÄSTA', source: 'RATTVISAMALMO.SE',
+    levels: [
+      { name: 'VÅRD', shops: ['VÅRD', 'LABB', 'MAT', 'STÄD', 'TAXI'] }, { name: 'BYGG', shops: ['BYGG', 'STÅL', 'VVS', 'EL', 'GRUS'] },
+      { name: 'IT', shops: ['IT', 'DATA', 'MOLN', 'WEBB', 'APPAR'] }, { name: 'FÖRSVAR', shops: ['TECH', 'RADAR', 'LAST', 'VAKT', 'RADIO'] },
+    ],
+    bossIntro: ['SLUTBOSS!', 'KONCERNEN SKICKAR', 'DOTTERBOLAG'], bossExposed: ['UTAN PANSAR!', 'TRYCK 3 GÅNGER'], bossRearm: ['PANSAR IGEN!'], bossDown: ['KONCERNEN STOPPAD!'],
+    endless: ['FRITT SPEL', 'HUR LÄNGE HÅLLER DU?'], paperIntro: ['SAMLA NAMN!', '5 = ETISK POLICY', 'STOPPAR ALLA RÖDA'],
+    facts: [
+      { head: 'VISSTE DU?', text: 'MALMÖ STAD KÖPER VAROR OCH TJÄNSTER FÖR CIRKA 9-10 MILJARDER KRONOR VARJE ÅR.' },
+      { head: 'VISSTE DU?', text: 'OFFENTLIG UPPHANDLING UTGÖR CIRKA 18 % AV SVERIGES BNP.' },
+      { head: 'VISSTE DU?', text: 'EU:S UPPHANDLINGSDIREKTIV (2014/24) OCH LOU GER KOMMUNER RÄTT ATT STÄLLA SOCIALA OCH ETISKA KRAV.' },
+      { head: 'VISSTE DU?', text: 'INGEN FÄLLANDE DOM KRÄVS: DOKUMENTATION FRÅN FN OCH MR-ORGANISATIONER RÄCKER SOM BEVISNING.' },
+      { head: 'DU KLARADE DET!', text: 'MED EN ETISK UPPHANDLINGSPOLICY STOPPAR MALMÖ DEM PÅ RIKTIGT.' },
+    ],
     news: { disguised: ['FÖRKLÄDD!', 'SE DEN RÖDA SKUGGAN'], sprinter: ['SPRINTER!', 'SNABB OCH RÖD'], shell: ['BREVLÅDEFÖRETAG!', 'DELAR SIG I TVÅ'], armour: ['PANSAR!', 'TRYCK 3 GÅNGER'], green: ['GRÖNTVÄTT!', 'RÖD KANT = OETISK'] },
     live: (n, s) => `Spelet är slut. Du stoppade ${n} ${n === 1 ? 'oetiskt' : 'oetiska'} företag och fick ${s} poäng.`, aria: 'KÖPER EJ: tryck på de röda företagen för att stoppa dem.',
   },
@@ -96,7 +110,21 @@ const TEXT = {
     sign: 'Sign now', again: 'Play again', share: 'Share', copied: 'LINK COPIED', oops: 'THAT WAS FAIR!', bought: 'PAID...',
     shareText: (n) => `I stopped ${n} unethical ${n === 1 ? 'company' : 'companies'} in KÖPER EJ, Rättvisa Malmö's game. Play it and sign:`,
     shops: ['FOOD', 'CARE', 'BUILD', 'IT', 'BUS', 'CLEAN', 'SCHOOL', 'TECH'], back: '← rattvisamalmo.se', title: 'KÖPER EJ – a game by Rättvisa Malmö',
-    shell: 'LTD', armour: 'CORP', meter: 'SIGNATURES', policy: ['ETHICAL POLICY!', 'THE GATE STOPS THEM'],
+    shell: 'LTD', armour: 'CORP', bossName: 'MEGACORP', meter: 'SIGNATURES', policy: ['ETHICAL POLICY!', 'THE GATE STOPS THEM'], plusSig: '+1 SIGNATURE',
+    level: 'LEVEL', goal: (n) => `STOP ${n}`, clear: 'LEVEL CLEAR!', heal: '+1 HEART', next: 'TAP TO CONTINUE', source: 'RATTVISAMALMO.SE',
+    levels: [
+      { name: 'CARE', shops: ['CARE', 'LAB', 'FOOD', 'CLEAN', 'TAXI'] }, { name: 'BUILD', shops: ['BUILD', 'STEEL', 'PIPES', 'POWER', 'SAND'] },
+      { name: 'IT', shops: ['IT', 'DATA', 'CLOUD', 'WEB', 'APPS'] }, { name: 'DEFENCE', shops: ['TECH', 'RADAR', 'TRUCK', 'GUARD', 'RADIO'] },
+    ],
+    bossIntro: ['BOSS!', 'THE MEGACORP SENDS', 'SUBSIDIARIES'], bossExposed: ['NO ARMOUR!', 'TAP IT 3 TIMES'], bossRearm: ['ARMOURED AGAIN!'], bossDown: ['MEGACORP STOPPED!'],
+    endless: ['ENDLESS', 'HOW LONG CAN YOU GO?'], paperIntro: ['SIGNATURES!', '5 = ETHICAL POLICY', 'STOPS ALL RED ONES'],
+    facts: [
+      { head: 'DID YOU KNOW?', text: 'THE CITY OF MALMÖ SPENDS SEK 9-10 BILLION A YEAR ON GOODS AND SERVICES.' },
+      { head: 'DID YOU KNOW?', text: "PUBLIC PROCUREMENT IS AROUND 18% OF SWEDEN'S GDP." },
+      { head: 'DID YOU KNOW?', text: 'EU DIRECTIVE 2014/24 AND SWEDISH LAW (LOU) LET CITIES SET SOCIAL AND ETHICAL REQUIREMENTS.' },
+      { head: 'DID YOU KNOW?', text: 'NO CRIMINAL CONVICTION IS NEEDED: DOCUMENTATION FROM THE UN AND HUMAN RIGHTS GROUPS IS ENOUGH EVIDENCE.' },
+      { head: 'YOU DID IT!', text: 'WITH AN ETHICAL PROCUREMENT POLICY, MALMÖ STOPS THEM FOR REAL.' },
+    ],
     news: { disguised: ['DISGUISED!', 'WATCH THE RED SHADOW'], sprinter: ['SPRINTER!', 'FAST AND RED'], shell: ['SHELL COMPANY!', 'SPLITS IN TWO'], armour: ['ARMOURED!', 'TAP 3 TIMES'], green: ['GREENWASHED!', 'RED EDGE = UNETHICAL'] },
     live: (n, s) => `Game over. You stopped ${n} unethical ${n === 1 ? 'company' : 'companies'} and scored ${s} points.`, aria: 'KÖPER EJ: tap the red companies to stop them.',
   },
@@ -180,7 +208,7 @@ const FONT5 = {
   8: [14, 17, 17, 14, 17, 17, 14], 9: [14, 17, 17, 15, 1, 2, 12],
   '.': [0, 0, 0, 0, 0, 12, 12], ',': [0, 0, 0, 0, 12, 4, 8], '!': [4, 4, 4, 4, 4, 0, 4], '?': [14, 17, 1, 2, 4, 0, 4],
   ':': [0, 12, 12, 0, 12, 12, 0], '-': [0, 0, 0, 31, 0, 0, 0], '+': [0, 4, 4, 31, 4, 4, 0], '/': [1, 1, 2, 4, 8, 16, 16],
-  "'": [4, 4, 8, 0, 0, 0, 0], '=': [0, 0, 31, 0, 31, 0, 0], '(': [2, 4, 8, 8, 8, 4, 2], ')': [8, 4, 2, 2, 2, 4, 8], x: [0, 0, 17, 10, 4, 10, 17],
+  "'": [4, 4, 8, 0, 0, 0, 0], '=': [0, 0, 31, 0, 31, 0, 0], '(': [2, 4, 8, 8, 8, 4, 2], ')': [8, 4, 2, 2, 2, 4, 8], x: [0, 0, 17, 10, 4, 10, 17], '%': [24, 25, 2, 4, 8, 19, 3], '"': [10, 10, 0, 0, 0, 0, 0],
 };
 const pixTextW = (str, sc = 1) => Math.max(0, String(str).length * 6 * sc - sc);
 function pixText(str, x, y, c, o = {}) {
@@ -404,49 +432,94 @@ function setMuted(m) {
 }
 
 // ---------------------------------------------------------------------
-//  the game
+//  the game: four sector levels (each adds a new trick), fact cards between them, the KONCERN boss, then endless
 // ---------------------------------------------------------------------
 let state = 'title', t0 = 0, walkers = [], fx = [], papers = [], lives = 3, score = 0, streak = 0, stopped = 0, jar = 0.75;
 let nextSpawn = 0, nextPaper = 0, slamUntil = 0, overAt = 0, heroMood = 'smile', heroMoodUntil = 0, toast = null, shake = 0;
-let sig = 0, policyUntil = 0, banner = null, introduced = new Set();
+let sig = 0, policyUntil = 0, banner = null, introduced = new Set(), paperTold = false;
+let phase = 'level', li = 0, levelStopped = 0, phaseT = 0, boss = null, clearUntil = 0, factIdx = -1, factShownAt = 0, endlessT = 0;
 let best = Number(store.get('rm-game-best')) || 0, newBest = false, signCount = null;
 const SIG_FULL = 5, POLICY_SECS = 5;
+const LEVELS = [
+  { key: 'vard', goal: 8, adds: ['red'] },
+  { key: 'bygg', goal: 10, adds: ['disguised'] },
+  { key: 'it', goal: 12, adds: ['sprinter', 'shell'] },
+  { key: 'forsvar', goal: 14, adds: ['armour', 'green'] },
+];
+const ALL_BAD = ['red', 'disguised', 'sprinter', 'shell', 'armour', 'green'];
 const elapsed = () => now - t0;
-const level = () => elapsed() / 75;   // 0 → 1 over 75 s and never stops climbing: every round ends
+// difficulty 0 → ~1.2 through the levels, then it keeps climbing in endless play (so every round ends)
+const level = () => (phase === 'endless' ? 1.2 + (now - endlessT) / 75 : phase === 'boss' ? 1.1 : 0.27 * li + 0.25 * clamp(levelStopped / LEVELS[li].goal));
 const mult = () => 1 + Math.min(3, Math.floor(streak / 5));
 const policyOn = () => now < policyUntil;
-// when each kind of company first appears (checkpoint A: on a timer; the levels take this over later)
-const UNLOCK = { red: 0, disguised: 15, sprinter: 28, shell: 28, armour: 42, green: 42 };
+const openTypes = () => (phase === 'level' ? LEVELS.slice(0, li + 1).flatMap((l) => l.adds) : ALL_BAD);
+const sectorShops = () => (phase === 'level' ? T().levels[li].shops : T().shops);
 
 function newGame() {
   state = 'play'; t0 = now; walkers = []; fx = []; papers = []; lives = 3; score = 0; streak = 0; stopped = 0; jar = 0.75;
-  sig = 0; policyUntil = 0; banner = null; introduced = new Set(); newBest = false;
-  nextSpawn = now + 0.8; nextPaper = now + 9; document.getElementById('end').classList.remove('show');
+  sig = 0; policyUntil = 0; banner = null; introduced = new Set(); paperTold = false; newBest = false; boss = null;
+  document.getElementById('end').classList.remove('show');
+  startLevel(0);
   audioStart(); audio.step = 0; sfx.start();
 }
+function startLevel(i) {
+  phase = 'level'; li = i; levelStopped = 0; phaseT = now; state = 'play';
+  nextSpawn = now + 1.0; nextPaper = now + 8 + Math.random() * 4;
+  const L = T().levels[i]; banner = { lines: [`${T().level} ${i + 1}: ${L.name}`, T().goal(LEVELS[i].goal)], until: now + 2.4, color: Q.yellow };
+}
+function startBoss() {
+  phase = 'boss'; phaseT = now; state = 'play';
+  boss = { x: W / 2, y: -20, hp: 8, maxHp: 8, state: 'enter', t: now, hits: 0, nextSend: now + 2.6, dir: 1, exposedAt: 0 };
+  banner = { lines: T().bossIntro, until: now + 2.6, color: Q.red };
+  nextSpawn = now + 3; nextPaper = now + 6;
+}
+function startEndless() { phase = 'endless'; endlessT = now; state = 'play'; boss = null; nextSpawn = now + 0.8; banner = { lines: T().endless, until: now + 2.2, color: Q.yellow }; }
+function levelCleared() {
+  state = 'clear'; clearUntil = now + 1.6;
+  walkers.forEach((w) => { if (w.state === 'walk' || w.state === 'oops') { w.state = 'flee'; w.tState = now; } });
+  papers = []; const healed = lives < 3; if (healed) lives++;
+  banner = { lines: healed ? [T().clear, T().heal] : [T().clear], until: clearUntil, color: Q.lime };
+  sfx.policy(); heroMood = 'happy'; heroMoodUntil = now + 1.2;
+}
+function nextAfterClear() {   // a fact card after every level and after the boss
+  state = 'fact'; factShownAt = now; factIdx = phase === 'boss' ? 4 : li;
+}
+function continueFromFact() {
+  if (phase === 'level' && li < LEVELS.length - 1) startLevel(li + 1);
+  else if (phase === 'level') startBoss();
+  else startEndless();
+}
 function pickType() {
-  const e = elapsed(), open = Object.keys(UNLOCK).filter((k) => e >= UNLOCK[k]);
+  const open = openTypes();
   if (Math.random() < 0.45 - 0.1 * Math.min(1.5, level())) return 'fair';
-  // the newest kind turns up more often for a while, so players get to learn it
-  const newest = open.filter((k) => e - UNLOCK[k] < 12);
-  if (newest.length && Math.random() < 0.5) return newest[Math.floor(Math.random() * newest.length)];
+  // the newest kind turns up more often in its own level, so players get to learn it
+  if (phase === 'level' && li > 0 && Math.random() < 0.45) { const nw = LEVELS[li].adds; return nw[Math.floor(Math.random() * nw.length)]; }
   return open[Math.floor(Math.random() * open.length)];
 }
-function spawn() {
-  const room = LANES.map((_, i) => walkers.filter((w) => w.lane === i && w.state === 'walk').reduce((m, w) => Math.min(m, w.fy), 1e9));
-  const free = LANES.map((_, i) => i).filter((i) => room[i] > SPAWN_Y + 40);
-  if (!free.length) { nextSpawn = now + 0.15; return; }
-  const lane = free[Math.floor(Math.random() * free.length)], type = pickType(), L = level();
-  const base = Math.min(110, 24 + 22 * L), speed = base * (type === 'sprinter' ? 1.7 : type === 'armour' ? 0.7 : 1);
-  const label = type === 'shell' ? T().shell : type === 'armour' ? T().armour : T().shops[Math.floor(Math.random() * T().shops.length)];
-  walkers.push({ lane, x: LANES[lane], fy: SPAWN_Y, type, hp: type === 'armour' ? 3 : 1, label, speed, state: 'walk', tState: now, seed: Math.random(), lit: false, hop: 0, revealY: GATE_Y - 52 + Math.random() * 16 });
+function makeCompany(lane, type, fy, extra = {}) {
+  const L = level(), base = Math.min(110, 24 + 22 * L), speed = base * (type === 'sprinter' ? 1.7 : type === 'armour' ? 0.7 : type === 'mini' ? 1.25 : 1);
+  const shops = sectorShops();
+  const label = type === 'mini' ? '' : type === 'shell' ? T().shell : type === 'armour' ? T().armour : shops[Math.floor(Math.random() * shops.length)];
+  const w = { lane, x: LANES[lane], fy, type, hp: type === 'armour' ? 3 : 1, label, speed, state: 'walk', tState: now, seed: Math.random(), lit: false, hop: 0, revealY: GATE_Y - 52 + Math.random() * 16, ...extra };
+  walkers.push(w);
   if (T().news[type] && !introduced.has(type)) { introduced.add(type); banner = { lines: T().news[type], until: now + 2.6, color: type === 'green' ? Q.lime : Q.red }; }
-  nextSpawn = now + Math.max(0.3, 1.9 - 1.1 * L) * (0.75 + Math.random() * 0.5);
+  return w;
+}
+function laneRoom(i) { return walkers.filter((w) => w.lane === i && w.state === 'walk').reduce((m, w) => Math.min(m, w.fy), 1e9); }
+function spawn() {
+  const free = LANES.map((_, i) => i).filter((i) => laneRoom(i) > SPAWN_Y + 40);
+  if (!free.length) { nextSpawn = now + 0.15; return; }
+  const lane = free[Math.floor(Math.random() * free.length)];
+  // during the boss fight, the regular traffic is the fair companies; the boss sends the unethical ones
+  makeCompany(lane, phase === 'boss' ? 'fair' : pickType(), SPAWN_Y);
+  const L = level();
+  nextSpawn = now + (phase === 'boss' ? 2.4 : Math.max(0.3, 1.9 - 1.1 * L)) * (0.75 + Math.random() * 0.5);
 }
 function spawnPaper() {
   const left = Math.random() < 0.5;
-  papers.push({ x: left ? -8 : W + 8, y: 50 + Math.random() * 100, vx: (left ? 1 : -1) * (26 + Math.random() * 10), y0: 0, ph: Math.random() * 6 });
+  papers.push({ x: left ? -8 : W + 8, y: 50 + Math.random() * 100, vx: (left ? 1 : -1) * (26 + Math.random() * 10), ph: Math.random() * 6 });
   nextPaper = now + 9 + Math.random() * 6;
+  if (!paperTold) { paperTold = true; banner = { lines: T().paperIntro, until: now + 3.2, color: Q.white }; }
 }
 function loseLife() {
   lives--; streak = 0; heroMood = 'sad'; heroMoodUntil = now + 0.9; shake = now + 0.3;
@@ -455,18 +528,57 @@ function loseLife() {
 function block(w, auto) {
   w.state = 'blocked'; w.tState = now; stopped++; streak++; const pts = 10 * mult(); score += pts;
   slamUntil = now + 0.3; heroMood = 'happy'; heroMoodUntil = now + 0.7;
-  fx.push({ kind: 'stamp', x: w.x, y: w.fy - 34, t: now }, { kind: 'plus', x: w.x, y: w.fy - 46, t: now, n: pts });
+  fx.push({ kind: 'stamp', x: w.x, y: w.fy - 34, t: now, policy: !!auto }, { kind: 'plus', x: w.x, y: w.fy - 46, t: now, n: pts });
   sfx.block();
   if (w.type === 'shell') {   // a shell company splits into two small ones, in the lanes beside it
-    for (const d of [-1, 1]) {
-      const lane = clamp(w.lane + d, 0, 2);
-      walkers.push({ lane, x: LANES[lane] + (lane === w.lane ? d * 9 : 0), fy: w.fy - 6, type: 'mini', hp: 1, label: '', speed: w.speed * 1.25, state: 'walk', tState: now, seed: Math.random(), lit: false, hop: 0 });
-    }
+    for (const d of [-1, 1]) { const lane = clamp(w.lane + d, 0, 2); makeCompany(lane, 'mini', w.fy - 6, { x: LANES[lane] + (lane === w.lane ? d * 9 : 0), sub: w.sub }); }
     sfx.split();
   }
+  if (phase === 'level' && state === 'play') { levelStopped++; if (levelStopped >= LEVELS[li].goal) levelCleared(); }
+  if (phase === 'boss' && w.sub && boss && boss.state === 'fight') {   // every subsidiary stopped strips one plate off the boss
+    boss.hp--; fx.push({ kind: 'clank', x: boss.x, y: boss.y - 20, t: now });
+    if (boss.hp <= 0) { boss.state = 'exposed'; boss.exposedAt = now; boss.hits = 0; banner = { lines: T().bossExposed, until: now + 2.4, color: Q.lime }; }
+  }
+}
+// ---- the boss: a big conglomerate parked at the top, sending subsidiaries down the lanes
+const BOSS_Y = 90;   // low enough that its hat and sign clear the HUD
+const bossBox = () => ({ x0: boss.x - 24, x1: boss.x + 24, y0: boss.y - 44, y1: boss.y + 4 });
+function updateBoss(dt) {
+  const b = boss; if (!b) return;
+  if (b.state === 'enter') { b.y = Math.min(BOSS_Y, b.y + 40 * dt); if (b.y >= BOSS_Y) { b.state = 'fight'; b.t = now; } return; }
+  if (b.state === 'fight') {
+    b.x += b.dir * 14 * dt; if (b.x > 100) b.dir = -1; if (b.x < 35) b.dir = 1;
+    if (now >= b.nextSend) {
+      const lane = LANES.map((x, i) => [Math.abs(x - b.x), i]).sort((p, q) => p[0] - q[0])[0][1];
+      if (laneRoom(lane) > b.y + 30) {
+        const kinds = ['red', 'red', 'sprinter', 'shell', 'disguised', 'green', 'armour'];
+        makeCompany(lane, kinds[Math.floor(Math.random() * kinds.length)], b.y + 6, { sub: true });
+        sfx.split();
+      }
+      b.nextSend = now + 1.3 + Math.random() * 0.6;
+    }
+  } else if (b.state === 'exposed') {
+    if (now - b.exposedAt > 6) { b.state = 'fight'; b.hp = 3; b.maxHp = 3; b.nextSend = now + 0.5; banner = { lines: T().bossRearm, until: now + 1.8, color: Q.red }; }
+  } else if (b.state === 'beaten') {
+    b.y -= 50 * dt * clamp((now - b.t - 0.8) * 2); if (now - b.t > 2.2) { boss = null; levelCleared(); }
+  }
+}
+function hitBoss(px, py) {
+  if (!boss || boss.state === 'enter' || boss.state === 'beaten') return false;
+  const b = bossBox(); if (px < b.x0 || px > b.x1 || py < b.y0 || py > b.y1) return false;
+  if (boss.state === 'fight') { fx.push({ kind: 'clank', x: boss.x, y: boss.y - 20, t: now }); sfx.clank(); return true; }   // armour: no effect
+  boss.hits++; sfx.clank(); fx.push({ kind: 'clank', x: px, y: py, t: now }); shake = now + 0.15;
+  if (boss.hits >= 3) {
+    boss.state = 'beaten'; boss.t = now; const pts = 500; score += pts; stopped++; streak++;
+    fx.push({ kind: 'stamp', x: boss.x, y: boss.y - 24, t: now }, { kind: 'plus', x: boss.x, y: boss.y - 48, t: now, n: pts });
+    for (let k = 0; k < 10; k++) fx.push({ kind: 'coin', x0: boss.x + (k - 5) * 3, y0: boss.y - 10, x1: JAR.x + (k % 3 - 1) * 4, y1: JAR.y - 4, t: now + k * 0.06 });
+    jar = 1; banner = { lines: T().bossDown, until: now + 2.2, color: Q.lime }; sfx.block(); sfx.policy();
+  }
+  return true;
 }
 function tapAt(px, py) {
   if (state === 'title') { newGame(); return; }
+  if (state === 'fact') { if (now - factShownAt > 0.8) continueFromFact(); return; }
   if (state !== 'play') return;
   // a signature paper first: they are rare and fly fast
   const p = papers.find((q) => Math.hypot(q.x - px, q.y - py) < 11);
@@ -475,14 +587,15 @@ function tapAt(px, py) {
     if (sig >= SIG_FULL) { sig = 0; policyUntil = now + POLICY_SECS; banner = { lines: T().policy, until: now + 2, color: Q.lime }; sfx.policy(); }
     return;
   }
-  // then the company nearest the finger, among those whose box contains it
+  // then the company nearest the finger, among those whose box contains it (a mouse gets a slightly bigger box)
+  const pad = lastPointer === 'mouse' ? 3 : 0;
   let hit = null, bestD = 1e9;
   for (const w of walkers) {
     if (w.state !== 'walk') continue;
-    const b = companyBox(w); if (px < b.x0 || px > b.x1 || py < b.y0 || py > b.y1) continue;
+    const b = companyBox(w); if (px < b.x0 - pad || px > b.x1 + pad || py < b.y0 - pad || py > b.y1 + pad) continue;
     const d = Math.hypot(px - w.x, py - (w.fy - 12)); if (d < bestD) { bestD = d; hit = w; }
   }
-  if (!hit) return;
+  if (!hit) { hitBoss(px, py); return; }
   if (!isBad(hit)) { hit.state = 'oops'; hit.tState = now; hit.wasOops = true; fx.push({ kind: 'oops', x: hit.x, y: hit.fy - 40, t: now }); sfx.wrong(); loseLife(); return; }
   if (hit.type === 'armour' && hit.hp > 1) { hit.hp--; hit.fy -= 7; score += 2; fx.push({ kind: 'clank', x: hit.x, y: hit.fy - 20, t: now }); sfx.clank(); return; }
   block(hit);
@@ -490,14 +603,16 @@ function tapAt(px, py) {
 function update(dt) {
   if (state === 'play') {
     if (now >= nextSpawn) spawn();
-    if (elapsed() > 6 && now >= nextPaper) spawnPaper();
+    if (now - phaseT > 5 && now >= nextPaper) spawnPaper();
     music();
   }
+  if (state === 'clear' && now >= clearUntil) nextAfterClear();
+  if (state === 'play' || state === 'clear') updateBoss(dt);
   for (const p of papers) { p.x += p.vx * dt; p.y += Math.sin(now * 3 + p.ph) * 12 * dt; if (p.x < -14 || p.x > W + 14) p.gone = true; }
   papers = papers.filter((p) => !p.gone);
   for (const w of walkers) {
     const age = now - w.tState;
-    if ((w.state === 'walk' || w.state === 'oops') && state !== 'play') continue;   // the street freezes when the round ends
+    if ((w.state === 'walk' || w.state === 'oops') && state !== 'play') continue;   // the street freezes between rounds
     if (w.state === 'oops') { if (age > 0.5) { w.state = 'walk'; w.tState = now; } continue; }
     if (w.state === 'walk') {
       w.fy += w.speed * dt;
@@ -518,6 +633,7 @@ function update(dt) {
   fx = fx.filter((f) => now - f.t < 1.2);
   if (state === 'dying' && now >= overAt) gameOver();
 }
+function reachedText() { return phase === 'endless' ? T().endless[0] : phase === 'boss' ? T().bossName : `${T().level} ${li + 1}: ${T().levels[li].name}`; }
 function gameOver() {
   state = 'over';
   if (score > best) { best = score; newBest = score > 0; store.set('rm-game-best', String(best)); }
@@ -536,6 +652,30 @@ function showEnd() {
 //  drawing each state
 // ---------------------------------------------------------------------
 const fmt = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+function wrap(str, max) {
+  const out = []; let line = '';
+  for (const word of str.split(' ')) { const t = line ? line + ' ' + word : word; if (t.length > max && line) { out.push(line); line = word; } else line = t; }
+  if (line) out.push(line); return out;
+}
+function drawBoss() {
+  const b = boss; if (!b) return;
+  const x = Math.round(b.x), fy = Math.round(b.y), bw = 40, bh = 30, top = fy - bh - 6, x0 = x - bw / 2;
+  const exposed = b.state === 'exposed', blink = exposed && Math.floor(now * 8) % 2;
+  pellipse(x, fy, 21, 3, Q.shadow);
+  const fr = Math.floor(now * 4) % 2;
+  for (const s of [-1, 1]) prect(x + s * 10 - 2, fy - 6 + (fr === (s > 0 ? 1 : 0) ? 1 : 0), 4, 6, Q.ink);
+  prect(x0, top, bw, bh, Q.ink); prect(x0 + 1, top + 1, bw - 2, bh - 2, blink ? Q.orange : Q.red);
+  prect(x0 + 1, top + 1, bw - 2, 2, Q.orange);
+  for (let i = 0; i < b.hp; i++) prect(x0 + 3 + (i % 4) * 9, top + 13 + Math.floor(i / 4) * 6, 7, 4, i % 2 ? Q.grey : Q.white);   // the armour plates
+  for (const s of [-1, 1]) { prect(x + s * 7 - 2, top + 4, 5, 4, Q.white); prect(x + s * 7 - 2 + (s < 0 ? 1 : 0), top + 6, 3, 2, Q.ink); prect(x + s * 7 - 3, top + 3, 6, 1, Q.ink); }
+  prect(x - 5, top + 10, 11, 1, Q.ink); pset(x - 6, top + 9, Q.ink); pset(x + 6, top + 9, Q.ink);
+  // a top hat with a crown of coins, and the sign
+  prect(x - 9, top - 7, 18, 7, Q.ink); prect(x - 8, top - 6, 16, 5, Q.night); prect(x - 12, top - 1, 24, 2, Q.ink);
+  for (let k = 0; k < 3; k++) coinAt(x - 6 + k * 6, top - 10, k);
+  const sw = pixTextW(T().bossName) + 6; pixBox(x - Math.floor(sw / 2), top - 26, sw, 13, { bg: Q.ink }); pixText(T().bossName, x, top - 22, Q.red, { align: 'center' });
+  // its armour, as a bar
+  if (b.state === 'fight' || b.state === 'exposed') { prect(x - 16, fy + 4, 32, 4, Q.ink); prect(x - 15, fy + 5, Math.round(30 * b.hp / b.maxHp), 2, Q.grey); if (exposed) for (let i = 0; i < 3; i++) prect(x - 7 + i * 5, fy + 5, 3, 2, i < 3 - b.hits ? Q.lime : Q.slate); }
+}
 function draw() {
   const sx = now < shake ? (Math.floor(now * 30) % 2 ? 1 : -1) : 0;
   ctx.setTransform(1, 0, 0, 1, sx, 0);
@@ -545,24 +685,26 @@ function draw() {
   const mood = now < heroMoodUntil ? heroMood : state === 'over' ? (stopped > 0 ? 'happy' : 'sad') : pol ? 'happy' : 'smile';
   coinHero(HERO.x, HERO.y, 7, { mood, y0: HERO.y, hop: mood === 'happy' && now < heroMoodUntil ? 4 * Math.sin(Math.PI * clamp((heroMoodUntil - now) / 0.7)) : 0, look: -1 });
   drawGate(now < slamUntil ? 1 : 0, pol);
+  drawBoss();
   [...walkers].sort((a, b) => a.fy - b.fy).forEach(drawCompany);
   papers.forEach(drawPaper);
   for (const f of fx) {
-    const a = now - f.t;
-    if (f.kind === 'stamp') stamp(f.x, f.y, a);
+    const a = now - f.t; if (a < 0) continue;
+    if (f.kind === 'stamp') { stamp(f.x, f.y, a); if (f.policy && a < 0.8) pixText('POLICY', f.x, f.y + 10, Q.lime, { align: 'center', shadow: Q.ink }); }
     else if (f.kind === 'plus') pixText('+' + f.n, f.x, f.y - Math.floor(a * 20), Q.yellow, { align: 'center', shadow: Q.ink });
-    else if (f.kind === 'plus1' && a < 0.8) pixText('+1', f.x, f.y - Math.floor(a * 20), Q.white, { align: 'center', shadow: Q.ink });
+    else if (f.kind === 'plus1' && a < 0.8) pixText(T().plusSig, f.x, f.y - Math.floor(a * 20), Q.white, { align: 'center', shadow: Q.ink });
     else if (f.kind === 'clank' && a < 0.4) { sprite(SPR.spark, { a: Q.white, b: Q.yellow }, f.x - 9, f.y - 2); sprite(SPR.spark, { a: Q.white, b: Q.yellow }, f.x + 5, f.y + 2); }
     else if (f.kind === 'oops' && a < 0.9) { pixBox(f.x - 5, f.y - 4, 11, 12, { bg: Q.white }); pixText('?', f.x - 2, f.y - 1, Q.ink); }
     else if (f.kind === 'text' && a < 0.9) pixText(f.s, f.x, f.y - Math.floor(a * 10), f.c, { align: 'center', shadow: Q.ink });
     else if (f.kind === 'coin' && a < 0.4) { const u = a / 0.4; coinAt(lerp(f.x0, f.x1, u), lerp(f.y0, f.y1, u) - 14 * 4 * u * (1 - u)); }
   }
   ctx.setTransform(1, 0, 0, 1, 0, 0);
-  if (state === 'play' || state === 'dying') drawHud();
+  if (state === 'play' || state === 'dying' || state === 'clear') drawHud();
   else if (state === 'title') drawTitle();
   else if (state === 'over') drawOver();
-  if (banner && now < banner.until && state === 'play') {
-    const tw = Math.max(...banner.lines.map((s) => pixTextW(s))) + 10, bh = banner.lines.length * 10 + 6, y0 = ROAD_Y0 + 3;   // just under the HUD: out of the way of the decisions near the gate
+  else if (state === 'fact') { drawHud(); drawFact(); }
+  if (banner && now < banner.until && (state === 'play' || state === 'clear')) {
+    const tw = Math.max(...banner.lines.map((s) => pixTextW(s))) + 10, bh = banner.lines.length * 10 + 6, y0 = Math.round(PLAZA_Y + (H - PLAZA_Y - bh) / 2);   // over the square: nothing there is tappable, so a banner never hides a decision
     pixBox(Math.round((W - tw) / 2), y0, tw, bh, { bg: Q.ink, edge: banner.color, shadow: Q.shadow });
     banner.lines.forEach((s, i) => pixText(s, W / 2, y0 + 4 + i * 10, i === 0 ? banner.color : Q.white, { align: 'center' }));
   }
@@ -573,17 +715,29 @@ function drawHud() {
   pixText(fmt(score), 4, 4, Q.white);
   if (mult() > 1) pixText('x' + mult(), 4 + pixTextW(fmt(score)) + 5, 4, Q.lime);
   for (let i = 0; i < 3; i++) sprite(SPR.heart, { a: i < lives ? Q.red : Q.slate, b: i < lives ? Q.pink : Q.slate }, W - 26 + i * 8, 4);
-  // the signature meter: a paper icon and five cells; full = ETISK POLICY
+  // where you are: the sector and its goal, the boss, or endless
+  const where = phase === 'level' ? `${T().levels[li].name} ${Math.min(levelStopped, LEVELS[li].goal)}/${LEVELS[li].goal}` : phase === 'boss' ? T().bossName : T().endless[0];
+  pixText(where, 4, 15, phase === 'boss' ? Q.red : Q.grey);
+  // the signature meter: a paper, five cells and a count; full = ETISK POLICY (the cells then count down)
   const pol = policyOn();
-  pixText(pol ? T().policy[0] : T().meter, 4, 15, pol ? Q.lime : Q.grey);
-  prect(84, 15, 6, 7, Q.white); prect(85, 17, 4, 1, Q.grey); prect(85, 19, 4, 1, Q.grey);
+  prect(86, 15, 6, 7, Q.white); prect(87, 17, 4, 1, Q.grey); prect(87, 19, 4, 1, Q.grey);
   for (let i = 0; i < SIG_FULL; i++) {
     const on = pol ? (policyUntil - now) / POLICY_SECS * SIG_FULL > i : i < sig;
-    prect(93 + i * 8, 15, 6, 7, on ? Q.lime : Q.slate);
+    prect(95 + i * 5, 15, 4, 7, on ? Q.lime : Q.slate);
   }
-  if (elapsed() < 4.5 && Math.floor(now * 3) % 2 === 0) { const s = T().hint, tw = pixTextW(s) + 8; pixBox(Math.round((W - tw) / 2), 150, tw, 13, { bg: Q.ink, edge: Q.lime }); pixText(s, W / 2, 153, Q.lime, { align: 'center' }); }
+  pixText(pol ? 'P' : `${sig}`, 123, 15, pol ? Q.lime : Q.white);
+  if (phase === 'level' && li === 0 && now - phaseT < 4.5 && state === 'play' && Math.floor(now * 3) % 2 === 0) { const s = T().hint, tw = pixTextW(s) + 8; pixBox(Math.round((W - tw) / 2), 150, tw, 13, { bg: Q.ink, edge: Q.lime }); pixText(s, W / 2, 153, Q.lime, { align: 'center' }); }
 }
 function panel(y, h) { prect(6, y, W - 12, h, Q.shadow); pixBox(5, y - 1, W - 12, h, { bg: Q.ink, edge: Q.white }); }
+function drawFact() {
+  const f = T().facts[factIdx], lines = wrap(f.text, 20), h = 40 + lines.length * 10;
+  const y = Math.round(100 - h / 2);
+  panel(y, h);
+  pixText(f.head, W / 2, y + 6, Q.yellow, { align: 'center' });
+  lines.forEach((s, i) => pixText(s, W / 2, y + 20 + i * 10, Q.white, { align: 'center' }));
+  pixText(T().source, W / 2, y + h - 14, Q.grey, { align: 'center' });
+  if (now - factShownAt > 0.8 && Math.floor(now * 2.5) % 2 === 0) { const s = T().next, tw = pixTextW(s) + 8; pixBox(Math.round((W - tw) / 2), y + h + 8, tw, 13, { bg: Q.lime, edge: Q.ink, shadow: Q.shadow }); pixText(s, W / 2, y + h + 11, Q.ink, { align: 'center' }); }
+}
 function drawTitle() {
   panel(22, 104);
   stamp(W / 2, 40, 1);
@@ -593,16 +747,18 @@ function drawTitle() {
   if (best > 0) pixText(`${T().best} ${fmt(best)}`, W / 2, 172, Q.white, { align: 'center', shadow: Q.ink });
 }
 function drawOver() {
-  panel(20, 112);
+  panel(20, 124);
   pixText(T().over, W / 2, 27, Q.white, { align: 'center', scale: 2 });
   const lines = T().stopped(stopped);
   pixText(lines[0], W / 2, 50, Q.white, { align: 'center' });
   pixText(lines[1], W / 2, 61, Q.lime, { align: 'center' });
   pixText(lines[2], W / 2, 72, Q.lime, { align: 'center' });
-  pixText(`${T().score} ${fmt(score)}`, W / 2, 88, Q.yellow, { align: 'center' });
-  pixText(newBest ? T().newBest : `${T().best} ${fmt(best)}`, W / 2, 99, newBest && Math.floor(now * 3) % 2 ? Q.lime : Q.grey, { align: 'center' });
-  if (signCount != null) pixText(T().signed(fmt(signCount)), W / 2, 116, Q.white, { align: 'center' });
+  pixText(reachedText(), W / 2, 86, Q.white, { align: 'center' });
+  pixText(`${T().score} ${fmt(score)}`, W / 2, 100, Q.yellow, { align: 'center' });
+  pixText(newBest ? T().newBest : `${T().best} ${fmt(best)}`, W / 2, 111, newBest && Math.floor(now * 3) % 2 ? Q.lime : Q.grey, { align: 'center' });
+  if (signCount != null) pixText(T().signed(fmt(signCount)), W / 2, 128, Q.white, { align: 'center' });
 }
+
 // ---------------------------------------------------------------------
 //  the loop, input, language, sharing, the live signature count
 // ---------------------------------------------------------------------
@@ -613,8 +769,10 @@ function frame(ms) {
   requestAnimationFrame(frame);
 }
 function toPixel(e) { const r = cv.getBoundingClientRect(); return [(e.clientX - r.left) * W / r.width, (e.clientY - r.top) * H / r.height]; }
-cv.addEventListener('pointerdown', (e) => { e.preventDefault(); audioStart(); const [x, y] = toPixel(e); tapAt(x, y); });
+let lastPointer = 'touch';
+cv.addEventListener('pointerdown', (e) => { e.preventDefault(); lastPointer = e.pointerType || 'touch'; audioStart(); const [x, y] = toPixel(e); tapAt(x, y); });
 window.addEventListener('keydown', (e) => {
+  if ((e.key === 'Enter' || e.key === ' ') && state === 'fact') { e.preventDefault(); tapAt(0, 0); return; }
   if ((e.key === 'Enter' || e.key === ' ') && (state === 'title' || (state === 'over' && now > overAt + 0.6)) && document.activeElement?.tagName !== 'BUTTON' && document.activeElement?.tagName !== 'A') { e.preventDefault(); audioStart(); newGame(); }
 });
 document.getElementById('againBtn').addEventListener('click', () => { audioStart(); newGame(); });
