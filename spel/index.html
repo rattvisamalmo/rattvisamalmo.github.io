@@ -1,0 +1,583 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>KÖPER EJ – ett spel av Rättvisa Malmö</title>
+<meta name="description" content="Stoppa de oetiska företagen innan de får skattepengarna. Ett litet spel av Rättvisa Malmö.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="KÖPER EJ – ett spel av Rättvisa Malmö">
+<meta property="og:description" content="Stoppa de oetiska företagen innan de får skattepengarna.">
+<meta property="og:image" content="https://rattvisamalmo.github.io/assets/brand/logo-stacked-light-ui.png">
+<link rel="icon" type="image/png" href="../assets/brand/logo-stacked-light-ui.png">
+<style>
+  :root { --ink: #14101e; --night: #232a4e; --white: #f4f0e6; --lime: #8ad04a; --green: #2e8a4a; --yellow: #f6d64a; --grey: #8a8ca0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; background: var(--ink); color: var(--white); }
+  body { display: flex; flex-direction: column; align-items: center; font: 600 14px/1.2 ui-monospace, Consolas, "Cascadia Mono", Menlo, monospace; overflow: hidden; touch-action: manipulation; }
+  .bar { width: 100%; max-width: 560px; height: 44px; flex: none; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 0 12px; }
+  .bar a, .bar button { color: var(--white); background: none; border: 2px solid transparent; font: inherit; cursor: pointer; text-decoration: none; padding: 6px 8px; }
+  .bar a:hover, .bar button:hover, .bar a:focus-visible, .bar button:focus-visible { border-color: var(--grey); outline: none; }
+  .bar .right { display: flex; gap: 4px; }
+  .bar button[aria-pressed="true"] { color: var(--ink); background: var(--lime); }
+  .stage { position: relative; flex: none; height: calc(100dvh - 44px); max-height: calc(100vh - 44px); aspect-ratio: 9 / 16; max-width: 100vw; }
+  @supports not (aspect-ratio: 9 / 16) { .stage { width: calc((100vh - 44px) * 9 / 16); } }
+  canvas { display: block; width: 100%; height: 100%; image-rendering: pixelated; image-rendering: crisp-edges; cursor: pointer; }
+  .end { position: absolute; left: 8%; right: 8%; bottom: 7%; display: none; flex-direction: column; gap: 10px; }
+  .end.show { display: flex; }
+  .end .row { display: flex; gap: 10px; }
+  .end a, .end button { flex: 1; display: block; text-align: center; font: 700 clamp(14px, 4.2vw, 20px)/1 ui-monospace, Consolas, Menlo, monospace; letter-spacing: 1px; padding: 14px 8px; border: 3px solid var(--ink); box-shadow: 4px 4px 0 #07060c; cursor: pointer; text-decoration: none; text-transform: uppercase; }
+  .end .sign { background: var(--lime); color: var(--ink); font-size: clamp(18px, 5.4vw, 26px); padding: 18px 8px; }
+  .end .sec { background: var(--white); color: var(--ink); }
+  .end a:focus-visible, .end button:focus-visible { outline: 3px solid var(--yellow); outline-offset: 2px; }
+  .end a:active, .end button:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0 #07060c; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+</style>
+</head>
+<body>
+<div class="bar">
+  <a href="../" id="back">← rattvisamalmo.se</a>
+  <div class="right">
+    <button type="button" data-lang="sv" aria-pressed="true">SV</button>
+    <button type="button" data-lang="en" aria-pressed="false">EN</button>
+    <button type="button" id="mute" aria-pressed="false">♪</button>
+  </div>
+</div>
+<div class="stage" id="stage">
+  <canvas id="game" width="135" height="240" role="img" aria-label="KÖPER EJ"></canvas>
+  <div class="end" id="end">
+    <a class="sign" id="signBtn" href="https://www.mittskifte.org/petitions/rattvisa-malmo-inte-en-krona-till-manniskorattsbrott" target="_blank" rel="noopener">Skriv på</a>
+    <div class="row">
+      <button type="button" class="sec" id="againBtn">Spela igen</button>
+      <button type="button" class="sec" id="shareBtn">Dela</button>
+    </div>
+  </div>
+  <p class="sr" id="live" aria-live="polite"></p>
+</div>
+<script>
+"use strict";
+// =====================================================================
+//  KÖPER EJ — a small game for Rättvisa Malmö. You are the ethical procurement policy: companies walk toward the
+//  city's tax money; tap the red (unethical) ones to stop them, let the fair ones through to get paid.
+//  One file, everything drawn and synthesised in code (no images, no audio files, no libraries, no tracking).
+//  The picture is 135x240 pixels, scaled up nearest-neighbour; the art matches the campaign videos.
+//
+//  Pixel primitives, the 5x7 font and the hero are adapted from the "animate" skill's pixel style
+//  (github.com/cth9191/animate), MIT License, Copyright (c) 2026 cth9191.
+// =====================================================================
+const W = 135, H = 240, GY = 172;                       // the street line
+const GATE_X = 56, SPAWN_X = 146, JAR_X = 8;
+const PETITION_URL = 'https://www.mittskifte.org/petitions/rattvisa-malmo-inte-en-krona-till-manniskorattsbrott';
+const COUNT_URL = '../assets/data/signature-count.json';
+const Q = {
+  ink: '#14101e', night: '#232a4e', blue: '#2f5fa8', sky: '#5fb4e6', ice: '#a8f0f0', white: '#f4f0e6',
+  grey: '#8a8ca0', slate: '#4a4e66', green: '#2e8a4a', lime: '#8ad04a', yellow: '#f6d64a', orange: '#f08a32',
+  red: '#d83a3a', pink: '#f07aa8', purple: '#6a3a8a', brown: '#7a4a2a', shadow: '#07060c',
+};
+
+// ---------------------------------------------------------------------
+//  words, in both languages (the site's own setting, 'rm-lang', picks one)
+// ---------------------------------------------------------------------
+const TEXT = {
+  sv: {
+    how: ['TRYCK PÅ RÖDA', 'FÖRETAG: KÖPER EJ!', 'SLÄPP IN SCHYSSTA.', '3 MISSAR = SLUT.'], tap: 'TRYCK FÖR ATT SPELA',
+    hint: 'TRYCK PÅ DE RÖDA!', over: 'SLUT!', stopped: (n) => ['DU STOPPADE', `${n} ${n === 1 ? 'OETISKT' : 'OETISKA'}`, n === 1 ? 'FÖRETAG' : 'FÖRETAG'],
+    score: 'POÄNG', best: 'REKORD', signed: (c) => `${c} HAR SKRIVIT PÅ`, newBest: 'NYTT REKORD!',
+    sign: 'Skriv på', again: 'Spela igen', share: 'Dela', copied: 'LÄNK KOPIERAD', oops: 'SCHYSST!', bought: 'BETALT...',
+    shareText: (n) => `Jag stoppade ${n} ${n === 1 ? 'oetiskt' : 'oetiska'} företag i KÖPER EJ, Rättvisa Malmös spel. Spela och skriv på:`,
+    shops: ['MAT', 'VÅRD', 'BYGG', 'IT', 'BUSS', 'STÄD', 'SKOLA', 'TECH'], back: '← rattvisamalmo.se', title: 'KÖPER EJ – ett spel av Rättvisa Malmö',
+    live: (n, s) => `Spelet är slut. Du stoppade ${n} ${n === 1 ? 'oetiskt' : 'oetiska'} företag och fick ${s} poäng.`, aria: 'KÖPER EJ: tryck på de röda företagen för att stoppa dem.',
+  },
+  en: {
+    how: ['TAP RED COMPANIES:', 'KÖPER EJ! (NO SALE)', 'LET FAIR ONES IN.', '3 MISSES = OVER.'], tap: 'TAP TO PLAY',
+    hint: 'TAP THE RED ONES!', over: 'GAME OVER', stopped: (n) => ['YOU STOPPED', `${n} UNETHICAL`, n === 1 ? 'COMPANY' : 'COMPANIES'],
+    score: 'SCORE', best: 'BEST', signed: (c) => `${c} HAVE SIGNED`, newBest: 'NEW BEST!',
+    sign: 'Sign now', again: 'Play again', share: 'Share', copied: 'LINK COPIED', oops: 'THAT WAS FAIR!', bought: 'PAID...',
+    shareText: (n) => `I stopped ${n} unethical ${n === 1 ? 'company' : 'companies'} in KÖPER EJ, Rättvisa Malmö's game. Play it and sign:`,
+    shops: ['FOOD', 'CARE', 'BUILD', 'IT', 'BUS', 'CLEAN', 'SCHOOL', 'TECH'], back: '← rattvisamalmo.se', title: 'KÖPER EJ – a game by Rättvisa Malmö',
+    live: (n, s) => `Game over. You stopped ${n} unethical ${n === 1 ? 'company' : 'companies'} and scored ${s} points.`, aria: 'KÖPER EJ: tap the red companies to stop them.',
+  },
+};
+const store = {
+  get(k) { try { return localStorage.getItem(k); } catch { return null; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch { /* private mode: fine */ } },
+};
+let lang = (() => {
+  const s = store.get('rm-lang');
+  if (s === 'sv' || s === 'en') return s;
+  return navigator.language && navigator.language.toLowerCase().startsWith('en') ? 'en' : 'sv';
+})();
+const T = () => TEXT[lang];
+
+// ---------------------------------------------------------------------
+//  pixel primitives (whole pixels only, no anti-aliasing)
+// ---------------------------------------------------------------------
+const cv = document.getElementById('game'), ctx = cv.getContext('2d', { alpha: false });
+const clamp = (x, a = 0, b = 1) => (x < a ? a : x > b ? b : x);
+const lerp = (a, b, t) => a + (b - a) * t;
+const seg = (t, a, b) => clamp((t - a) / (b - a));
+const mod = (a, n) => ((a % n) + n) % n;
+const EZ = { o2: (t) => 1 - (1 - clamp(t)) ** 2, io: (t) => { t = clamp(t); return t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2; } };
+function prect(x, y, w, h, c) { ctx.fillStyle = c; ctx.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h)); }
+const pset = (x, y, c) => prect(x, y, 1, 1, c);
+function pline(x0, y0, x1, y1, c) {
+  x0 = Math.round(x0); y0 = Math.round(y0); x1 = Math.round(x1); y1 = Math.round(y1); ctx.fillStyle = c;
+  const dx = Math.abs(x1 - x0), dy = -Math.abs(y1 - y0), sx = x0 < x1 ? 1 : -1, sy = y0 < y1 ? 1 : -1; let e = dx + dy;
+  for (let n = 0; n < 4096; n++) { ctx.fillRect(x0, y0, 1, 1); if (x0 === x1 && y0 === y1) break; const e2 = 2 * e; if (e2 >= dy) { e += dy; x0 += sx; } if (e2 <= dx) { e += dx; y0 += sy; } }
+}
+function pellipse(cx, cy, rx, ry, c) {
+  cx = Math.round(cx); cy = Math.round(cy); rx = Math.max(0, Math.round(rx)); ry = Math.max(0, Math.round(ry)); ctx.fillStyle = c;
+  const A = rx + 0.5, Bq = ry + 0.5;
+  for (let j = -ry; j <= ry; j++) { const hw = Math.floor(A * Math.sqrt(Math.max(0, 1 - (j / Bq) ** 2)) + 1e-9); ctx.fillRect(cx - hw, cy + j, 2 * hw + 1, 1); }
+}
+const pcircle = (cx, cy, r, c) => pellipse(cx, cy, r, r, c);
+function ppoly(P, c) {
+  let y0 = 1e9, y1 = -1e9; for (const [, y] of P) { y0 = Math.min(y0, y); y1 = Math.max(y1, y); }
+  y0 = Math.floor(y0); y1 = Math.ceil(y1) + 1; ctx.fillStyle = c;
+  for (let j = y0; j < y1; j++) {
+    const yc = j + 0.5, xs = [];
+    for (let k = 0; k < P.length; k++) { const a = P[k], b = P[(k + 1) % P.length]; if ((a[1] <= yc) !== (b[1] <= yc)) xs.push(a[0] + (yc - a[1]) * (b[0] - a[0]) / (b[1] - a[1])); }
+    xs.sort((p, q) => p - q);
+    for (let k = 0; k + 1 < xs.length; k += 2) { const i0 = Math.ceil(xs[k] - 0.5), i1 = Math.ceil(xs[k + 1] - 0.5); if (i1 > i0) ctx.fillRect(i0, j, i1 - i0, 1); }
+  }
+}
+const BAYER4 = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5].map((v) => (v + 0.5) / 16);
+const bayer = (x, y) => BAYER4[((Math.round(y) & 3) << 2) | (Math.round(x) & 3)];
+function pdither(x, y, w, h, cB, f) { ctx.fillStyle = cB; for (let j = y; j < y + h; j++) for (let i = x; i < x + w; i++) if (f(i, j) > bayer(i, j)) ctx.fillRect(i, j, 1, 1); }
+function pgrad(x, y, w, h, cols) {
+  const n = cols.length - 1;
+  for (let k = 0; k < h; k++) {
+    const u = (h > 1 ? k / (h - 1) : 0) * n, a = Math.min(n, Math.floor(u)), f = u - a, b = Math.min(n, a + 1);
+    prect(x, y + k, w, 1, cols[a]);
+    if (f > 0 && a !== b) { ctx.fillStyle = cols[b]; for (let i = x; i < x + w; i++) if (f > bayer(i, y + k)) ctx.fillRect(i, y + k, 1, 1); }
+  }
+}
+function pglow(cx, cy, r0, r1, c, amt = 0.5) {
+  ctx.fillStyle = c; const R = Math.ceil(r1);
+  for (let j = -R; j <= R; j++) for (let i = -R; i <= R; i++) { const d = Math.hypot(i, j); if (d < r0 || d > r1) continue; if (amt * (1 - (d - r0) / (r1 - r0)) > bayer(cx + i, cy + j)) ctx.fillRect(cx + i, cy + j, 1, 1); }
+}
+// sprites from strings: rows like '.aa.', map { a: '#hex' }
+function sprite(rows, map, x, y, o = {}) {
+  const sc = o.scale ?? 1, w = rows[0].length, h = rows.length; let x0 = Math.round(x), y0 = Math.round(y);
+  if (o.anchor === 'c') { x0 -= Math.floor(w * sc / 2); y0 -= Math.floor(h * sc / 2); } else if (o.anchor === 'bc') { x0 -= Math.floor(w * sc / 2); y0 -= h * sc; }
+  for (let j = 0; j < h; j++) for (let i = 0; i < w; i++) { const ch = rows[j][o.flip ? w - 1 - i : i], col = map[ch]; if (col) prect(x0 + i * sc, y0 + j * sc, sc, sc, col); }
+}
+// the 5x7 font; Å Ä Ö are full-height A / O with the marks drawn above the cap line
+const FONT5 = {
+  ' ': [0, 0, 0, 0, 0, 0, 0],
+  A: [14, 17, 17, 31, 17, 17, 17], B: [30, 17, 17, 30, 17, 17, 30], C: [14, 17, 16, 16, 16, 17, 14], D: [28, 18, 17, 17, 17, 18, 28],
+  E: [31, 16, 16, 30, 16, 16, 31], F: [31, 16, 16, 30, 16, 16, 16], G: [14, 17, 16, 23, 17, 17, 15], H: [17, 17, 17, 31, 17, 17, 17],
+  I: [14, 4, 4, 4, 4, 4, 14], J: [7, 2, 2, 2, 2, 18, 12], K: [17, 18, 20, 24, 20, 18, 17], L: [16, 16, 16, 16, 16, 16, 31],
+  M: [17, 27, 21, 21, 17, 17, 17], N: [17, 17, 25, 21, 19, 17, 17], O: [14, 17, 17, 17, 17, 17, 14], P: [30, 17, 17, 30, 16, 16, 16],
+  Q: [14, 17, 17, 17, 21, 18, 13], R: [30, 17, 17, 30, 20, 18, 17], S: [15, 16, 16, 14, 1, 1, 30], T: [31, 4, 4, 4, 4, 4, 4],
+  U: [17, 17, 17, 17, 17, 17, 14], V: [17, 17, 17, 17, 17, 10, 4], W: [17, 17, 17, 21, 21, 21, 10], X: [17, 17, 10, 4, 10, 17, 17],
+  Y: [17, 17, 17, 10, 4, 4, 4], Z: [31, 1, 2, 4, 8, 16, 31],
+  0: [14, 17, 19, 21, 25, 17, 14], 1: [4, 12, 4, 4, 4, 4, 14], 2: [14, 17, 1, 2, 4, 8, 31], 3: [31, 2, 4, 2, 1, 17, 14],
+  4: [2, 6, 10, 18, 31, 2, 2], 5: [31, 16, 30, 1, 1, 17, 14], 6: [6, 8, 16, 30, 17, 17, 14], 7: [31, 1, 2, 4, 8, 8, 8],
+  8: [14, 17, 17, 14, 17, 17, 14], 9: [14, 17, 17, 15, 1, 2, 12],
+  '.': [0, 0, 0, 0, 0, 12, 12], ',': [0, 0, 0, 0, 12, 4, 8], '!': [4, 4, 4, 4, 4, 0, 4], '?': [14, 17, 1, 2, 4, 0, 4],
+  ':': [0, 12, 12, 0, 12, 12, 0], '-': [0, 0, 0, 31, 0, 0, 0], '+': [0, 4, 4, 31, 4, 4, 0], '/': [1, 1, 2, 4, 8, 16, 16],
+  "'": [4, 4, 8, 0, 0, 0, 0], '=': [0, 0, 31, 0, 31, 0, 0], '(': [2, 4, 8, 8, 8, 4, 2], ')': [8, 4, 2, 2, 2, 4, 8], x: [0, 0, 17, 10, 4, 10, 17],
+};
+const pixTextW = (str, sc = 1) => Math.max(0, String(str).length * 6 * sc - sc);
+function pixText(str, x, y, c, o = {}) {
+  const sc = o.scale ?? 1, s = String(str).replace(/[^x]/g, (ch) => ch.toUpperCase()), tw = pixTextW(s, sc);
+  const n = clamp(Math.floor(o.count ?? s.length), 0, s.length);
+  const x0 = Math.round(x - (o.align === 'center' ? Math.floor(tw / 2) : o.align === 'right' ? tw : 0)), y0 = Math.round(y);
+  const draw = (ox, oy, col) => {
+    ctx.fillStyle = col;
+    for (let k = 0; k < n; k++) {
+      const ch = s[k], base = ch === 'Ö' ? 'O' : ch === 'Ä' || ch === 'Å' ? 'A' : ch, gl = FONT5[base] || FONT5[' '], gx = ox + k * 6 * sc;
+      for (let r = 0; r < 7; r++) for (let b = 0; b < 5; b++) if (gl[r] & (16 >> b)) ctx.fillRect(gx + b * sc, oy + r * sc, sc, sc);
+      if (ch === 'Ö' || ch === 'Ä') { ctx.fillRect(gx + sc, oy - 2 * sc, sc, sc); ctx.fillRect(gx + 3 * sc, oy - 2 * sc, sc, sc); }
+      else if (ch === 'Å') ctx.fillRect(gx + 2 * sc, oy - 2 * sc, sc, sc);
+    }
+  };
+  if (o.shadow) draw(x0 + sc, y0 + sc, o.shadow);
+  draw(x0, y0, c);
+  return tw;
+}
+function pixBox(x, y, w, h, o = {}) {
+  x = Math.round(x); y = Math.round(y); w = Math.round(w); h = Math.round(h);
+  if (o.shadow) { prect(x + 2, y + 1, w - 2, h, o.shadow); prect(x + 1, y + 2, w, h - 2, o.shadow); }
+  const e = o.edge ?? Q.ink; prect(x + 1, y, w - 2, h, e); prect(x, y + 1, w, h - 2, e);
+  prect(x + 1, y + 1, w - 2, h - 2, o.bg ?? Q.white);
+}
+const SPR = {
+  spark: ['..a..', '..a..', 'aabaa', '..a..', '..a..'], twinkle: ['.a.', 'aba', '.a.'],
+  heart: ['.aa.aa.', 'abaaaaa', 'aaaaaaa', '.aaaaa.', '..aaa..', '...a...'],
+  coin: [['.kkkkk.', 'kayyyak', 'kywyyyk', 'kywyyyk', 'kyyyyyk', 'kayyyak', '.kkkkk.'], ['..kkk..', '.kayak.', '.kwyyk.', '.kwyyk.', '.kyyyk.', '.kayak.', '..kkk..'], ['...k...', '..kak..', '..kyk..', '..kyk..', '..kyk..', '..kak..', '...k...']],
+};
+const coinAt = (x, y, k = 0) => sprite(SPR.coin[[0, 1, 2, 1][(Math.floor(now * 12) + k) % 4]], { k: Q.ink, a: Q.orange, y: Q.yellow, w: Q.white }, x, y, { anchor: 'c' });
+const MALMO_FLAG = ['kkkkkkkkkkkkkkk', 'kwwwwwywywywwwk', 'kwwwwwyyyyywwwk', 'kwwwwrrrrrrrwwk', 'kwwwrrrrrrrrrwk', 'kwwrrkkrrrrrrwk', 'krrrrrrrrrrrrwk', 'kwrrwwrrrrrrrwk', 'kwwrwwwrrrrrrrk', 'kwwwwwrwrwrwrwk', 'kkkkkkkkkkkkkkk'];
+// a seeded random for scenery that must not change between frames
+function srand(...xs) { let h = 2166136261; for (const x of xs) { h ^= Math.round(x * 1000); h = Math.imul(h, 16777619); } h ^= h >>> 13; h = Math.imul(h, 0x5bd1e995); h ^= h >>> 15; return (h >>> 0) / 4294967296; }
+
+// ---------------------------------------------------------------------
+//  the hero: the city's coin, standing guard between the tax jar and the gate
+// ---------------------------------------------------------------------
+let now = 0;
+function coinHero(cx, cy, r, o = {}) {
+  const fr = Math.floor(now / 0.5) % 2, hop = Math.round(o.hop ?? 0);
+  cx = Math.round(cx); cy = Math.round(cy) - hop + fr;
+  const fy = Math.round(o.y0 ?? cy) - hop + r + 3;
+  for (const s of [-1, 1]) { prect(cx + s * 3, cy + r, 1, fy - cy - r, Q.ink); prect(cx + s * 3 - (s < 0 ? 2 : 0), fy, 3, 1, Q.ink); }
+  pellipse(cx, cy, r + 1, r + 1, Q.ink); pellipse(cx, cy, r, r, Q.orange); pellipse(cx, cy, r - 2, r - 2, Q.yellow);
+  pdither(cx - r, cy - r, 2 * r + 1, 2 * r + 1, Q.white, (i, j) => (((i - cx) / (r - 2)) ** 2 + ((j - cy) / (r - 2)) ** 2 < 1 ? clamp((-(i - cx) / r - (j - cy) / r - 0.9) * 1.3) : 0));
+  const eo = Math.max(2, Math.round(r * 0.4)), ey = cy - 2, mood = o.mood || 'smile', blink = Math.floor(now * 12 + 5) % 41 < 2;
+  for (const s of [-1, 1]) {
+    const ex = cx + s * eo - 1;
+    if (mood === 'happy') { pset(ex, ey, Q.ink); pset(ex + 1, ey - 1, Q.ink); pset(ex + 2, ey, Q.ink); continue; }
+    if (blink) { prect(ex, ey + 1, 3, 1, Q.ink); continue; }
+    const eh = mood === 'wow' ? 4 : 3; prect(ex, ey - 1, 3, eh, Q.white);
+    const lx = o.look ?? 0; prect(ex + (lx > 0 ? 1 : 0), ey - 1 + eh - 2, 2, 2, Q.ink);
+    if (mood === 'sad') prect(ex + (s < 0 ? 0 : 1), ey - 2, 2, 1, Q.ink);
+  }
+  const my = cy + Math.round(r * 0.45);
+  if (mood === 'wow') prect(cx - 1, my - 1, 3, 3, Q.ink);
+  else if (mood === 'sad') { prect(cx - 1, my, 3, 1, Q.ink); pset(cx - 2, my + 1, Q.ink); pset(cx + 2, my + 1, Q.ink); }
+  else if (mood === 'happy') { prect(cx - 2, my, 5, 1, Q.ink); pset(cx - 3, my - 1, Q.ink); pset(cx + 3, my - 1, Q.ink); prect(cx - 1, my + 1, 3, 1, Q.red); }
+  else prect(cx - 1, my, 3, 1, Q.ink);
+  prect(cx - eo - 3, my - 1, 2, 1, Q.pink); prect(cx + eo + 2, my - 1, 2, 1, Q.pink);
+}
+
+// ---------------------------------------------------------------------
+//  a company: a little building on legs with a sign, eyes and a mood
+//  w = { x, label, bad, disguised, revealAt, state, lit, ... }
+// ---------------------------------------------------------------------
+function companyLooksBad(w) { return w.bad && (!w.disguised || w.x < w.revealX || w.state !== 'walk'); }
+function drawCompany(w) {
+  const x = Math.round(w.x), red = companyLooksBad(w) || w.state === 'grabbed';
+  const tell = w.bad && w.disguised && !red && Math.floor(now * 12 + w.seed * 10) % 9 === 0;   // a disguised one flickers red now and then
+  const body = red || tell ? Q.red : w.lit ? Q.blue : Q.slate, dark = red ? Q.brown : Q.night;
+  const walking = w.state === 'walk' || w.state === 'flee' || w.state === 'oops', fr = walking ? Math.floor(now * (w.state === 'flee' ? 16 : 8) + w.seed * 4) % 2 : 0;
+  const hop = w.hop ? Math.round(w.hop) : 0, top = GY - 22 - hop, flip = w.state === 'flee';
+  // legs
+  prect(x - 5, GY - 6 - hop, 2, 6 - (fr ? 1 : 0), Q.ink); prect(x + 3, GY - 6 - hop, 2, 5 + (fr ? 1 : 0), Q.ink);
+  prect(x - 6 + (fr ? 0 : 1), GY - 1, 3, 1, Q.ink); prect(x + 3 + (fr ? 1 : 0), GY - 1, 3, 1, Q.ink);
+  // body
+  prect(x - 8, top, 16, 17, Q.ink); prect(x - 7, top + 1, 14, 15, body);
+  prect(x - 7, top + 1, 14, 1, red ? Q.orange : Q.grey);
+  for (let j = 0; j < 2; j++) for (let i = 0; i < 3; i++) {
+    const on = w.lit || (red && (Math.floor(now * 6) + i + j) % 3 === 0);
+    prect(x - 5 + i * 4, top + 10 + j * 3, 2, 2, on ? (red ? Q.orange : Q.yellow) : dark);
+  }
+  // a face: eyes looking where it walks; the bad ones scowl and grin
+  const look = flip ? 1 : -1;
+  for (const s of [-1, 1]) {
+    prect(x + s * 3 - 1, top + 3, 3, 3, Q.white);
+    prect(x + s * 3 - 1 + (look > 0 ? 1 : 0), top + 4, 2, 2, Q.ink);
+    if (red) prect(x + s * 3 - 1 + (s < 0 ? 0 : 1), top + 2, 2, 1, Q.ink);
+  }
+  if (red) { prect(x - 2, top + 7, 5, 1, Q.ink); pset(x - 3, top + 6, Q.ink); pset(x + 3, top + 6, Q.ink); }
+  else if (w.lit) { prect(x - 2, top + 7, 5, 1, Q.ink); pset(x - 3, top + 6, Q.ink); pset(x + 3, top + 6, Q.ink); }
+  else prect(x - 1, top + 7, 3, 1, Q.ink);
+  // the sign on a pole
+  const sw = pixTextW(w.label) + 6;
+  prect(x, top - 4, 1, 4, Q.ink);
+  pixBox(x - Math.floor(sw / 2), top - 16, sw, 13, { bg: red ? Q.ink : Q.white, edge: Q.ink });   // tall enough for Å/Ä/Ö marks
+  pixText(w.label, x, top - 12, red ? Q.red : Q.night, { align: 'center' });
+}
+
+// ---------------------------------------------------------------------
+//  the scene: Malmö at dusk, city hall with its flag, the SKATT jar, the Turning Torso, the street and the gate
+// ---------------------------------------------------------------------
+function drawScene(damage) {
+  pgrad(0, 0, W, GY, [Q.ink, Q.night, Q.night, Q.purple, Q.pink]);
+  for (let i = 0; i < 30; i++) { const x = Math.floor(srand(1, i) * W), y = Math.floor(srand(2, i) * 90); if ((Math.floor(now * 12) + i * 5) % 17) pset(x, y, i % 3 ? Q.grey : Q.white); }
+  // far skyline; each red city light is a company that got paid
+  for (let k = 0; k < 9; k++) {
+    const bx = k * 16 + Math.floor(srand(3, k) * 6) - 3, bw = 10 + Math.floor(srand(4, k) * 5), bh = 14 + Math.floor(srand(5, k) * 20);
+    prect(bx, GY - bh, bw, bh, Q.night);
+    for (let j = 0; 4 + j * 5 < bh - 3; j++) for (let i = 0; 2 + i * 4 < bw - 2; i++) {
+      const idx = k * 7 + j * 2 + i, lit = srand(6, k, i, j) < 0.3 || (srand(7, k, i, j, Math.floor(now * 2)) < 0.05);
+      const hurt = damage > 0 && srand(8, idx) < damage * 0.22;
+      if (lit || hurt) prect(bx + 2 + i * 4, GY - bh + 4 + j * 5, 2, 2, hurt ? Q.red : Q.yellow);
+    }
+  }
+  // the Turning Torso
+  const off = [0, 1, 2, 2, 1, 0, -1, -1, 0];
+  for (let k = 0; k < 9; k++) {
+    const y = GY - (k + 1) * 9, ox = 112 + off[k];
+    prect(ox, y, 12, 9, Q.ink); prect(ox + 1, y + 1, 10, 8, Q.grey); prect(ox + 1, y + 1, 5, 8, Q.white);
+    for (let r = 0; r < 3; r++) prect(ox + 1, y + 2 + r * 3, 10, 1, Q.slate);
+  }
+  prect(125, GY - 79, 1, 79, Q.slate); pset(118, GY - 83, Math.floor(now * 3) % 2 ? Q.red : Q.ink);
+  // city hall with Malmö's flag
+  const hx = 2, hw = 40, top = GY - 32;
+  prect(hx, top, hw, 32, Q.ink); prect(hx + 1, top + 1, hw - 2, 31, Q.purple);
+  ppoly([[hx - 1, top], [hx + hw / 2, top - 12], [hx + hw + 1, top]], Q.ink); ppoly([[hx + 2, top - 1], [hx + hw / 2, top - 10], [hx + hw - 2, top - 1]], Q.slate);
+  for (let i = 0; i < 5; i++) { prect(hx + 3 + i * 7, top + 5, 4, 7, Q.night); prect(hx + 3 + i * 7, top + 5, 4, 1, Q.ice); }
+  pcircle(hx + hw / 2, top - 4, 2, Q.white); pset(hx + hw / 2, top - 5, Q.ink);
+  const px = hx + hw / 2, fy = top - 32;
+  prect(px, fy - 1, 1, 22, Q.grey); pset(px, fy - 2, Q.yellow);
+  sprite(MALMO_FLAG, { k: Q.ink, w: Q.white, r: Q.red, y: Q.yellow }, px + 1, fy + Math.floor(now * 2) % 2);
+  // the street: kerb and paving
+  prect(0, GY, W, H - GY, Q.slate); prect(0, GY, W, 1, Q.grey); prect(0, GY + 2, W, 1, Q.ink);
+  for (let r = 0; GY + 6 + r * 7 < H; r++) { const y = GY + 6 + r * 7; prect(0, y, W, 1, Q.night); for (let x = (r % 2) * 7; x < W; x += 14) prect(x, y - 6, 1, 6, Q.night); }
+}
+function drawJar(level) {
+  const jx = JAR_X, jw = 26, jt = GY - 30;
+  prect(jx, jt, jw, 30, Q.ink); prect(jx + 1, jt + 1, jw - 2, 29, Q.ice); prect(jx + 3, jt + 3, 2, 24, Q.white);
+  const rows = Math.round(clamp(level) * 24);
+  for (let j = 0; j < rows; j += 3) for (let i = 0; i < 5; i++) sprite(['.aaa.', 'ayyya', 'aywya', 'ayyya', '.aaa.'], { a: Q.orange, y: Q.yellow, w: Q.white }, jx + 2 + i * 4 + (j % 2), GY - 6 - j);
+  prect(jx - 1, jt - 3, jw + 2, 4, Q.ink); prect(jx, jt - 2, jw, 2, Q.brown);
+  pixBox(jx - 2, jt + 8, 31, 11, { bg: Q.white, edge: Q.ink }); pixText('SKATT', jx + 13, jt + 10, Q.ink, { align: 'center' });
+}
+function drawGate(slam) {
+  const px = GATE_X, py = GY - 22;
+  prect(px - 2, py, 5, 22, Q.ink); prect(px - 1, py + 1, 3, 21, Q.grey);
+  const down = slam > 0, L = 26, ang = down ? 0 : Math.PI / 2;
+  const ex = px + Math.round(Math.cos(ang) * L), ey = py - Math.round(Math.sin(ang) * L);
+  for (let k = 0; k <= L; k++) { const x = Math.round(lerp(px, ex, k / L)), y = Math.round(lerp(py, ey, k / L)); prect(x - (down ? 0 : 1), y - (down ? 1 : 0), down ? 1 : 3, down ? 3 : 1, Q.ink); pset(x, y, Math.floor(k / 4) % 2 ? Q.lime : Q.white); }
+  pcircle(px, py, 2, Q.lime);
+}
+function stamp(x, y, t) {
+  const big = t < 0.08, pad = big ? 6 : 4, tw = pixTextW('KÖPER EJ') + 2 * pad, th = 7 + 2 * pad;   // pad >= 4 keeps the Ö dots off the rim
+  const x0 = Math.round(clamp(x - tw / 2, 2, W - tw - 2)), y0 = Math.round(y - th / 2) + (t < 0.2 ? (Math.floor(now * 24) % 2 ? 1 : -1) : 0);
+  prect(x0 - 1, y0 - 1, tw + 2, th + 2, Q.ink); prect(x0, y0, tw, th, Q.lime); prect(x0 + 1, y0 + 1, tw - 2, th - 2, Q.ink); prect(x0 + 2, y0 + 2, tw - 4, th - 4, Q.lime);
+  pixText('KÖPER EJ', x0 + tw / 2, y0 + pad, Q.ink, { align: 'center' });
+}
+
+// ---------------------------------------------------------------------
+//  sound: a tiny chiptune synth, live in the browser (starts on the first tap; mute is remembered)
+// ---------------------------------------------------------------------
+const audio = { ac: null, master: null, muted: store.get('rm-game-muted') === '1', next: 0, step: 0 };
+function audioStart() {
+  if (audio.ac) { if (audio.ac.state === 'suspended') audio.ac.resume(); return; }
+  const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
+  audio.ac = new AC(); audio.master = audio.ac.createGain(); audio.master.gain.value = audio.muted ? 0 : 0.5; audio.master.connect(audio.ac.destination);
+  audio.next = audio.ac.currentTime + 0.1;
+}
+function tone(f, t, dur, vol, type = 'square', f1 = 0) {
+  if (!audio.ac) return; const ac = audio.ac, o = ac.createOscillator(), g = ac.createGain();
+  o.type = type; o.frequency.setValueAtTime(f, t); if (f1) o.frequency.exponentialRampToValueAtTime(f1, t + dur);
+  g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + 0.005); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  o.connect(g); g.connect(audio.master); o.start(t); o.stop(t + dur + 0.02);
+}
+function noise(t, dur, vol, freq = 1200) {
+  if (!audio.ac) return; const ac = audio.ac, n = Math.floor(ac.sampleRate * dur), b = ac.createBuffer(1, n, ac.sampleRate), d = b.getChannelData(0);
+  for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / n);
+  const s = ac.createBufferSource(), f = ac.createBiquadFilter(), g = ac.createGain(); s.buffer = b; f.type = 'bandpass'; f.frequency.value = freq; g.gain.value = vol;
+  s.connect(f); f.connect(g); g.connect(audio.master); s.start(t);
+}
+const MIDI = (m) => 440 * 2 ** ((m - 69) / 12);
+const sfx = {
+  block() { const t = audio.ac?.currentTime ?? 0; noise(t, 0.12, 0.5, 900); tone(MIDI(74), t, 0.18, 0.12); tone(MIDI(78), t, 0.18, 0.1); tone(MIDI(81), t, 0.18, 0.1); tone(160, t, 0.25, 0.25, 'sine', 50); },
+  pay() { const t = audio.ac?.currentTime ?? 0; tone(MIDI(83), t, 0.06, 0.08); tone(MIDI(88), t + 0.06, 0.2, 0.08); },
+  wrong() { const t = audio.ac?.currentTime ?? 0; tone(220, t, 0.25, 0.12, 'square', 110); },
+  lost() { const t = audio.ac?.currentTime ?? 0; tone(300, t, 0.15, 0.12, 'sawtooth', 150); tone(150, t + 0.15, 0.35, 0.12, 'sawtooth', 70); noise(t, 0.3, 0.25, 400); },
+  start() { const t = audio.ac?.currentTime ?? 0; [74, 78, 81, 86].forEach((m, i) => tone(MIDI(m), t + i * 0.07, 0.15, 0.09)); },
+  over() { const t = audio.ac?.currentTime ?? 0; [81, 78, 74, 69].forEach((m, i) => tone(MIDI(m), t + i * 0.16, 0.3, 0.1, 'triangle')); },
+};
+// the music: an 8th-note arpeggio and a triangle bass at 120 BPM, scheduled a little ahead; it brightens as the game speeds up
+const ARP = [62, 66, 69, 66, 62, 69, 66, 69], BASS = [50, 50, 45, 45, 47, 47, 43, 45];
+function music() {
+  if (!audio.ac || state !== 'play') return;
+  const ac = audio.ac;
+  if (audio.next < ac.currentTime) audio.next = ac.currentTime + 0.05;
+  while (audio.next < ac.currentTime + 0.2) {
+    const k = audio.step, up = level() > 0.5 ? 12 : 0;
+    tone(MIDI(ARP[k % 8] + up), audio.next, 0.1, 0.025);
+    if (k % 2 === 0) tone(MIDI(BASS[Math.floor(k / 4) % 8]), audio.next, 0.22, 0.09, 'triangle');
+    audio.next += 0.25; audio.step++;
+  }
+}
+function setMuted(m) {
+  audio.muted = m; store.set('rm-game-muted', m ? '1' : '0');
+  if (audio.master) audio.master.gain.value = m ? 0 : 0.5;
+  const b = document.getElementById('mute'); b.setAttribute('aria-pressed', String(m)); b.textContent = m ? '♪ ×' : '♪';
+  b.setAttribute('aria-label', lang === 'en' ? (m ? 'Sound off' : 'Sound on') : (m ? 'Ljud av' : 'Ljud på'));
+}
+
+// ---------------------------------------------------------------------
+//  the game
+// ---------------------------------------------------------------------
+let state = 'title', t0 = 0, walkers = [], fx = [], lives = 3, score = 0, streak = 0, stopped = 0, damage = 0, jar = 0.6;
+let nextSpawn = 0, slamUntil = 0, overAt = 0, heroMood = 'smile', heroMoodUntil = 0, toast = null;
+let best = Number(store.get('rm-game-best')) || 0, newBest = false, signCount = null;
+const elapsed = () => now - t0;
+const level = () => clamp(elapsed() / 70, 0, 2);   // 0 → 1 over 70 s, then on to 2 at 140 s, so every round ends
+const mult = () => 1 + Math.min(3, Math.floor(streak / 5));
+
+function newGame() {
+  state = 'play'; t0 = now; walkers = []; fx = []; lives = 3; score = 0; streak = 0; stopped = 0; damage = 0; jar = 0.6;
+  nextSpawn = now + 0.8; newBest = false; document.getElementById('end').classList.remove('show');
+  audioStart(); audio.step = 0; sfx.start();
+}
+function spawn() {
+  const L = level(), last = walkers.filter((w) => w.state === 'walk').reduce((m, w) => Math.max(m, w.x), -1e9);
+  if (last > SPAWN_X - 38) { nextSpawn = now + 0.2; return; }   // room for the widest sign
+  const L1 = Math.min(1, L), bad = Math.random() < 0.42 + 0.13 * L1, labels = T().shops;
+  walkers.push({
+    x: SPAWN_X, label: labels[Math.floor(Math.random() * labels.length)], bad,
+    disguised: bad && elapsed() > 14 && Math.random() < 0.15 + 0.3 * L1, revealX: GATE_X + 34 + Math.floor(Math.random() * 14),
+    speed: (15 + 22 * L) * (elapsed() > 30 && Math.random() < 0.2 ? 1.5 : 1), state: 'walk', seed: Math.random(), lit: false, hop: 0, tState: now,
+  });
+  nextSpawn = now + Math.max(0.5, 2.3 - 1.6 * L) * (0.75 + Math.random() * 0.5);
+}
+function loseLife() {
+  lives--; streak = 0; heroMood = 'sad'; heroMoodUntil = now + 0.9; shake = now + 0.3;
+  if (lives <= 0) { state = 'dying'; overAt = now + 1.1; }
+}
+let shake = 0;
+function tapAt(px, py) {
+  if (state === 'title') { newGame(); return; }
+  if (state !== 'play') return;
+  // the nearest walking company under the finger (generous hit box: phones are small)
+  let hit = null, bestD = 1e9;
+  for (const w of walkers) {
+    if (w.state !== 'walk') continue;
+    if (px < w.x - 13 || px > w.x + 13 || py < GY - 44 || py > GY + 8) continue;
+    const d = Math.abs(px - w.x); if (d < bestD) { bestD = d; hit = w; }
+  }
+  if (!hit) return;
+  if (hit.bad) {
+    hit.state = 'blocked'; hit.tState = now; stopped++; streak++; score += 10 * mult();
+    slamUntil = now + 0.35; heroMood = 'happy'; heroMoodUntil = now + 0.7;
+    fx.push({ kind: 'stamp', x: hit.x, y: GY - 48, t: now }, { kind: 'plus', x: hit.x, y: GY - 60, t: now, n: 10 * mult() });
+    sfx.block();
+  } else {
+    hit.state = 'oops'; hit.tState = now; fx.push({ kind: 'oops', x: hit.x, y: GY - 50, t: now }); sfx.wrong(); loseLife();
+  }
+}
+function update(dt) {
+  if (state === 'play') {
+    if (now >= nextSpawn) spawn();
+    music();
+  }
+  for (const w of walkers) {
+    const age = now - w.tState;
+    if ((w.state === 'walk' || w.state === 'oops') && state !== 'play') continue;   // the street freezes when the round ends
+    if (w.state === 'walk' || w.state === 'oops') {
+      if (w.state === 'oops' && age > 0.6) { w.state = 'walk'; w.tState = now; w.wasOops = true; }
+      else if (w.state === 'walk' || age > 0.6) w.x -= w.speed * dt;
+      if (w.x <= GATE_X + 11 && state === 'play') {
+        w.state = 'paid'; w.tState = now; w.x = GATE_X + 11;
+        fx.push({ kind: 'coin', x0: JAR_X + 13, y0: GY - 34, x1: w.x, y1: GY - 18, t: now });
+        jar = clamp(jar - 0.04, 0.15, 1);
+        if (w.bad) { w.state = 'grabbed'; damage++; fx.push({ kind: 'text', s: T().bought, x: w.x, y: GY - 52, c: Q.red, t: now }); sfx.lost(); loseLife(); }
+        else { if (!w.wasOops) { streak++; score += 5 * mult(); fx.push({ kind: 'plus', x: w.x, y: GY - 58, t: now, n: 5 * mult() }); } sfx.pay(); }
+      }
+    } else if (w.state === 'paid') { if (age > 0.35) w.lit = true; w.hop = age > 0.35 && age < 0.75 ? 6 * Math.sin(Math.PI * (age - 0.35) / 0.4) : 0; if (age > 1.0) w.gone = true; }
+    else if (w.state === 'grabbed') { w.hop = age < 0.4 ? 4 * Math.abs(Math.sin(age * 20)) : 0; if (age > 1.0) { w.state = 'flee'; w.tState = now; } }
+    else if (w.state === 'blocked') { w.x += 70 * Math.exp(-age * 6) * dt; if (age > 0.45) { w.state = 'flee'; w.tState = now; } }
+    else if (w.state === 'flee') { w.x += 70 * dt; if (w.x > W + 20) w.gone = true; }
+  }
+  walkers = walkers.filter((w) => !w.gone);
+  fx = fx.filter((f) => now - f.t < 1.2);
+  if (state === 'dying' && now >= overAt) gameOver();
+}
+function gameOver() {
+  state = 'over';
+  if (score > best) { best = score; newBest = score > 0; store.set('rm-game-best', String(best)); }
+  walkers.forEach((w) => { if (w.state === 'walk' || w.state === 'oops') { w.state = 'flee'; w.tState = now; } });   // everyone clears the street
+  sfx.over(); showEnd();
+  document.getElementById('live').textContent = T().live(stopped, score);
+}
+function showEnd() {
+  const e = document.getElementById('end'); e.classList.add('show');
+  document.getElementById('signBtn').textContent = T().sign;
+  document.getElementById('againBtn').textContent = T().again;
+  document.getElementById('shareBtn').textContent = T().share;
+}
+
+// ---------------------------------------------------------------------
+//  drawing each state
+// ---------------------------------------------------------------------
+const fmt = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+function draw() {
+  const sx = now < shake ? (Math.floor(now * 30) % 2 ? 1 : -1) : 0;
+  ctx.setTransform(1, 0, 0, 1, sx, 0);
+  drawScene(damage);
+  drawJar(jar);
+  drawGate(now < slamUntil ? 1 : 0);
+  // walkers: far ones first
+  [...walkers].sort((a, b) => b.x - a.x).forEach(drawCompany);
+  // the hero guards the gate
+  const mood = now < heroMoodUntil ? heroMood : state === 'over' ? (stopped > 0 ? 'happy' : 'sad') : 'smile';
+  coinHero(GATE_X - 13, GY - 13, 7, { mood, hop: mood === 'happy' && now < heroMoodUntil ? 4 * Math.sin(Math.PI * clamp((heroMoodUntil - now) / 0.7)) : 0, look: 1 });
+  // effects
+  for (const f of fx) {
+    const a = now - f.t;
+    if (f.kind === 'stamp') stamp(f.x, f.y, a);
+    else if (f.kind === 'plus') pixText('+' + f.n, f.x, f.y - Math.floor(a * 20), Q.yellow, { align: 'center', shadow: Q.ink });
+    else if (f.kind === 'oops' && a < 0.9) { pixBox(f.x - 5, f.y - 4, 11, 12, { bg: Q.white }); pixText('?', f.x - 2, f.y - 1, Q.ink); }
+    else if (f.kind === 'text' && a < 0.9) pixText(f.s, f.x, f.y - Math.floor(a * 10), f.c, { align: 'center', shadow: Q.ink });
+    else if (f.kind === 'coin' && a < 0.4) { const u = a / 0.4; coinAt(lerp(f.x0, f.x1, u), lerp(f.y0, f.y1, u) - 18 * 4 * u * (1 - u)); }
+  }
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  if (state === 'play' || state === 'dying') drawHud();
+  else if (state === 'title') drawTitle();
+  else if (state === 'over') drawOver();
+  if (toast && now < toast.until) { const tw = pixTextW(toast.s) + 8; pixBox(Math.round((W - tw) / 2), 100, tw, 13, { bg: Q.ink, edge: Q.white, shadow: Q.shadow }); pixText(toast.s, W / 2, 103, Q.white, { align: 'center' }); }
+}
+function drawHud() {
+  prect(0, 0, W, 16, Q.ink); prect(0, 16, W, 1, Q.slate);
+  pixText(fmt(score), 4, 5, Q.white);
+  if (mult() > 1) pixText('x' + mult(), 4 + pixTextW(fmt(score)) + 5, 5, Q.lime);
+  for (let i = 0; i < 3; i++) sprite(SPR.heart, { a: i < lives ? Q.red : Q.slate, b: i < lives ? Q.pink : Q.slate }, W - 26 + i * 8, 5);
+  // the instruction, for the first few seconds
+  if (elapsed() < 4.5 && Math.floor(now * 3) % 2 === 0) { const s = T().hint, tw = pixTextW(s) + 8; pixBox(Math.round((W - tw) / 2), 198, tw, 13, { bg: Q.ink, edge: Q.lime }); pixText(s, W / 2, 201, Q.lime, { align: 'center' }); }
+}
+function panel(y, h) { prect(6, y, W - 12, h, Q.shadow); pixBox(5, y - 1, W - 12, h, { bg: Q.ink, edge: Q.white }); }
+function drawTitle() {
+  panel(22, 104);
+  stamp(W / 2, 40, 1);
+  pixText('RÄTTVISA MALMÖ', W / 2, 56, Q.grey, { align: 'center' });
+  T().how.forEach((s, i) => pixText(s, W / 2, 72 + i * 11, i === 1 ? Q.red : Q.white, { align: 'center' }));
+  if (Math.floor(now * 2.5) % 2 === 0) { const s = T().tap, tw = pixTextW(s) + 8; pixBox(Math.round((W - tw) / 2), 196, tw, 13, { bg: Q.lime, edge: Q.ink, shadow: Q.shadow }); pixText(s, W / 2, 199, Q.ink, { align: 'center' }); }
+  if (best > 0) pixText(`${T().best} ${fmt(best)}`, W / 2, 226, Q.grey, { align: 'center' });
+}
+function drawOver() {
+  panel(20, 112);
+  pixText(T().over, W / 2, 27, Q.white, { align: 'center', scale: 2 });
+  const lines = T().stopped(stopped);
+  pixText(lines[0], W / 2, 50, Q.white, { align: 'center' });
+  pixText(lines[1], W / 2, 61, Q.lime, { align: 'center' });
+  pixText(lines[2], W / 2, 72, Q.lime, { align: 'center' });
+  pixText(`${T().score} ${fmt(score)}`, W / 2, 88, Q.yellow, { align: 'center' });
+  pixText(newBest ? T().newBest : `${T().best} ${fmt(best)}`, W / 2, 99, newBest && Math.floor(now * 3) % 2 ? Q.lime : Q.grey, { align: 'center' });
+  if (signCount != null) pixText(T().signed(fmt(signCount)), W / 2, 116, Q.white, { align: 'center' });
+}
+
+// ---------------------------------------------------------------------
+//  the loop, input, language, sharing, the live signature count
+// ---------------------------------------------------------------------
+let lastFrame = performance.now();
+function frame(ms) {
+  const dt = Math.min(0.05, (ms - lastFrame) / 1000); lastFrame = ms;
+  if (!document.hidden) { now += dt; update(dt); draw(); }
+  requestAnimationFrame(frame);
+}
+function toPixel(e) { const r = cv.getBoundingClientRect(); return [(e.clientX - r.left) * W / r.width, (e.clientY - r.top) * H / r.height]; }
+cv.addEventListener('pointerdown', (e) => { e.preventDefault(); audioStart(); const [x, y] = toPixel(e); tapAt(x, y); });
+window.addEventListener('keydown', (e) => {
+  if ((e.key === 'Enter' || e.key === ' ') && (state === 'title' || (state === 'over' && now > overAt + 0.6)) && document.activeElement?.tagName !== 'BUTTON' && document.activeElement?.tagName !== 'A') { e.preventDefault(); audioStart(); newGame(); }
+});
+document.getElementById('againBtn').addEventListener('click', () => { audioStart(); newGame(); });
+document.getElementById('shareBtn').addEventListener('click', async () => {
+  const url = new URL('./', location.href).href, text = T().shareText(stopped);
+  try {
+    if (navigator.share) { await navigator.share({ title: 'KÖPER EJ', text, url }); return; }
+    await navigator.clipboard.writeText(`${text} ${url}`);
+    toast = { s: T().copied, until: now + 1.8 };
+  } catch { /* the user closed the share sheet */ }
+});
+document.getElementById('mute').addEventListener('click', () => setMuted(!audio.muted));
+function setLang(l) {
+  lang = l; store.set('rm-lang', l);   // the same setting the main site uses
+  document.documentElement.lang = l; document.title = T().title; cv.setAttribute('aria-label', T().aria);
+  document.querySelectorAll('[data-lang]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.lang === l)));
+  // a company already on the street keeps its sign; new ones use the new language
+  if (state === 'over') showEnd();
+  setMuted(audio.muted);
+}
+document.querySelectorAll('[data-lang]').forEach((b) => b.addEventListener('click', () => setLang(b.dataset.lang)));
+fetch(COUNT_URL, { cache: 'no-store' }).then((r) => (r.ok ? r.json() : null)).then((d) => { const n = Number.parseInt(d?.count, 10); if (Number.isFinite(n)) signCount = n; }).catch(() => {});
+document.getElementById('signBtn').href = PETITION_URL;
+setLang(lang);
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
