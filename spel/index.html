@@ -302,14 +302,22 @@ function drawCompany(w) {
     const on = w.lit || (red && (Math.floor(now * 6) + i) % 3 === 0);
     prect(x - 5 + i * 4, top + bh - 6, 2, 2, on ? (red ? Q.orange : Q.yellow) : green ? Q.green : Q.night);
   }
-  // a face
+  // a face: stopped ones are upset, a disguised one is shocked when it is exposed, the ones that got paid grin
+  const upset = isBad(w) && (w.state === 'blocked' || (w.state === 'flee' && !w.gotPaid)), shocked = w.type === 'disguised' && w.state === 'walk' && w.fy > w.revealY && w.fy - w.revealY < 18;
   const ey = top + (bw >= 16 ? 3 : 2);
   for (const s of [-1, 1]) {
     const ex = x + s * (bw >= 16 ? 3 : 2) - 1;
     prect(ex, ey, bw >= 16 ? 3 : 2, bw >= 16 ? 3 : 2, Q.white); prect(ex, ey + (bw >= 16 ? 1 : 1), 2, 1, Q.ink);
-    if (red) prect(ex, ey - 1, bw >= 16 ? 3 : 2, 1, Q.ink);
+    if (upset) { pset(ex + (s < 0 ? 2 : 0), ey - 1, Q.ink); pset(ex + (s < 0 ? 1 : 1), ey - 2, Q.ink); }   // worried brows
+    else if (red) prect(ex, ey - 1, bw >= 16 ? 3 : 2, 1, Q.ink);
   }
-  if (bw >= 16) { const my = ey + 5; if (red || w.lit || green) { prect(x - 2, my, 5, 1, Q.ink); pset(x - 3, my - 1, Q.ink); pset(x + 3, my - 1, Q.ink); } else prect(x - 1, my, 3, 1, Q.ink); }
+  if (bw >= 16) {
+    const my = ey + 5;
+    if (upset) { prect(x - 2, my, 5, 1, Q.ink); pset(x - 3, my + 1, Q.ink); pset(x + 3, my + 1, Q.ink); }        // a frown
+    else if (shocked) prect(x - 1, my - 1, 3, 3, Q.ink);                                                          // caught out
+    else if (red || w.lit || green) { prect(x - 2, my, 5, 1, Q.ink); pset(x - 3, my - 1, Q.ink); pset(x + 3, my - 1, Q.ink); }
+    else prect(x - 1, my, 3, 1, Q.ink);
+  }
   // the sign (minis have none)
   if (w.label) {
     const sw = pixTextW(w.label) + 6, sy = top - 17;
@@ -352,7 +360,6 @@ function drawGate(slam, policyOn) {
   prect(ROAD_X0, GATE_Y, ROAD_X1 - ROAD_X0, 4, Q.ink);
   for (let x = ROAD_X0 + 1; x < ROAD_X1; x++) { const c = Math.floor((x + (slam > 0 ? 2 : 0)) / 4) % 2 ? (policyOn && Math.floor(now * 8) % 2 ? Q.white : Q.lime) : Q.white; pset(x, GATE_Y + 1, c); pset(x, GATE_Y + 2, c); }
   for (const x of [ROAD_X0, 49, 85, ROAD_X1]) { prect(x - 1, GATE_Y - 2, 3, 8, Q.ink); pset(x, GATE_Y - 1, Q.lime); }
-  if (slam > 0) for (let k = 0; k < 4; k++) sprite(SPR.twinkle, { a: Q.lime, b: Q.white }, ROAD_X0 + 10 + k * 28, GATE_Y - 4);
 }
 function drawJar(level) {
   pcircle(JAR.x, JAR.y, 12, Q.ink); pcircle(JAR.x, JAR.y, 11, Q.ice);
@@ -360,11 +367,13 @@ function drawJar(level) {
   for (let i = 0; i < n; i++) sprite(['.aaa.', 'ayyya', 'aywya', 'ayyya', '.aaa.'], { a: Q.orange, y: Q.yellow, w: Q.white }, JAR.x - 9 + (i % 4) * 4 + (Math.floor(i / 4) % 2) * 2, JAR.y - 9 + Math.floor(i / 4) * 4);
   pixBox(JAR.x - 15, JAR.y + 13, 31, 11, { bg: Q.white }); pixText('SKATT', JAR.x, JAR.y + 15, Q.ink, { align: 'center' });
 }
-function stamp(x, y, t) {
-  const big = t < 0.08, pad = big ? 6 : 4, tw = pixTextW('KÖPER EJ') + 2 * pad, th = 7 + 2 * pad;   // pad >= 4 keeps the Ö dots off the rim
-  const x0 = Math.round(clamp(x - tw / 2, 2, W - tw - 2)), y0 = Math.round(y - th / 2) + (t < 0.2 ? (Math.floor(now * 24) % 2 ? 1 : -1) : 0);
-  prect(x0 - 1, y0 - 1, tw + 2, th + 2, Q.ink); prect(x0, y0, tw, th, Q.lime); prect(x0 + 1, y0 + 1, tw - 2, th - 2, Q.ink); prect(x0 + 2, y0 + 2, tw - 4, th - 4, Q.lime);
-  pixText('KÖPER EJ', x0 + tw / 2, y0 + pad, Q.ink, { align: 'center' });
+function stamp(x, y, t, large = false) {
+  // in play: a small, steady label (one rim, no shake); the title screen uses the large double-rimmed one
+  const pad = large ? 4 : 3, rim = large ? 2 : 0, tw = pixTextW('KÖPER EJ') + 2 * pad + 2 * rim, th = 7 + 2 * pad + 2 * rim;   // pad >= 3 keeps the Ö dots off the rim
+  const x0 = Math.round(clamp(x - tw / 2, 2, W - tw - 2)), y0 = Math.round(y - th / 2);
+  prect(x0 - 1, y0 - 1, tw + 2, th + 2, Q.ink); prect(x0, y0, tw, th, Q.lime);
+  if (large) { prect(x0 + 1, y0 + 1, tw - 2, th - 2, Q.ink); prect(x0 + 2, y0 + 2, tw - 4, th - 4, Q.lime); }
+  pixText('KÖPER EJ', x0 + tw / 2, y0 + pad + rim, Q.ink, { align: 'center' });
 }
 // a signature paper drifting across the street
 function drawPaper(p) {
@@ -465,20 +474,20 @@ function newGame() {
 function startLevel(i) {
   phase = 'level'; li = i; levelStopped = 0; phaseT = now; state = 'play';
   nextSpawn = now + 1.0; nextPaper = now + 8 + Math.random() * 4;
-  const L = T().levels[i]; banner = { lines: [`${T().level} ${i + 1}: ${L.name}`, T().goal(LEVELS[i].goal)], until: now + 2.4, color: Q.yellow };
+  const L = T().levels[i]; banner = { lines: [`${T().level} ${i + 1}: ${L.name}`, T().goal(LEVELS[i].goal)], until: now + 2.4, color: Q.yellow, center: true };
 }
 function startBoss() {
   phase = 'boss'; phaseT = now; state = 'play';
   boss = { x: W / 2, y: -20, hp: 8, maxHp: 8, state: 'enter', t: now, hits: 0, nextSend: now + 2.6, dir: 1, exposedAt: 0 };
-  banner = { lines: T().bossIntro, until: now + 2.6, color: Q.red };
+  banner = { lines: T().bossIntro, until: now + 2.6, color: Q.red, center: true };
   nextSpawn = now + 3; nextPaper = now + 6;
 }
-function startEndless() { phase = 'endless'; endlessT = now; state = 'play'; boss = null; nextSpawn = now + 0.8; banner = { lines: T().endless, until: now + 2.2, color: Q.yellow }; }
+function startEndless() { phase = 'endless'; endlessT = now; state = 'play'; boss = null; nextSpawn = now + 0.8; banner = { lines: T().endless, until: now + 2.2, color: Q.yellow, center: true }; }
 function levelCleared() {
   state = 'clear'; clearUntil = now + 1.6;
   walkers.forEach((w) => { if (w.state === 'walk' || w.state === 'oops') { w.state = 'flee'; w.tState = now; } });
   papers = []; const healed = lives < 3; if (healed) lives++;
-  banner = { lines: healed ? [T().clear, T().heal] : [T().clear], until: clearUntil, color: Q.lime };
+  banner = { lines: healed ? [T().clear, T().heal] : [T().clear], until: clearUntil, color: Q.lime, center: true };
   sfx.policy(); heroMood = 'happy'; heroMoodUntil = now + 1.2;
 }
 function nextAfterClear() {   // a fact card after every level and after the boss
@@ -572,7 +581,7 @@ function hitBoss(px, py) {
     boss.state = 'beaten'; boss.t = now; const pts = 500; score += pts; stopped++; streak++;
     fx.push({ kind: 'stamp', x: boss.x, y: boss.y - 24, t: now }, { kind: 'plus', x: boss.x, y: boss.y - 48, t: now, n: pts });
     for (let k = 0; k < 10; k++) fx.push({ kind: 'coin', x0: boss.x + (k - 5) * 3, y0: boss.y - 10, x1: JAR.x + (k % 3 - 1) * 4, y1: JAR.y - 4, t: now + k * 0.06 });
-    jar = 1; banner = { lines: T().bossDown, until: now + 2.2, color: Q.lime }; sfx.block(); sfx.policy();
+    jar = 1; banner = { lines: T().bossDown, until: now + 2.2, color: Q.lime, center: true }; sfx.block(); sfx.policy();
   }
   return true;
 }
@@ -619,7 +628,7 @@ function update(dt) {
       if (w.fy >= GATE_Y - 2) {
         w.fy = GATE_Y - 2;
         if (isBad(w) && policyOn()) { block(w, true); continue; }   // ETISK POLICY: the gate stops them by itself
-        w.state = isBad(w) ? 'grabbed' : 'paid'; w.tState = now;
+        w.state = isBad(w) ? 'grabbed' : 'paid'; w.tState = now; w.gotPaid = isBad(w);
         fx.push({ kind: 'coin', x0: JAR.x, y0: JAR.y - 4, x1: w.x, y1: w.fy - 10, t: now });
         if (isBad(w)) { jar = clamp(jar - 0.1, 0.1, 1); fx.push({ kind: 'text', s: T().bought, x: w.x, y: w.fy - 40, c: Q.red, t: now }); sfx.lost(); loseLife(); }
         else { jar = clamp(jar - 0.02, 0.1, 1); if (!w.wasOops) { streak++; const pts = 5 * mult(); score += pts; fx.push({ kind: 'plus', x: w.x, y: w.fy - 46, t: now, n: pts }); } sfx.pay(); }
@@ -690,7 +699,7 @@ function draw() {
   papers.forEach(drawPaper);
   for (const f of fx) {
     const a = now - f.t; if (a < 0) continue;
-    if (f.kind === 'stamp') { stamp(f.x, f.y, a); if (f.policy && a < 0.8) pixText('POLICY', f.x, f.y + 10, Q.lime, { align: 'center', shadow: Q.ink }); }
+    if (f.kind === 'stamp' && a < 0.7) { stamp(f.x, f.y, a); if (f.policy && a < 0.8) pixText('POLICY', f.x, f.y + 10, Q.lime, { align: 'center', shadow: Q.ink }); }
     else if (f.kind === 'plus') pixText('+' + f.n, f.x, f.y - Math.floor(a * 20), Q.yellow, { align: 'center', shadow: Q.ink });
     else if (f.kind === 'plus1' && a < 0.8) pixText(T().plusSig, f.x, f.y - Math.floor(a * 20), Q.white, { align: 'center', shadow: Q.ink });
     else if (f.kind === 'clank' && a < 0.4) { sprite(SPR.spark, { a: Q.white, b: Q.yellow }, f.x - 9, f.y - 2); sprite(SPR.spark, { a: Q.white, b: Q.yellow }, f.x + 5, f.y + 2); }
@@ -704,7 +713,9 @@ function draw() {
   else if (state === 'over') drawOver();
   else if (state === 'fact') { drawHud(); drawFact(); }
   if (banner && now < banner.until && (state === 'play' || state === 'clear')) {
-    const tw = Math.max(...banner.lines.map((s) => pixTextW(s))) + 10, bh = banner.lines.length * 10 + 6, y0 = Math.round(PLAZA_Y + (H - PLAZA_Y - bh) / 2);   // over the square: nothing there is tappable, so a banner never hides a decision
+    const tw = Math.max(...banner.lines.map((s) => pixTextW(s))) + 10, bh = banner.lines.length * 10 + 6;
+    // level changes and clears in the centre; hints (new companies, signatures, the boss's armour) just above the gate, where the eyes are
+    const y0 = banner.center ? Math.round((ROAD_Y0 + GATE_Y - bh) / 2) : GATE_Y - 10 - bh;
     pixBox(Math.round((W - tw) / 2), y0, tw, bh, { bg: Q.ink, edge: banner.color, shadow: Q.shadow });
     banner.lines.forEach((s, i) => pixText(s, W / 2, y0 + 4 + i * 10, i === 0 ? banner.color : Q.white, { align: 'center' }));
   }
@@ -740,7 +751,7 @@ function drawFact() {
 }
 function drawTitle() {
   panel(22, 104);
-  stamp(W / 2, 40, 1);
+  stamp(W / 2, 40, 1, true);
   pixText('RÄTTVISA MALMÖ', W / 2, 56, Q.grey, { align: 'center' });
   T().how.forEach((s, i) => pixText(s, W / 2, 72 + i * 11, i === 1 ? Q.red : Q.white, { align: 'center' }));
   if (Math.floor(now * 2.5) % 2 === 0) { const s = T().tap, tw = pixTextW(s) + 8; pixBox(Math.round((W - tw) / 2), 150, tw, 13, { bg: Q.lime, edge: Q.ink, shadow: Q.shadow }); pixText(s, W / 2, 153, Q.ink, { align: 'center' }); }
