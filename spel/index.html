@@ -4,11 +4,22 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>KÖPER EJ – ett spel av Rättvisa Malmö</title>
-<meta name="description" content="Stoppa de oetiska företagen innan de får skattepengarna. Ett litet spel av Rättvisa Malmö.">
+<meta name="description" content="Stoppa de oetiska företagen innan de får skattepengarna. Ett litet pixelspel av Rättvisa Malmö.">
+<!-- the link preview in chat apps and social media: this page's own, not the site's logo -->
 <meta property="og:type" content="website">
-<meta property="og:title" content="KÖPER EJ – ett spel av Rättvisa Malmö">
-<meta property="og:description" content="Stoppa de oetiska företagen innan de får skattepengarna.">
-<meta property="og:image" content="https://rattvisamalmo.github.io/assets/brand/logo-stacked-light-ui.png">
+<meta property="og:url" content="https://rattvisamalmo.se/spel/">
+<meta property="og:site_name" content="Rättvisa Malmö">
+<meta property="og:title" content="KÖPER EJ – stoppa de oetiska företagen">
+<meta property="og:description" content="Ett litet pixelspel: stoppa företagen innan de får skattepengarna, samla namn för en etisk policy och slå megakoncernen. Hur långt kommer du?">
+<meta property="og:image" content="https://rattvisamalmo.se/spel/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="KÖPER EJ: ett pixelspel där man stoppar oetiska företag med en stämpel.">
+<meta property="og:locale" content="sv_SE">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="KÖPER EJ – stoppa de oetiska företagen">
+<meta name="twitter:description" content="Ett litet pixelspel av Rättvisa Malmö. Hur långt kommer du?">
+<meta name="twitter:image" content="https://rattvisamalmo.se/spel/og.png">
 <link rel="icon" type="image/png" href="../assets/brand/logo-stacked-light-ui.png">
 <style>
   :root { --ink: #14101e; --night: #232a4e; --white: #f4f0e6; --lime: #8ad04a; --green: #2e8a4a; --yellow: #f6d64a; --grey: #8a8ca0; }
@@ -31,6 +42,7 @@
   .end a, .end button { flex: 1; display: block; text-align: center; font: 700 clamp(14px, 4.2vw, 20px)/1 ui-monospace, Consolas, Menlo, monospace; letter-spacing: 1px; padding: 14px 8px; border: 3px solid var(--ink); box-shadow: 4px 4px 0 #07060c; cursor: pointer; text-decoration: none; text-transform: uppercase; }
   .end .sign { background: var(--lime); color: var(--ink); font-size: clamp(18px, 5.4vw, 26px); padding: 18px 8px; }
   .end .sec { background: var(--white); color: var(--ink); }
+  .end [hidden] { display: none; }
   .end a:focus-visible, .end button:focus-visible { outline: 3px solid var(--yellow); outline-offset: 2px; }
   .end a:active, .end button:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0 #07060c; }
   .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
@@ -53,6 +65,7 @@
       <button type="button" class="sec" id="againBtn">Spela igen</button>
       <button type="button" class="sec" id="shareBtn">Dela</button>
     </div>
+    <a class="sec" id="saveBtn" download="koper-ej.png" href="#" hidden>Spara bild</a>
   </div>
   <p class="sr" id="live" aria-live="polite"></p>
 </div>
@@ -85,7 +98,8 @@ const TEXT = {
     hint: 'TRYCK PÅ DE RÖDA!', over: 'SLUT!', stopped: (n) => ['DU STOPPADE', `${n} ${n === 1 ? 'OETISKT' : 'OETISKA'}`, n === 1 ? 'FÖRETAG' : 'FÖRETAG'],
     score: 'POÄNG', best: 'REKORD', signed: (c) => `${c} UNDERSKRIFTER`, newBest: 'NYTT REKORD!',
     sign: 'Skriv på', again: 'Spela igen', share: 'Dela', copied: 'LÄNK KOPIERAD', oops: 'SCHYSST!', bought: 'BETALT...',
-    shareText: (n) => `Jag stoppade ${n} ${n === 1 ? 'oetiskt' : 'oetiska'} företag i KÖPER EJ, Rättvisa Malmös spel. Spela och skriv på:`,
+    shareText: (n, boss) => `${boss ? 'Jag besegrade megakoncernen och stoppade' : 'Jag stoppade'} ${n} ${n === 1 ? 'oetiskt' : 'oetiska'} företag i KÖPER EJ. Slår du mig? Spela och skriv på:`,
+    save: 'Spara bild', card: { top: 'JAG STOPPADE', unit: (n) => (n === 1 ? 'OETISKT FÖRETAG' : 'OETISKA FÖRETAG'), boss: 'KONCERNEN BESEGRAD!', cta: 'SLÅR DU MIG?' },
     shops: ['MAT', 'VÅRD', 'BYGG', 'IT', 'BUSS', 'STÄD', 'SKOLA', 'TECH'], back: '← rattvisamalmo.se', title: 'KÖPER EJ – ett spel av Rättvisa Malmö',
     shell: 'AB', armour: 'BOLAG', bossName: 'KONCERN', meter: 'NAMN', policy: ['ETISK POLICY!', 'GRINDEN STOPPAR ALLA'], plusSig: '+1 NAMN',
     level: 'NIVÅ', goal: (n) => `STOPPA ${n}`, clear: 'NIVÅ KLAR!', heal: '+1 HJÄRTA', next: 'TRYCK FÖR NÄSTA', source: 'RATTVISAMALMO.SE',
@@ -110,7 +124,8 @@ const TEXT = {
     hint: 'TAP THE RED ONES!', over: 'GAME OVER', stopped: (n) => ['YOU STOPPED', `${n} UNETHICAL`, n === 1 ? 'COMPANY' : 'COMPANIES'],
     score: 'SCORE', best: 'BEST', signed: (c) => `${c} HAVE SIGNED`, newBest: 'NEW BEST!',
     sign: 'Sign now', again: 'Play again', share: 'Share', copied: 'LINK COPIED', oops: 'THAT WAS FAIR!', bought: 'PAID...',
-    shareText: (n) => `I stopped ${n} unethical ${n === 1 ? 'company' : 'companies'} in KÖPER EJ, Rättvisa Malmö's game. Play it and sign:`,
+    shareText: (n, boss) => `${boss ? 'I beat the megacorp and stopped' : 'I stopped'} ${n} unethical ${n === 1 ? 'company' : 'companies'} in KÖPER EJ. Can you beat me? Play and sign:`,
+    save: 'Save image', card: { top: 'I STOPPED', unit: (n) => (n === 1 ? 'UNETHICAL COMPANY' : 'UNETHICAL COMPANIES'), boss: 'MEGACORP BEATEN!', cta: 'CAN YOU BEAT ME?' },
     shops: ['FOOD', 'CARE', 'BUILD', 'IT', 'BUS', 'CLEAN', 'SCHOOL', 'TECH'], back: '← rattvisamalmo.se', title: 'KÖPER EJ – a game by Rättvisa Malmö',
     shell: 'LTD', armour: 'CORP', bossName: 'MEGACORP', meter: 'SIGNATURES', policy: ['ETHICAL POLICY!', 'THE GATE STOPS THEM'], plusSig: '+1 SIGNATURE',
     level: 'LEVEL', goal: (n) => `STOP ${n}`, clear: 'LEVEL CLEAR!', heal: '+1 HEART', next: 'TAP TO CONTINUE', source: 'RATTVISAMALMO.SE',
@@ -145,7 +160,8 @@ const T = () => TEXT[lang];
 // ---------------------------------------------------------------------
 //  pixel primitives (whole pixels only, no anti-aliasing)
 // ---------------------------------------------------------------------
-const cv = document.getElementById('game'), ctx = cv.getContext('2d', { alpha: false });
+const cv = document.getElementById('game');
+let ctx = cv.getContext('2d', { alpha: false });   // a let: the story card is drawn with the same primitives onto its own canvas
 const clamp = (x, a = 0, b = 1) => (x < a ? a : x > b ? b : x);
 const lerp = (a, b, t) => a + (b - a) * t;
 const seg = (t, a, b) => clamp((t - a) / (b - a));
@@ -489,7 +505,11 @@ const LEVELS = [
 const ALL_BAD = ['red', 'disguised', 'sprinter', 'shell', 'armour', 'green'];
 const elapsed = () => now - t0;
 // difficulty 0 → ~1.2 through the levels, then it keeps climbing in endless play (so every round ends)
-const level = () => (phase === 'endless' ? 1.2 + (now - endlessT) / 75 : phase === 'boss' ? 1.1 : 0.27 * li + 0.25 * clamp(levelStopped / LEVELS[li].goal));
+// a returning player's level 1 runs at about level 2's pace: the gentle start is for first-timers
+const level = () => (phase === 'endless' ? 1.2 + (now - endlessT) / 75 : phase === 'boss' ? 1.1 : 0.27 * (li === 0 && returning ? 1 : li) + 0.25 * clamp(levelStopped / LEVELS[li].goal));
+let returning = store.get('rm-game-played') === '1', bossBeaten = false;
+const seenEver = new Set((() => { try { return JSON.parse(store.get('rm-game-seen') || '[]'); } catch { return []; } })());
+function markSeen(k) { if (seenEver.has(k)) return false; seenEver.add(k); store.set('rm-game-seen', JSON.stringify([...seenEver])); return true; }
 const mult = () => 1 + Math.min(3, Math.floor(streak / 5));
 const policyOn = () => now < policyUntil;
 const lateOn = (l) => l.late && (l !== LEVELS[li] || levelStopped >= l.late.at);
@@ -499,9 +519,11 @@ const sectorShops = () => (phase === 'level' ? T().levels[li].shops : T().shops)
 
 function newGame() {
   state = 'play'; t0 = now; walkers = []; fx = []; papers = []; lives = 3; score = 0; streak = 0; stopped = 0; jar = 0.75;
-  sig = 0; policyUntil = 0; banner = null; introduced = new Set(); paperTold = false; newBest = false; boss = null; finalsPending = false;
+  sig = 0; policyUntil = 0; banner = null; introduced = new Set(); paperTold = false; newBest = false; boss = null; finalsPending = false; bossBeaten = false;
   document.getElementById('end').classList.remove('show');
+  returning = store.get('rm-game-played') === '1'; store.set('rm-game-played', '1');
   startLevel(0);
+  if (returning) nextSpawn = now + 0.5;
   audioStart(); audio.step = 0; sfx.start();
 }
 function startLevel(i) {
@@ -547,7 +569,7 @@ function makeCompany(lane, type, fy, extra = {}) {
   const label = type === 'mini' ? '' : type === 'shell' ? T().shell : type === 'armour' ? T().armour : shops[Math.floor(Math.random() * shops.length)];
   const w = { lane, x: LANES[lane], fy, type, hp: type === 'armour' ? 3 : 1, label, speed, state: 'walk', tState: now, seed: Math.random(), lit: false, hop: 0, revealY: GATE_Y - 52 + Math.random() * 16, ...extra };
   walkers.push(w);
-  if (T().news[type] && !introduced.has(type)) { introduced.add(type); banner = { lines: T().news[type], until: now + 2.6, color: type === 'green' ? Q.lime : Q.red }; }
+  if (T().news[type] && !introduced.has(type)) { introduced.add(type); if (markSeen(type)) banner = { lines: T().news[type], until: now + 2.6, color: type === 'green' ? Q.lime : Q.red }; }   // an intro only the first time ever
   return w;
 }
 function laneRoom(i) { return walkers.filter((w) => w.lane === i && w.state === 'walk').reduce((m, w) => Math.min(m, w.fy), 1e9); }
@@ -565,7 +587,7 @@ function spawnPaper() {
   // high on the street, well clear of the hints near the gate; the first one of a round gets a TRYCK! bubble
   papers.push({ x: left ? -8 : W + 8, y: (paperTold ? 45 + Math.random() * 75 : 55 + Math.random() * 20), vx: (left ? 1 : -1) * (26 + Math.random() * 10), ph: Math.random() * 6, first: !paperTold });
   nextPaper = now + 9 + Math.random() * 6;
-  if (!paperTold) { paperTold = true; banner = { lines: T().paperIntro, until: now + 3.2, color: Q.white }; }
+  if (!paperTold) { paperTold = true; if (markSeen('paper')) banner = { lines: T().paperIntro, until: now + 3.2, color: Q.white }; else papers[papers.length - 1].first = false; }
 }
 function loseLife() {
   lives--; streak = 0; heroMood = 'sad'; heroMoodUntil = now + 0.9; shake = now + 0.3;
@@ -622,7 +644,7 @@ function hitBoss(px, py) {
   if (boss.state === 'fight') { fx.push({ kind: 'clank', x: boss.x, y: boss.y - 20, t: now }); sfx.clank(); return true; }   // armour: no effect
   boss.hits++; sfx.clank(); fx.push({ kind: 'clank', x: px, y: py, t: now }); shake = now + 0.15;
   if (boss.hits >= BOSS_HITS) {
-    boss.state = 'beaten'; boss.t = now; const pts = 500; score += pts; stopped++; streak++;
+    boss.state = 'beaten'; boss.t = now; bossBeaten = true; const pts = 500; score += pts; stopped++; streak++;
     boss.stampT = now;
     fx.push({ kind: 'plus', x: boss.x, y: boss.y - 48, t: now, n: pts });
     for (let k = 0; k < 10; k++) fx.push({ kind: 'coin', x0: boss.x + (k - 5) * 3, y0: boss.y - 10, x1: JAR.x + (k % 3 - 1) * 4, y1: JAR.y - 4, t: now + k * 0.06 });
@@ -701,7 +723,65 @@ function showEnd() {
   document.getElementById('signBtn').textContent = T().sign;
   document.getElementById('againBtn').textContent = T().again;
   document.getElementById('shareBtn').textContent = T().share;
+  document.getElementById('saveBtn').textContent = T().save;
+  prepareCard();
 }
+
+// ---------------------------------------------------------------------
+//  the story card: a 1080x1920 image of this round, drawn on the phone with the game's own pixel art
+//  (135x240 pixels, scaled up 8x). It is made when the round ends, so the share button can hand it over at once.
+// ---------------------------------------------------------------------
+let cardBlob = null, cardUrl = null;
+function drawCard(g) {
+  const keep = ctx; ctx = g;
+  // dusk over Malmö, as in the campaign video
+  pgrad(0, 0, W, H, [Q.ink, Q.night, Q.night, Q.purple]);
+  for (let i = 0; i < 40; i++) pset(Math.floor(srand(11, i) * W), Math.floor(srand(12, i) * 150), i % 3 ? Q.grey : Q.white);
+  // everything sits inside Instagram's story safe area (the app covers about the top and bottom 250 px of 1920)
+  // the title, as a big double-rimmed stamp
+  const tw = pixTextW('KÖPER EJ', 2) + 16, th = 14 + 14, x0 = Math.round((W - tw) / 2), y0 = 34;
+  prect(x0 - 1, y0 - 1, tw + 2, th + 2, Q.ink); prect(x0, y0, tw, th, Q.lime); prect(x0 + 2, y0 + 2, tw - 4, th - 4, Q.ink); prect(x0 + 3, y0 + 3, tw - 6, th - 6, Q.lime);
+  pixText('KÖPER EJ', W / 2, y0 + 8, Q.ink, { align: 'center', scale: 2 });
+  pixText('RÄTTVISA MALMÖ', W / 2, 68, Q.grey, { align: 'center' });
+  // the scene: a stopped company with the seal on it, the happy coin, the street
+  const GYc = 114;
+  prect(0, GYc, W, 3, Q.grey); prect(0, GYc + 3, W, 1, Q.ink); pgrad(0, GYc + 4, W, 10, [Q.slate, Q.night]);
+  const nowKeep = now; now = 10;
+  drawCompany({ x: 44, fy: GYc, type: 'red', state: 'blocked', stampT: 9, label: T().armour, lit: false, hop: 0, seed: 0.3, hp: 1 });
+  coinHero(95, GYc - 16, 12, { mood: 'happy', y0: GYc - 16 });
+  sprite(SPR.spark, { a: Q.white, b: Q.yellow }, 72, GYc - 34); sprite(SPR.twinkle, { a: Q.yellow, b: Q.white }, 116, GYc - 30);
+  now = nowKeep;
+  // the result
+  const c = T().card;
+  pixText(c.top, W / 2, 128, Q.white, { align: 'center' });
+  pixText(String(stopped), W / 2, 137, Q.lime, { align: 'center', scale: 3 });
+  pixText(c.unit(stopped), W / 2, 161, Q.lime, { align: 'center' });
+  pixText(bossBeaten ? c.boss : reachedText(), W / 2, 171, Q.white, { align: 'center' });
+  // the call to play, and where
+  pixText(c.cta, W / 2, 183, Q.yellow, { align: 'center' });
+  const s = 'RATTVISAMALMO.SE/SPEL', uw = pixTextW(s) + 6;
+  pixBox(Math.round((W - uw) / 2), 192, uw, 12, { bg: Q.lime, edge: Q.ink });
+  pixText(s, W / 2, 195, Q.ink, { align: 'center' });
+  ctx = keep;
+}
+function prepareCard() {
+  cardBlob = null;
+  const small = document.createElement('canvas'); small.width = W; small.height = H;
+  drawCard(small.getContext('2d'));
+  const big = document.createElement('canvas'); big.width = W * 8; big.height = H * 8;
+  const g = big.getContext('2d'); g.imageSmoothingEnabled = false; g.drawImage(small, 0, 0, big.width, big.height);
+  big.toBlob((b) => {
+    cardBlob = b;
+    if (cardUrl) URL.revokeObjectURL(cardUrl);
+    cardUrl = b ? URL.createObjectURL(b) : null;
+    // phones that can share an image get it through "Dela"; elsewhere a "Spara bild" button downloads it
+    const save = document.getElementById('saveBtn');
+    save.hidden = !b || canShareFiles(b);
+    if (cardUrl) save.href = cardUrl;
+  }, 'image/png');
+}
+function cardFile(b) { return new File([b], 'koper-ej.png', { type: 'image/png' }); }
+function canShareFiles(b) { try { return !!(navigator.canShare && navigator.canShare({ files: [cardFile(b)] })); } catch { return false; } }
 
 // ---------------------------------------------------------------------
 //  drawing each state
@@ -798,7 +878,7 @@ function drawHud() {
     prect(95 + i * 5, 15, 4, 7, on ? Q.lime : Q.slate);
   }
   pixText(pol ? 'P' : `${sig}`, 123, 15, pol ? Q.lime : Q.white);
-  if (phase === 'level' && li === 0 && now - phaseT < 4.5 && state === 'play' && Math.floor(now * 3) % 2 === 0) { const s = T().hint, tw = pixTextW(s) + 8; pixBox(Math.round((W - tw) / 2), 150, tw, 13, { bg: Q.ink, edge: Q.lime }); pixText(s, W / 2, 153, Q.lime, { align: 'center' }); }
+  if (phase === 'level' && li === 0 && !returning && now - phaseT < 4.5 && state === 'play' && Math.floor(now * 3) % 2 === 0) { const s = T().hint, tw = pixTextW(s) + 8; pixBox(Math.round((W - tw) / 2), 150, tw, 13, { bg: Q.ink, edge: Q.lime }); pixText(s, W / 2, 153, Q.lime, { align: 'center' }); }
 }
 function panel(y, h) { prect(6, y, W - 12, h, Q.shadow); pixBox(5, y - 1, W - 12, h, { bg: Q.ink, edge: Q.white }); }
 function drawFact() {
@@ -859,7 +939,13 @@ function copyOld(str) {
   ta.remove(); return ok;
 }
 document.getElementById('shareBtn').addEventListener('click', async () => {
-  const text = T().shareText(stopped), all = `${text} ${SHARE_URL}`;
+  const text = T().shareText(stopped, bossBeaten), all = `${text} ${SHARE_URL}`;
+  // with the story card where the phone can share images (the link goes in the text: some apps drop the url field
+  // when an image is attached, and Instagram drops both, which is why the card carries the address itself)
+  if (cardBlob && canShareFiles(cardBlob)) {
+    try { await navigator.share({ files: [cardFile(cardBlob)], title: 'KÖPER EJ', text: all }); return; }
+    catch (e) { if (e && e.name === 'AbortError') return; }
+  }
   if (navigator.share) {
     try { await navigator.share({ title: 'KÖPER EJ', text, url: SHARE_URL }); return; }
     catch (e) { if (e && e.name === 'AbortError') return; }   // closed the share menu: fine; any other failure falls through to copying
