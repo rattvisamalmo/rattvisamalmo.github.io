@@ -848,13 +848,26 @@ window.addEventListener('keydown', (e) => {
   if ((e.key === 'Enter' || e.key === ' ') && (state === 'title' || (state === 'over' && now > overAt + 0.6)) && document.activeElement?.tagName !== 'BUTTON' && document.activeElement?.tagName !== 'A') { e.preventDefault(); audioStart(); newGame(); }
 });
 document.getElementById('againBtn').addEventListener('click', () => { audioStart(); newGame(); });
+// sharing: the phone's share menu where there is one, else copy the link, else show it. The share menu and the clipboard
+// API only exist on secure pages (https, localhost), so a page opened over plain http needs the old copy command too.
+const SHARE_URL = 'https://rattvisamalmo.se/spel/';   // always the public address, wherever the page was opened from
+function copyOld(str) {
+  const ta = document.createElement('textarea');
+  ta.value = str; ta.setAttribute('readonly', ''); ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;pointer-events:none';
+  document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0, str.length);
+  let ok = false; try { ok = document.execCommand('copy'); } catch { ok = false; }
+  ta.remove(); return ok;
+}
 document.getElementById('shareBtn').addEventListener('click', async () => {
-  const url = new URL('./', location.href).href, text = T().shareText(stopped);
-  try {
-    if (navigator.share) { await navigator.share({ title: 'KÖPER EJ', text, url }); return; }
-    await navigator.clipboard.writeText(`${text} ${url}`);
-    toast = { s: T().copied, until: now + 1.8 };
-  } catch { /* the user closed the share sheet */ }
+  const text = T().shareText(stopped), all = `${text} ${SHARE_URL}`;
+  if (navigator.share) {
+    try { await navigator.share({ title: 'KÖPER EJ', text, url: SHARE_URL }); return; }
+    catch (e) { if (e && e.name === 'AbortError') return; }   // closed the share menu: fine; any other failure falls through to copying
+  }
+  let ok = false;
+  if (navigator.clipboard && window.isSecureContext) { try { await navigator.clipboard.writeText(all); ok = true; } catch { ok = false; } }
+  if (!ok) ok = copyOld(all);
+  toast = ok ? { s: T().copied, until: now + 2 } : { s: 'RATTVISAMALMO.SE/SPEL', until: now + 4 };   // last resort: show the link
 });
 document.getElementById('mute').addEventListener('click', () => setMuted(!audio.muted));
 function setLang(l) {
