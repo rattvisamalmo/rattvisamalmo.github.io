@@ -93,7 +93,7 @@ const TEXT = {
       { name: 'VÅRD', shops: ['VÅRD', 'LABB', 'MAT', 'STÄD', 'TAXI'] }, { name: 'BYGG', shops: ['BYGG', 'STÅL', 'VVS', 'EL', 'GRUS'] },
       { name: 'IT', shops: ['IT', 'DATA', 'MOLN', 'WEBB', 'APPAR'] }, { name: 'FÖRSVAR', shops: ['TECH', 'RADAR', 'LAST', 'VAKT', 'RADIO'] },
     ],
-    bossIntro: ['SLUTBOSS!', 'KONCERNEN SKICKAR', 'DOTTERBOLAG'], bossExposed: ['UTAN PANSAR!', 'TRYCK 3 GÅNGER'], bossRearm: ['PANSAR IGEN!'], bossDown: ['KONCERNEN STOPPAD!'],
+    bossIntro: ['SLUTBOSS!', 'KONCERNEN SKICKAR', 'DOTTERBOLAG'], bossExposed: ['UTAN PANSAR!', 'TRYCK 4 GÅNGER'], sabotage: ['SISTA SABOTAGE!', 'STOPPA ALLA TRE'], tapMe: 'TRYCK!', bossRearm: ['PANSAR IGEN!'], bossDown: ['KONCERNEN STOPPAD!'],
     endless: ['FRITT SPEL', 'HUR LÄNGE HÅLLER DU?'], paperIntro: ['SAMLA NAMN!', '5 = ETISK POLICY', 'STOPPAR ALLA RÖDA'],
     facts: [
       { head: 'VISSTE DU?', text: 'MALMÖ STAD KÖPER VAROR OCH TJÄNSTER FÖR CIRKA 9-10 MILJARDER KRONOR VARJE ÅR.' },
@@ -118,7 +118,7 @@ const TEXT = {
       { name: 'CARE', shops: ['CARE', 'LAB', 'FOOD', 'CLEAN', 'TAXI'] }, { name: 'BUILD', shops: ['BUILD', 'STEEL', 'PIPES', 'POWER', 'SAND'] },
       { name: 'IT', shops: ['IT', 'DATA', 'CLOUD', 'WEB', 'APPS'] }, { name: 'DEFENCE', shops: ['TECH', 'RADAR', 'TRUCK', 'GUARD', 'RADIO'] },
     ],
-    bossIntro: ['BOSS!', 'THE MEGACORP SENDS', 'SUBSIDIARIES'], bossExposed: ['NO ARMOUR!', 'TAP IT 3 TIMES'], bossRearm: ['ARMOURED AGAIN!'], bossDown: ['MEGACORP STOPPED!'],
+    bossIntro: ['BOSS!', 'THE MEGACORP SENDS', 'SUBSIDIARIES'], bossExposed: ['NO ARMOUR!', 'TAP IT 4 TIMES'], sabotage: ['ONE LAST TRICK!', 'STOP ALL THREE'], tapMe: 'TAP!', bossRearm: ['ARMOURED AGAIN!'], bossDown: ['MEGACORP STOPPED!'],
     endless: ['ENDLESS', 'HOW LONG CAN YOU GO?'], paperIntro: ['SIGNATURES!', '5 = ETHICAL POLICY', 'STOPS ALL RED ONES'],
     facts: [
       { head: 'DID YOU KNOW?', text: 'THE CITY OF MALMÖ SPENDS SEK 9-10 BILLION A YEAR ON GOODS AND SERVICES.' },
@@ -476,15 +476,15 @@ function setMuted(m) {
 // ---------------------------------------------------------------------
 let state = 'title', t0 = 0, walkers = [], fx = [], papers = [], lives = 3, score = 0, streak = 0, stopped = 0, jar = 0.75;
 let nextSpawn = 0, nextPaper = 0, slamUntil = 0, overAt = 0, heroMood = 'smile', heroMoodUntil = 0, toast = null, shake = 0;
-let sig = 0, policyUntil = 0, banner = null, introduced = new Set(), paperTold = false;
+let sig = 0, policyUntil = 0, banner = null, introduced = new Set(), paperTold = false, finalsPending = false;
 let phase = 'level', li = 0, levelStopped = 0, phaseT = 0, boss = null, clearUntil = 0, factIdx = -1, factShownAt = 0, endlessT = 0;
 let best = Number(store.get('rm-game-best')) || 0, newBest = false, signCount = null;
 const SIG_FULL = 5, POLICY_SECS = 5;
 const LEVELS = [
   { key: 'vard', goal: 8, adds: ['red'] },
-  { key: 'bygg', goal: 10, adds: ['disguised'] },
-  { key: 'it', goal: 12, adds: ['sprinter', 'shell'] },
-  { key: 'forsvar', goal: 14, adds: ['armour', 'green'] },
+  { key: 'bygg', goal: 14, adds: ['disguised'], late: { at: 9, adds: ['sprinter'] } },   // a first taste of sprinters before level 3
+  { key: 'it', goal: 14, adds: ['shell', 'sprinter'] },                                   // sprinters again, and more of them
+  { key: 'forsvar', goal: 18, adds: ['armour', 'green'] },
 ];
 const ALL_BAD = ['red', 'disguised', 'sprinter', 'shell', 'armour', 'green'];
 const elapsed = () => now - t0;
@@ -492,12 +492,14 @@ const elapsed = () => now - t0;
 const level = () => (phase === 'endless' ? 1.2 + (now - endlessT) / 75 : phase === 'boss' ? 1.1 : 0.27 * li + 0.25 * clamp(levelStopped / LEVELS[li].goal));
 const mult = () => 1 + Math.min(3, Math.floor(streak / 5));
 const policyOn = () => now < policyUntil;
-const openTypes = () => (phase === 'level' ? LEVELS.slice(0, li + 1).flatMap((l) => l.adds) : ALL_BAD);
+const lateOn = (l) => l.late && (l !== LEVELS[li] || levelStopped >= l.late.at);
+const newKinds = () => LEVELS[li].adds.concat(lateOn(LEVELS[li]) ? LEVELS[li].late.adds : []);
+const openTypes = () => (phase === 'level' ? [...new Set(LEVELS.slice(0, li + 1).flatMap((l) => l.adds.concat(lateOn(l) ? l.late.adds : [])))] : ALL_BAD);
 const sectorShops = () => (phase === 'level' ? T().levels[li].shops : T().shops);
 
 function newGame() {
   state = 'play'; t0 = now; walkers = []; fx = []; papers = []; lives = 3; score = 0; streak = 0; stopped = 0; jar = 0.75;
-  sig = 0; policyUntil = 0; banner = null; introduced = new Set(); paperTold = false; newBest = false; boss = null;
+  sig = 0; policyUntil = 0; banner = null; introduced = new Set(); paperTold = false; newBest = false; boss = null; finalsPending = false;
   document.getElementById('end').classList.remove('show');
   startLevel(0);
   audioStart(); audio.step = 0; sfx.start();
@@ -509,7 +511,7 @@ function startLevel(i) {
 }
 function startBoss() {
   phase = 'boss'; phaseT = now; state = 'play';
-  boss = { x: W / 2, y: -20, hp: 8, maxHp: 8, state: 'enter', t: now, hits: 0, nextSend: now + 2.6, dir: 1, exposedAt: 0 };
+  boss = { x: W / 2, y: -20, hp: 12, maxHp: 12, state: 'enter', t: now, hits: 0, nextSend: now + 2.6, dir: 1, exposedAt: 0 };
   banner = { lines: T().bossIntro, until: now + 2.6, color: Q.red, center: true };
   nextSpawn = now + 3; nextPaper = now + 6;
 }
@@ -531,9 +533,12 @@ function continueFromFact() {
 }
 function pickType() {
   const open = openTypes();
+  // a kind that unlocks late in a level shows up right away (once), so players get a few tries at it before the next level
+  const late = phase === 'level' && lateOn(LEVELS[li]) ? LEVELS[li].late.adds.find((k) => !introduced.has(k)) : null;
+  if (late) return late;
   if (Math.random() < 0.45 - 0.1 * Math.min(1.5, level())) return 'fair';
   // the newest kind turns up more often in its own level, so players get to learn it
-  if (phase === 'level' && li > 0 && Math.random() < 0.45) { const nw = LEVELS[li].adds; return nw[Math.floor(Math.random() * nw.length)]; }
+  if (phase === 'level' && li > 0 && Math.random() < 0.45) { const nw = newKinds(); return nw[Math.floor(Math.random() * nw.length)]; }
   return open[Math.floor(Math.random() * open.length)];
 }
 function makeCompany(lane, type, fy, extra = {}) {
@@ -557,7 +562,8 @@ function spawn() {
 }
 function spawnPaper() {
   const left = Math.random() < 0.5;
-  papers.push({ x: left ? -8 : W + 8, y: 50 + Math.random() * 100, vx: (left ? 1 : -1) * (26 + Math.random() * 10), ph: Math.random() * 6 });
+  // high on the street, well clear of the hints near the gate; the first one of a round gets a TRYCK! bubble
+  papers.push({ x: left ? -8 : W + 8, y: (paperTold ? 45 + Math.random() * 75 : 55 + Math.random() * 20), vx: (left ? 1 : -1) * (26 + Math.random() * 10), ph: Math.random() * 6, first: !paperTold });
   nextPaper = now + 9 + Math.random() * 6;
   if (!paperTold) { paperTold = true; banner = { lines: T().paperIntro, until: now + 3.2, color: Q.white }; }
 }
@@ -582,7 +588,7 @@ function block(w, auto) {
   }
 }
 // ---- the boss: a big conglomerate parked at the top, sending subsidiaries down the lanes
-const BOSS_Y = 90;   // low enough that its hat and sign clear the HUD
+const BOSS_Y = 90, BOSS_HITS = 4;   // low enough that its hat and sign clear the HUD
 const bossBox = () => ({ x0: boss.x - 24, x1: boss.x + 24, y0: boss.y - 44, y1: boss.y + 4 });
 function updateBoss(dt) {
   const b = boss; if (!b) return;
@@ -596,12 +602,18 @@ function updateBoss(dt) {
         makeCompany(lane, kinds[Math.floor(Math.random() * kinds.length)], b.y + 6, { sub: true });
         sfx.split();
       }
-      b.nextSend = now + 1.3 + Math.random() * 0.6;
+      b.nextSend = now + 1.6 + Math.random() * 0.7;   // with 12 plates: about 35 s of fight, beatable but tough
     }
   } else if (b.state === 'exposed') {
-    if (now - b.exposedAt > 6) { b.state = 'fight'; b.hp = 3; b.maxHp = 3; b.nextSend = now + 0.5; banner = { lines: T().bossRearm, until: now + 1.8, color: Q.red }; }
+    if (now - b.exposedAt > 6) { b.state = 'fight'; b.hp = 4; b.maxHp = 4; b.nextSend = now + 0.5; banner = { lines: T().bossRearm, until: now + 1.8, color: Q.red }; }
   } else if (b.state === 'beaten') {
-    b.y -= 50 * dt * clamp((now - b.t - 0.8) * 2); if (now - b.t > 2.2) { boss = null; levelCleared(); }
+    // its last act of sabotage: it bursts into three small companies, one down each lane; the level ends when they are dealt with
+    if (now - b.t > 0.9) {
+      LANES.forEach((x, lane) => makeCompany(lane, 'mini', b.y + 4, { x: x, final: true, speed: Math.min(110, 24 + 22 * 1.1) * 1.15 }));
+      for (let k = 0; k < 6; k++) fx.push({ kind: 'clank', x: b.x - 15 + k * 6, y: b.y - 20 + (k % 2) * 8, t: now });
+      banner = { lines: T().sabotage, until: now + 2.2, color: Q.red }; sfx.split(); sfx.lost(); shake = now + 0.25;
+      boss = null; finalsPending = true;
+    }
   }
 }
 function hitBoss(px, py) {
@@ -609,7 +621,7 @@ function hitBoss(px, py) {
   const b = bossBox(); if (px < b.x0 || px > b.x1 || py < b.y0 || py > b.y1) return false;
   if (boss.state === 'fight') { fx.push({ kind: 'clank', x: boss.x, y: boss.y - 20, t: now }); sfx.clank(); return true; }   // armour: no effect
   boss.hits++; sfx.clank(); fx.push({ kind: 'clank', x: px, y: py, t: now }); shake = now + 0.15;
-  if (boss.hits >= 3) {
+  if (boss.hits >= BOSS_HITS) {
     boss.state = 'beaten'; boss.t = now; const pts = 500; score += pts; stopped++; streak++;
     boss.stampT = now;
     fx.push({ kind: 'plus', x: boss.x, y: boss.y - 48, t: now, n: pts });
@@ -649,6 +661,7 @@ function update(dt) {
     music();
   }
   if (state === 'clear' && now >= clearUntil) nextAfterClear();
+  if (finalsPending && state === 'play' && !walkers.some((w) => w.final && (w.state === 'walk' || w.state === 'oops'))) { finalsPending = false; levelCleared(); }
   if (state === 'play' || state === 'clear') updateBoss(dt);
   for (const p of papers) { p.x += p.vx * dt; p.y += Math.sin(now * 3 + p.ph) * 12 * dt; if (p.x < -14 || p.x > W + 14) p.gone = true; }
   papers = papers.filter((p) => !p.gone);
@@ -723,7 +736,7 @@ function drawBoss() {
   const sw = pixTextW(T().bossName) + 6; pixBox(x - Math.floor(sw / 2), top - 26, sw, 13, { bg: Q.ink }); pixText(T().bossName, x, top - 22, Q.red, { align: 'center' });
   if (b.stampT != null) seal(x, top + Math.floor(bh / 2), now - b.stampT, 2);   // stamped (twice the size), and carried off with it
   // its armour, as a bar
-  if (b.state === 'fight' || b.state === 'exposed') { prect(x - 16, fy + 4, 32, 4, Q.ink); prect(x - 15, fy + 5, Math.round(30 * b.hp / b.maxHp), 2, Q.grey); if (exposed) for (let i = 0; i < 3; i++) prect(x - 7 + i * 5, fy + 5, 3, 2, i < 3 - b.hits ? Q.lime : Q.slate); }
+  if (b.state === 'fight' || b.state === 'exposed') { prect(x - 16, fy + 4, 32, 4, Q.ink); prect(x - 15, fy + 5, Math.round(30 * b.hp / b.maxHp), 2, Q.grey); if (exposed) for (let i = 0; i < BOSS_HITS; i++) prect(x - 9 + i * 5, fy + 5, 3, 2, i < BOSS_HITS - b.hits ? Q.lime : Q.slate); }
 }
 function draw() {
   const sx = now < shake ? (Math.floor(now * 30) % 2 ? 1 : -1) : 0;
@@ -736,7 +749,6 @@ function draw() {
   drawGate(now < slamUntil ? 1 : 0, pol);
   drawBoss();
   [...walkers].sort((a, b) => a.fy - b.fy).forEach(drawCompany);
-  papers.forEach(drawPaper);
   for (const f of fx) {
     const a = now - f.t; if (a < 0) continue;
     if (f.kind === 'tap' && a < 0.22) {   // a small ring where the finger touched: quiet feedback instead of the browser's flash
@@ -762,6 +774,12 @@ function draw() {
     pixBox(Math.round((W - tw) / 2), y0, tw, bh, { bg: Q.ink, edge: banner.color, shadow: Q.shadow });
     banner.lines.forEach((s, i) => pixText(s, W / 2, y0 + 4 + i * 10, i === 0 ? banner.color : Q.white, { align: 'center' }));
   }
+  // signature papers fly above everything on the street, hints included
+  if (state === 'play' || state === 'clear') papers.forEach((p) => {
+    drawPaper(p);
+    if (p.first) { const s = T().tapMe, tw = pixTextW(s) + 6, bx = Math.round(clamp(p.x - tw / 2, 2, W - tw - 2)), by = Math.round(p.y) - 24;
+      pixBox(bx, by, tw, 11, { bg: Q.white, edge: Q.ink }); pixText(s, bx + 3, by + 2, Q.ink); prect(Math.round(p.x), by + 11, 1, 3, Q.ink); }
+  });
   if (toast && now < toast.until) { const tw = pixTextW(toast.s) + 8; pixBox(Math.round((W - tw) / 2), 100, tw, 13, { bg: Q.ink, edge: Q.white, shadow: Q.shadow }); pixText(toast.s, W / 2, 103, Q.white, { align: 'center' }); }
 }
 function drawHud() {
