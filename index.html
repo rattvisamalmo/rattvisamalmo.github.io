@@ -2779,9 +2779,39 @@ const defaultConfig = {
 const siteConfig = {
   petitionLaunchState: 'live',
   prelaunchTimelineSignatureGoal: 100,
-  petitionUrl: 'https://www.mittskifte.org/petitions/rattvisa-malmo-inte-en-krona-till-manniskorattsbrott',
-  volunteerEndpointUrl: 'https://script.google.com/macros/s/AKfycbypIpQYvXtc0VXevSafraOoIl4CQsU6E5ZkFjkQwtSKqjR5SdP-zvgyJ_IEQJxmR_cg/exec',
-  endorsementEndpointUrl: 'https://script.google.com/macros/s/AKfycbwIAweoSESiL-nlx1jvOCLdboN_oFHvB7fbzCQnIuO_Dgy7X2eOzqSVqoNfQ0rhQ7uJ/exec'
+  petitionUrl: 'https://www.mittskifte.org/petitions/rattvisa-malmo-inte-en-krona-till-manniskorattsbrott'
+};
+
+// Google Forms that receive the volunteer and endorsement submissions (owned by the
+// campaign's Google account, each linked to its response spreadsheet).
+// Keep this block strict JSON: tools/check-form-endpoints.mjs parses it to run the
+// daily health check. Field IDs come from the form's "Get pre-filled link". Renaming
+// a question keeps its ID; deleting and re-creating one gives it a new ID.
+const googleFormsConfig = {
+  "volunteer": {
+    "actionUrl": "https://docs.google.com/forms/d/e/1FAIpQLSetreFU8--ce5es91Z7g5BjtBrFq5GbivPpmzi_XMV43oRZhA/formResponse",
+    "fields": {
+      "name": "entry.713127896",
+      "email": "entry.646987082",
+      "volunteer_areas": "entry.582679770",
+      "message": "entry.3800082",
+      "source_page": "entry.1919806820",
+      "locale": "entry.264985503"
+    }
+  },
+  "endorsement": {
+    "actionUrl": "https://docs.google.com/forms/d/e/1FAIpQLSctaV0-d-Qdu9hxCFWDuBXHnATtW6a0Xm7_yqM_SQR577lNeA/formResponse",
+    "fields": {
+      "endorsement_mode": "entry.74436349",
+      "name": "entry.1816185862",
+      "secondary_label": "entry.581127691",
+      "secondary_value": "entry.950339810",
+      "email": "entry.546748723",
+      "message": "entry.1581524437",
+      "source_page": "entry.651099787",
+      "locale": "entry.2025409571"
+    }
+  }
 };
 
 function isPetitionPrelaunchMode() {
@@ -2845,54 +2875,37 @@ function openPetition(options = {}) {
   return true;
 }
 
-function getFormEndpoint(formType) {
-  if (formType === 'volunteer') return siteConfig.volunteerEndpointUrl;
-  if (formType === 'endorsement') return siteConfig.endorsementEndpointUrl;
-  return '';
-}
 
 function setSubmitButtonState(button, buttonText, isSubmitting, idleText) {
   button.disabled = isSubmitting;
   buttonText.innerHTML = isSubmitting ? '<span class="spinner"></span>' : idleText;
 }
 
-async function submitToAppsScript(formType, payload) {
-  const endpointUrl = getFormEndpoint(formType);
-  if (!isConfiguredUrl(endpointUrl)) {
+// Sends a submission to the Google Form for `formType`. Google doesn't allow other
+// sites to read its reply, so the request is sent with mode 'no-cors': a resolved
+// fetch means the request reached Google, not that Google stored it. The daily
+// health check (tools/check-form-endpoints.mjs) watches for closed or changed forms.
+async function submitToGoogleForm(formType, values) {
+  const form = googleFormsConfig[formType];
+  if (!form || !isConfiguredUrl(form.actionUrl)) {
     return { ok: false, error: 'missing-endpoint' };
   }
 
+  const body = new URLSearchParams();
+  for (const [key, entryId] of Object.entries(form.fields)) {
+    const value = values[key];
+    body.append(entryId, Array.isArray(value) ? value.join(', ') : String(value ?? ''));
+  }
+
   try {
-    const response = await fetch(endpointUrl, {
+    await fetch(form.actionUrl, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'text/plain;charset=utf-8'
-      },
-      body: JSON.stringify(payload)
+      mode: 'no-cors',
+      body
     });
-
-    const responseText = await response.text();
-    let responseBody = null;
-
-    if (responseText) {
-      try {
-        responseBody = JSON.parse(responseText);
-      } catch (error) {
-        responseBody = null;
-      }
-    }
-
-    if (!response.ok) {
-      return { ok: false, error: responseBody?.error || `http-${response.status}` };
-    }
-
-    if (responseBody && responseBody.ok === false) {
-      return { ok: false, error: responseBody.error || 'request-failed' };
-    }
-
-    return { ok: true, body: responseBody };
+    return { ok: true };
   } catch (error) {
-    console.error(`Apps Script submission failed for ${formType}`, error);
+    console.error(`Google Form submission failed for ${formType}`, error);
     return { ok: false, error: 'network-error' };
   }
 }
@@ -3181,16 +3194,13 @@ function setupForms() {
     const message = document.getElementById('volMessage').value.trim();
     const volunteerAreas = [...document.querySelectorAll('#volunteerAreas input:checked')].map(c => c.value);
 
-    const result = await submitToAppsScript('volunteer', {
-      type: 'volunteer',
+    const result = await submitToGoogleForm('volunteer', {
       name,
       email,
       volunteer_areas: volunteerAreas,
       message,
       source_page: currentPage,
-      locale: currentLanguage,
-      honeypot,
-      submitted_at: new Date().toISOString()
+      locale: currentLanguage
     });
 
     setSubmitButtonState(btn, btnText, false, getText('volunteer.submit'));
@@ -3221,23 +3231,20 @@ function setupForms() {
     const secondary = document.getElementById('endorseSecondary').value.trim();
     const email = document.getElementById('endorseEmail').value.trim();
     const message = document.getElementById('endorseMessage').value.trim();
+    // Strip the "(optional)"/"(valfritt)" and required "*" markers from the field label.
     const secondaryLabel = isOrg
-      ? getText('endorsement.secondaryOrg').replace(' (valfritt)', '')
-      : getText('endorsement.secondaryPerson').replace(' *', '');
+      ? getText('endorsement.secondaryOrg').replace(/\s*\([^)]*\)\s*$/, '')
+      : getText('endorsement.secondaryPerson').replace(/\s*\*\s*$/, '');
 
-    const result = await submitToAppsScript('endorsement', {
-      type: 'endorsement',
+    const result = await submitToGoogleForm('endorsement', {
       endorsement_mode: isOrg ? 'organization' : 'individual',
       name,
       secondary_label: secondaryLabel,
       secondary_value: secondary || getText('generic.unspecified'),
       email,
       message,
-      review_status: 'pending',
       source_page: currentPage,
-      locale: currentLanguage,
-      honeypot,
-      submitted_at: new Date().toISOString()
+      locale: currentLanguage
     });
 
     setSubmitButtonState(btn, btnText, false, isOrg ? getText('endorsement.submitOrg') : getText('endorsement.submitPerson'));

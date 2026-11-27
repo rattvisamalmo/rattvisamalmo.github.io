@@ -1,6 +1,25 @@
-# Google Apps Script Endpoints
+# Google Apps Script Endpoints (retired)
 
-These scripts are the backend companions for the volunteer and endorsement forms in `index.html`.
+> **No longer used by the site.** The volunteer and endorsement forms now submit to two
+> Google Forms in the campaign's Google account (see `googleFormsConfig` in `index.html`).
+>
+> Why: the Apps Script web apps kept getting locked a few weeks after each deployment.
+> Google answered anonymous visitors with a 403 "Access denied" page before the script
+> ran (no executions were logged), even with access set to "Anyone". Browsers reported
+> that as a CORS error. Redeploying only reset the clock.
+>
+> **Working with the Google Forms**
+> - Every question is short-answer and not required, and the forms don't require sign-in.
+>   Keep it that way: a required question the site leaves empty makes Google drop the
+>   whole submission without an error the site can see.
+> - Renaming or rewording a question is safe. Deleting and re-creating one gives it a new
+>   field ID; update `googleFormsConfig` (IDs come from ⋮ → "Get pre-filled link").
+> - `.github/workflows/check-form-endpoints.yml` checks both forms daily and fails if one
+>   is closed, needs sign-in, or is missing a field. Run it locally with `npm run check:forms`.
+>
+> The rest of this file describes the old setup and is kept for reference only.
+
+These scripts were the backend companions for the volunteer and endorsement forms in `index.html`.
 
 ## Files
 

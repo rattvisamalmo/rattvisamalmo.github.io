@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "sync:signatures": "node tools/sync-skiftet-signature-count.mjs"
+    "sync:signatures": "node tools/sync-skiftet-signature-count.mjs",
+    "check:forms": "node tools/check-form-endpoints.mjs"
   }
 }

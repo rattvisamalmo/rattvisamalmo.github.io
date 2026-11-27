@@ -1,0 +1,34 @@
+name: Check Form Endpoints
+
+# Checks once a day that the Google Forms behind the volunteer and endorsement
+# forms are open, don't require sign-in, and still have every field the site
+# sends. Nothing is submitted. A failed run means website submissions may be
+# lost; GitHub emails a failure notice for scheduled runs.
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 6 * * *'
+  push:
+    branches: [main]
+    paths:
+      - index.html
+      - tools/check-form-endpoints.mjs
+      - .github/workflows/check-form-endpoints.yml
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Probe form endpoints
+        run: node tools/check-form-endpoints.mjs
