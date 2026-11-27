@@ -1469,6 +1469,18 @@ body {
       <div style="position:absolute;left:-9999px;opacity:0;pointer-events:none" aria-hidden="true"><label for="volWebsite">Website</label><input type="text" id="volWebsite" tabindex="-1" autocomplete="off"></div><button type="submit" id="volunteerSubmitBtn" class="btn-secondary w-full justify-center" style="font-size:17px;padding:16px"> <i data-lucide="hand" style="width:18px;height:18px"></i> <span id="volunteerBtnText" data-i18n="volunteer.submit">Anmäl dig som volontär</span> </button>
        <div id="volunteerMsg" style="margin-top:16px;text-align:center;font-size:14px;display:none"></div>
       </form>
+      <div id="volunteerSuccess" role="status" tabindex="-1" hidden style="background:white;padding:32px;border-radius:16px;border:1px solid #e5e2db;outline:none">
+       <div style="width:48px;height:48px;border-radius:12px;background:rgba(43,90,75,0.1);display:flex;align-items:center;justify-content:center;margin-bottom:16px"><i data-lucide="check-circle" style="width:24px;height:24px;color:var(--secondary-color)"></i></div>
+       <h2 class="font-display" style="font-size:22px;font-weight:700;margin-bottom:12px" data-i18n="volunteer.successTitle">Tack! Du är anmäld som volontär.</h2>
+       <p id="volunteerSuccessBody" style="font-size:16px;line-height:1.6;color:#444;margin-bottom:8px"></p>
+       <p style="font-size:14px;line-height:1.5;color:#777;margin-bottom:24px" data-i18n="volunteer.successSpam">Hittar du inget mejl? Titta i skräpposten.</p>
+       <p style="font-weight:600;font-size:14px;margin-bottom:12px" data-i18n="volunteer.successMeanwhile">Under tiden kan du:</p>
+       <div class="flex flex-col gap-3" style="margin-bottom:24px">
+        <button type="button" onclick="openPetition({ showPrelaunchToast: false })" class="btn-primary w-full justify-center"> <i data-lucide="pen-line" style="width:18px;height:18px"></i> <span data-i18n="volunteer.successSign">Skriva under namninsamlingen</span> </button>
+        <button type="button" onclick="goToSpreadSection()" class="btn-secondary w-full justify-center"> <i data-lucide="share-2" style="width:18px;height:18px"></i> <span data-i18n="volunteer.successSpread">Se fler sätt att sprida kampanjen</span> </button>
+       </div>
+       <button type="button" onclick="resetVolunteerForm()" class="bg-transparent border-none cursor-pointer" style="color:var(--secondary-color);font-weight:500;font-size:14px;text-decoration:underline;padding:0" data-i18n="volunteer.successAgain">Anmäl en person till</button>
+      </div>
      </div>
     </section>
     </main><!-- ========== ENDORSEMENT PAGE ========== -->
@@ -2138,7 +2150,13 @@ const translations = {
       message: 'Meddelande (valfritt)',
       messagePlaceholder: 'Berätta gärna lite om dig själv...',
       submit: 'Anmäl dig som volontär',
-      success: 'Välkommen till kampanjen! 🎉'
+      successTitle: 'Tack! Du är anmäld som volontär.',
+      successBody: 'Vi har tagit emot din anmälan. Någon från kampanjen hör av sig till {email} med nästa steg utifrån det du vill hjälpa till med.',
+      successSpam: 'Hittar du inget mejl? Titta i skräpposten.',
+      successMeanwhile: 'Under tiden kan du:',
+      successSign: 'Skriva under namninsamlingen',
+      successSpread: 'Se fler sätt att sprida kampanjen',
+      successAgain: 'Anmäl en person till'
     },
     endorsement: {
       switcher: 'Välj typ av endorsement',
@@ -2569,7 +2587,13 @@ const translations = {
       message: 'Message (optional)',
       messagePlaceholder: 'Tell us a bit about yourself...',
       submit: 'Sign up as a volunteer',
-      success: 'Welcome to the campaign! 🎉'
+      successTitle: 'Thank you! You\'re signed up as a volunteer.',
+      successBody: 'We\'ve received your sign-up. Someone from the campaign will email you at {email} with next steps based on what you\'d like to help with.',
+      successSpam: 'Can\'t find the email? Check your spam folder.',
+      successMeanwhile: 'In the meantime, you can:',
+      successSign: 'Sign the petition',
+      successSpread: 'See more ways to spread the campaign',
+      successAgain: 'Sign up someone else'
     },
     endorsement: {
       switcher: 'Choose endorsement type',
@@ -2751,6 +2775,7 @@ function applyLanguage(language) {
   applyPetitionLaunchState();
   updateSignatureCount();
   updateEndorsementForm();
+  renderVolunteerSuccess();
 }
 
 function setLanguage(language) {
@@ -3175,6 +3200,49 @@ function updateSignatureCount() {
 }
 
 // ===== FORMS =====
+let volunteerSuccessEmail = '';
+
+function renderVolunteerSuccess() {
+  const body = document.getElementById('volunteerSuccessBody');
+  if (!body || !volunteerSuccessEmail) return;
+  const [before, after] = getText('volunteer.successBody').split('{email}');
+  const strong = document.createElement('strong');
+  strong.textContent = volunteerSuccessEmail;
+  body.replaceChildren(before, strong, after || '');
+}
+
+// Replaces the volunteer form with a confirmation that explains what happens next.
+function showVolunteerSuccess(email) {
+  const form = document.getElementById('volunteerForm');
+  const success = document.getElementById('volunteerSuccess');
+  volunteerSuccessEmail = email;
+  renderVolunteerSuccess();
+  form.reset();
+  form.hidden = true;
+  success.hidden = false;
+  lucide.createIcons();
+  scrollToSection('volunteerSuccess');
+  success.focus({ preventScroll: true });
+}
+
+function resetVolunteerForm() {
+  volunteerSuccessEmail = '';
+  document.getElementById('volunteerSuccess').hidden = true;
+  const form = document.getElementById('volunteerForm');
+  form.hidden = false;
+  document.getElementById('volName').focus();
+}
+
+function goToSpreadSection() {
+  // goTo() resets the scroll position; make that instant so the scroll to the
+  // section isn't measured mid-animation.
+  const appWrapper = document.getElementById('appWrapper');
+  appWrapper.style.scrollBehavior = 'auto';
+  goTo('home');
+  appWrapper.style.scrollBehavior = '';
+  requestAnimationFrame(() => requestAnimationFrame(() => scrollToSection('spread')));
+}
+
 function setupForms() {
   const volForm = document.getElementById('volunteerForm');
   volForm.addEventListener('submit', async (e) => {
@@ -3206,8 +3274,7 @@ function setupForms() {
     setSubmitButtonState(btn, btnText, false, getText('volunteer.submit'));
 
     if (result.ok) {
-      showToast(getText('volunteer.success'), 'success');
-      volForm.reset();
+      showVolunteerSuccess(email);
     } else {
       showToast(result.error === 'missing-endpoint' ? getText('generic.formUnavailable') : getText('generic.error'), 'error');
     }
